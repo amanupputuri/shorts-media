@@ -21,7 +21,7 @@ Read `pipeline/used.json` (list of short keys of puzzles already used). Never re
 N = 4 Shorts. Write N+1 spec files in `work/TARGET/`:
 - `s01.json … sNN.json` — Shorts. Each: **3 puzzles, all of the day's format**, orientation `"v"`, count_secs 3,
   label `"PUZZLE"`. Vary difficulty: easy, medium, tricky.
-- `long.json` — orientation `"h"`, count_secs 5, label `"PUZZLE"`, **20 puzzles = one each of 20 of the 21 formats**,
+- `long.json` — orientation `"h"`, count_secs 5, label `"PUZZLE"`, **20 puzzles = one each of 20 different formats (of the 28)**,
   shuffled order, easy → harder.
 - Every spec gets: `style` and `music_seed` from step 1 (long video: music_seed + 1), a `title_card`
   {emoji, line1, line2, tag} and `outro` exactly {"line1": "LIKE &", "line2": "SUBSCRIBE!", "line3": "", "cta": "SUBSCRIBE", "cta_sub": ""},
@@ -35,9 +35,9 @@ N = 4 Shorts. Write N+1 spec files in `work/TARGET/`:
   puzzle (computed from the drawing data). Make every `a` line and the `fact` lines agree with it. Fix and re-check
   until it prints OK. Never ship a spec whose voice disagrees with `check`.
 
-### Puzzle schemas — the 21 formats (all items also have `prompt` (on-screen question, ≤ 32 characters) and `fact` [line1 ≤ 26 chars, line2 ≤ 34 chars])
+### Puzzle schemas — the 28 formats (all items also have `prompt` (on-screen question, ≤ 32 characters) and `fact` [line1 ≤ 26 chars, line2 ≤ 34 chars])
 Emoji must be single standard emoji (no flags, no skin tones, no ZWJ sequences). Shorts use only the format of the day;
-the long video uses all 21 (one each; drop one so it is 20).
+the long video uses 20 different formats (one puzzle each), picked at random from the 28.
 - **odd4** `{"type":"odd4","options":[[label,emoji]x4],"right":i}` — 4 things, one doesn't belong (reason in fact).
 - **changed** `{"type":"changed","prompt":"Remember these 6!","prompt2":"Which one changed?","before":[6 emoji],"changed":i,"after_emoji":e}`
 - **twins** `{"type":"twins","seed":n}` any int; answer = check output.
@@ -59,6 +59,14 @@ the long video uses all 21 (one each; drop one so it is 20).
 - **zoom** `{"type":"zoom","prompt":"What is it? Guess early!","emoji":e,"focus":[0.3-0.7,0.3-0.7],"options":[3 names],"right":i}`
 - **lightorder** `{"type":"lightorder","prompt":"Watch the lights!","prompt2":"Which colour lit up THIRD?","seq":[4-5 of red|blue|green|yellow],"ask_pos":n,"options":[3 colour names],"right":i}`
 - **split** `{"type":"split","prompt":"Match the halves!","emojis":[3 animal faces],"order":[permutation of 0,1,2 ≠ identity],"ask":0-2}` answer = check output.
+
+- **shapemiss** `{"type":"shapemiss","prompt":"Watch closely!","prompt2":"Which one did NOT appear?","seq":[5 emoji],"options":[3 emoji: exactly one NOT in seq],"right":i}`
+- **spotlight** `{"type":"spotlight","prompt":"What's in the dark?","emoji":e (big clear animal/object),"options":[3 names],"right":i}`
+- **pixel** `{"type":"pixel","prompt":"Guess before it clears!","emoji":e,"options":[3 names],"right":i}`
+- **crowd** `{"type":"crowd","prompt":"Find it in the crowd!","target":e,"pool":[8 other emoji of the same kind],"pos":[row 0-5,col 0-11],"seed":n}`
+- **colorcount** `{"type":"colorcount","prompt":"How many GREEN shapes?","counts":{"green":n,"red":n,"blue":n,"yellow":n} (total ≤ 30),"ask":colour,"seed":n,"options":[3 strings],"right":i}`
+- **moved** `{"type":"moved","prompt":"Remember the spots!","prompt2":"Which one moved?","slots":[8 entries: 6 emoji + 2 ""],"move":[from,to (an empty slot)],"options":[3 emoji incl. the mover],"right":i}`
+- **dupnum** `{"type":"dupnum","prompt":"Which number appears twice?","nums":[16 two-digit numbers, exactly one repeated once]}`
 
 ## 3. Voice (ElevenLabs connector)
 - `creative_create_flow` once (name "Wit Wonderland TARGET").

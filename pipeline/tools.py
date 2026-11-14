@@ -9,7 +9,8 @@ import sys, json, datetime, os
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 
 FORMATS = ["odd4", "changed", "twins", "count", "order", "spotdiff", "oddcolor", "memgrid", "missing", "flipped", "numflash",
-           "whereflash", "bug", "rowdiff", "countdiff", "arrowout", "cardflip", "diceflash", "zoom", "lightorder", "split"]
+           "whereflash", "bug", "rowdiff", "countdiff", "arrowout", "cardflip", "diceflash", "zoom", "lightorder", "split",
+           "shapemiss", "spotlight", "pixel", "crowd", "colorcount", "moved", "dupnum"]
 NAMES = {"odd4": "Find the Odd One Out", "changed": "What Changed?", "cups": "Follow the Ball", "keys": "Which Key Fits?",
          "glasses": "Which Glass Fills First?", "path": "Which Path Gets the Prize?", "shadow": "Shadow Match",
          "mirror": "Mirror Match", "jar": "Which Jar Has More?", "fit": "How Many Fit?", "twins": "Find the Twins",
@@ -20,7 +21,9 @@ NAMES = {"odd4": "Find the Odd One Out", "changed": "What Changed?", "cups": "Fo
          "spotdiff": "Spot the Difference", "oddcolor": "Odd Colour Out", "memgrid": "Memory Grid", "missing": "What's Missing?",
          "flipped": "Upside-Down One", "numflash": "Number Flash", "whereflash": "Where Was It?", "bug": "Bug Arrows",
          "rowdiff": "Which Row Is Different?", "countdiff": "How Many Differences?", "arrowout": "Arrow Out",
-         "cardflip": "Card Flip Memory", "diceflash": "Dice Flash", "zoom": "Zoom Out", "lightorder": "Light Order", "split": "Split Picture"}
+         "cardflip": "Card Flip Memory", "diceflash": "Dice Flash", "zoom": "Zoom Out", "lightorder": "Light Order", "split": "Split Picture",
+         "shapemiss": "Which One Didn't Appear?", "spotlight": "Spotlight", "pixel": "Pixel Guess", "crowd": "Find It in the Crowd",
+         "colorcount": "Colour Count", "moved": "What Moved?", "dupnum": "Number Twice"}
 START = datetime.date(2026, 11, 15)
 PALETTES = [([20, 40, 110], [70, 20, 120], [230, 60, 90]), ([20, 90, 80], [10, 40, 90], [240, 120, 40]),
             ([60, 20, 100], [20, 30, 90], [230, 60, 120]), ([90, 30, 30], [40, 20, 80], [40, 160, 220]),
@@ -67,6 +70,12 @@ def answer(item):
     if t == "zoom": return "%s = %s" % (L[item["right"]], item["options"][item["right"]])
     if t == "lightorder": return "%s = %s (true %s)" % (L[item["right"]], item["options"][item["right"]], item["seq"][item["ask_pos"] - 1])
     if t == "split": return "bottom %d" % (E.split_answer(item) + 1)
+    if t == "shapemiss": return "%s = %s" % (L[item["right"]], item["options"][item["right"]])
+    if t in ("spotlight", "pixel"): return "%s = %s" % (L[item["right"]], item["options"][item["right"]])
+    if t == "crowd": return "row %d col %d" % (item["pos"][0] + 1, item["pos"][1] + 1)
+    if t == "colorcount": return "%s = %s (true %d %s)" % (L[item["right"]], item["options"][item["right"]], item["counts"][item["ask"]], item["ask"])
+    if t == "moved": return "%s = %s (moved %s)" % (L[item["right"]], item["options"][item["right"]], item["slots"][item["move"][0]])
+    if t == "dupnum": a = E.dupnum_answer(item); return "NO DUPLICATE - fix" if a is None else "%d" % a[0]
     if t == "maze": w = E.maze_answer(item); return "%s (%s)" % (L[w], item["starters"][w])
     if t == "blocks": return "%s = %s (true total %d)" % (L[item["right"]], item["options"][item["right"]], E.blocks_total(item))
     if t == "balance": return "%s = %s (true %g)" % (L[item["right"]], item["options"][item["right"]], E.balance_answer(item))
@@ -109,6 +118,14 @@ def check(spec):
         if t == "diceflash" and int(it["options"][it["right"]]) != sum(it["dice"]): errs.append(f"item {i}: diceflash right option wrong")
         if t == "lightorder" and it["options"][it["right"]].lower() != it["seq"][it["ask_pos"] - 1]: errs.append(f"item {i}: lightorder right option wrong")
         if t == "rowdiff" and abs(it["swap"][0] - it["swap"][1]) != 1: errs.append(f"item {i}: rowdiff swap must be neighbours")
+        if t == "shapemiss" and (it["options"][it["right"]] in it["seq"] or any(o not in it["seq"] for k, o in enumerate(it["options"]) if k != it["right"])): errs.append(f"item {i}: shapemiss right option must be the only one not in seq")
+        if t == "colorcount" and int(it["options"][it["right"]]) != it["counts"][it["ask"]]: errs.append(f"item {i}: colorcount right option wrong")
+        if t == "colorcount" and sum(it["counts"].values()) > 30: errs.append(f"item {i}: colorcount total must be <= 30")
+        if t == "moved" and (it["slots"][it["move"][1]] != "" or it["options"][it["right"]] != it["slots"][it["move"][0]]): errs.append(f"item {i}: moved target slot must be empty and right option = moved emoji")
+        if t == "dupnum":
+            from collections import Counter
+            cnt = Counter(it["nums"])
+            if sorted(cnt.values())[-1] != 2 or list(cnt.values()).count(2) != 1: errs.append(f"item {i}: dupnum needs exactly one number twice")
         if t == "hidden" and it["base"] == it["odd"]: errs.append(f"item {i}: hidden base == odd")
     return errs
 
