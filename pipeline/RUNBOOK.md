@@ -1,6 +1,6 @@
 # Wit Wonderland — daily puzzle run
 
-Every day this run makes **10 vertical Shorts + 1 horizontal 20-puzzle video** for the YouTube channel
+Every day this run makes **6–10 vertical Shorts (random count) + 1 horizontal 20-puzzle video** for the YouTube channel
 Wit Wonderland and schedules them in Metricool. Work unattended: never stop to ask questions; if a step fails,
 retry once, skip that video, and carry on. Report at the end.
 
@@ -12,14 +12,14 @@ retry once, skip that video, and carry on. Report at the end.
 ## 1. Pick the target date
 - If IST time now is before 11:00 → TARGET = today, else TARGET = tomorrow.
 - Metricool: `getBrandSettings` → blogId **8098288**. `getScheduledPosts` for TARGET 00:00–23:59 IST
-  (timezone `Asia/Calcutta`). If **5 or more** YouTube posts already exist that day → it is already done:
+  (timezone `Asia/Calcutta`). If **4 or more** YouTube posts already exist that day → it is already done:
   stop and report "already scheduled".
 - `python3 pipeline/tools.py day TARGET` → gives `format` (the Shorts format of the day), `style`, `music_seed`.
 
 ## 2. Write the content (the creative part — take care)
 Read `pipeline/used.json` (list of short keys of puzzles already used). Never repeat one.
-Write 11 spec files in `work/TARGET/`:
-- `s01.json … s10.json` — Shorts. Each: **3 puzzles, all of the day's format**, orientation `"v"`, count_secs 3,
+Pick the number of Shorts N = random 6–10 (Python `random` seeded by TARGET). Write N+1 spec files in `work/TARGET/`:
+- `s01.json … sNN.json` — Shorts. Each: **3 puzzles, all of the day's format**, orientation `"v"`, count_secs 3,
   label `"PUZZLE"`. Vary difficulty: easy, medium, tricky.
 - `long.json` — orientation `"h"`, count_secs 5, label `"PUZZLE"`, **20 puzzles = one of each of the 20 formats**,
   shuffled order, easy → harder.
@@ -78,14 +78,14 @@ cd /home/claude/shorts-media && git checkout --orphan media-tmp && git rm -rf --
 mkdir -p media && cp out/*.mp4 media/ && git add media && git commit -qm "media TARGET"
 git branch -D media 2>/dev/null; git branch -m media && git push -f origin media && git checkout -f main
 ```
-Name files `TARGET-s01.mp4 … TARGET-s10.mp4`, `TARGET-long.mp4`. URL:
+Name files `TARGET-s01.mp4 … TARGET-sNN.mp4`, `TARGET-long.mp4`. URL:
 `https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/FILE` — curl -sI each, must be 200.
 (Metricool copies the file when the post is created, so replacing the branch next day is safe.)
 
 ## 6. Schedule in Metricool (createScheduledPost, blogId 8098288, timezone Asia/Calcutta)
-Pick 11 **random** times on TARGET between 12:00 and 22:00 IST (random minutes, not round numbers, at least 35 minutes apart,
-and never earlier than 30 minutes after now). Generate them with Python `random` seeded by TARGET. 10 go to the Shorts in random
-order; the long video gets one of the times between 15:00 and 20:00.
+Pick N+1 **random** times on TARGET between 13:00 and 23:00 IST (random minutes, not round numbers, at least 35 minutes apart,
+and never earlier than 30 minutes after now). Generate them with Python `random` seeded by TARGET. N go to the Shorts in random
+order; the long video gets one of the times between 16:00 and 21:00.
 info: autoPublish true, draft false, providers [{"network":"youtube"}], media [URL], firstCommentText
 "What was your score? 👇", youtubeData {title, type "short" (long: "video"), privacy "public", tags,
 category "EDUCATION", madeForKids false, isAiGeneratedContent false}.
