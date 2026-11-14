@@ -262,7 +262,7 @@ def draw_keys(c, im, item, phase, pt, t):
     d = ImageDraw.Draw(im)
     if c.v:
         lock_c = (c.W / 2, y0 + 170); u_l = 34
-        key_cs = [(c.W / 2 + 60, y0 + 490 + i * 160) for i in range(3)]; u_k = 40
+        key_cs = [(c.W / 2 + 60, y0 + 470 + i * 150) for i in range(3)]; u_k = 40
     else:
         lock_c = (x0 + 360, (y0 + y1) / 2 + 30); u_l = 40
         key_cs = [(x0 + 1100, y0 + 140 + i * 200) for i in range(3)]; u_k = 44

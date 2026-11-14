@@ -329,6 +329,34 @@ def draw_display(c, base, L, item, phase, pt, t):
         p = pill(disp["answer"].upper(), (40, 190, 90), 70 if c.v else 64)
         paste(base, p, cx, cy + (L["disp_h"] * 0.5 + 110 if c.v else 190), s)
 
+
+# ---------------------------------------------------------------- Professor Hoot overlay
+_hc = {}
+def hoot_img(size, pose, blink):
+    b = round(blink * 4) / 4
+    k = (int(size), pose, b)
+    if k not in _hc:
+        import mascot
+        _hc[k] = mascot.hoot(int(size), pose, blink=b)
+    return _hc[k]
+
+def blink_at(t, period=3.3):
+    p = t % period
+    return max(0.0, 1 - abs(p - 0.09) / 0.09) if p < 0.18 else 0.0
+
+def draw_hoot_corner(c, im, phase, t, pt):
+    if c.spec.get("mascot") is False: return
+    size = 210 if c.v else 190
+    x, y = (130, 205) if c.v else (125, 960)
+    pose, bob = "idle", 0.0
+    if phase == "count": pose = "think"
+    elif phase == "reveal":
+        pose = "cheer"; bob = abs(math.sin(pt * 7)) * 24 * max(0.0, 1 - pt / 2.5)
+    else:
+        bob = math.sin(t * 2.4) * 5
+    s = eob(t / 0.5) if phase == "ask" else 1
+    paste(im, hoot_img(size, pose, blink_at(t + 0.7)), x, y - bob, s)
+
 def draw_item(c, idx, t, phase, pt):
     item = c.spec["items"][idx]
     L = layout(c, item)
@@ -423,13 +451,19 @@ def draw_item(c, idx, t, phase, pt):
                 ang = i * 2.399; sp = 500 + (i * 53) % 400
                 x = ox + math.cos(ang) * sp * pt; y = oy + math.sin(ang) * sp * pt + 600 * pt * pt
                 d.rectangle((x - 12, y - 6, x + 12, y + 6), fill=cols[i % 4])
+    draw_hoot_corner(c, im, phase, t, pt)
     return im.convert("RGB")
 
 def draw_intro(c, t):
     im = c.background(t); d = ImageDraw.Draw(im); W, H = c.W, c.H
     tc = c.spec["title_card"]
-    e = emoji_img(tc.get("emoji", "🧠"), 340 if c.v else 260)
-    paste(im, e, W / 2, (560 if c.v else 250) + 18 * math.sin(t * 3), eob(t / 0.5))
+    if c.spec.get("mascot") is False:
+        e = emoji_img(tc.get("emoji", "🧠"), 340 if c.v else 260)
+        paste(im, e, W / 2, (560 if c.v else 250) + 18 * math.sin(t * 3), eob(t / 0.5))
+    else:
+        pose = "cheer" if t < 1.0 else "idle"
+        hs = 520 if c.v else 380
+        paste(im, hoot_img(hs, pose, blink_at(t)), W / 2, (520 if c.v else 250) - abs(math.sin(t * 3)) * 18, eob(t / 0.5))
     ys = (860, 1030) if c.v else (470, 610)
     for i, (txt, col) in enumerate([(tc["line1"], (255, 255, 255)), (tc["line2"], c.accent)]):
         s = eob((t - 0.4 - i * 0.35) / 0.4)
@@ -454,6 +488,10 @@ def draw_outro(c, t):
     lay = Image.new("RGBA", (W, 140), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
     text_center(ld, oc.get("line3", "Comment your score below!"), W / 2, 20, 70 if c.v else 60, maxw=W - 120)
     lay.putalpha(lay.split()[-1].point(lambda v: int(v * a_))); im.alpha_composite(lay, (0, 900 if c.v else 520))
+    if c.spec.get("mascot") is not False:
+        hs = 300 if c.v else 300
+        hx, hy = (W / 2 - 340, 1070) if c.v else (W / 2 - 560, 800)
+        paste(im, hoot_img(hs, "point" if t > 1.8 else "idle", blink_at(t)), hx, hy - abs(math.sin(t * 2.5)) * 10, eob((t - 0.6) / 0.5))
     s2 = eob((t - 2.0) / 0.5)
     cta = oc.get("cta", "FOLLOW")
     btn = Image.new("RGBA", (800, 220), (0, 0, 0, 0)); bd = ImageDraw.Draw(btn)
