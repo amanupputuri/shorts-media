@@ -75,7 +75,7 @@ def main():
         sys.path.insert(0, HERE); import eyebrain
         ask = max(round(dur(q) + 0.5, 3), 3.0 if spec["orientation"] == "v" else 3.4, eyebrain.min_ask(spec["items"][i]))
         timing[f"i{i}"] = {"ask": ask, "dur": round(ask + cs + dur(a) + 0.8, 3), "q": q, "a": a}
-    timing["outro"] = {"dur": round(dur(segs[-1]) + 1.2, 3)}
+    timing["outro"] = {"dur": round(max(dur(segs[-1]) + 0.8, 2.2), 3)}
     spec["timing"] = timing
     sp = os.path.join(work, "spec_timed.json"); json.dump(spec, open(sp, "w"), indent=1)
 

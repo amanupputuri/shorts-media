@@ -479,26 +479,28 @@ def draw_intro(c, t):
 def draw_outro(c, t):
     im = c.background(t); d = ImageDraw.Draw(im); W, H = c.W, c.H
     oc = c.spec["outro"]
-    s = eob(t / 0.5)
+    s = eob(t / 0.35)
     lay = Image.new("RGBA", (W, 380), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
     text_center(ld, oc["line1"], W / 2, 10, 120 if c.v else 100, stroke=8, maxw=W - 100)
     text_center(ld, oc["line2"], W / 2, 170, 120 if c.v else 100, fill=c.accent, stroke=8, maxw=W - 100)
     paste(im, lay, W / 2, 520 if c.v else 260, s)
-    a_ = eo((t - 1.0) / 0.4)
-    lay = Image.new("RGBA", (W, 140), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
-    text_center(ld, oc.get("line3", "Comment your score below!"), W / 2, 20, 70 if c.v else 60, maxw=W - 120)
-    lay.putalpha(lay.split()[-1].point(lambda v: int(v * a_))); im.alpha_composite(lay, (0, 900 if c.v else 520))
+    if oc.get("line3"):
+        a_ = eo((t - 0.4) / 0.3)
+        lay = Image.new("RGBA", (W, 140), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
+        text_center(ld, oc["line3"], W / 2, 20, 70 if c.v else 60, maxw=W - 120)
+        lay.putalpha(lay.split()[-1].point(lambda v: int(v * a_))); im.alpha_composite(lay, (0, 900 if c.v else 520))
     if c.spec.get("mascot") is not False:
         hs = 300 if c.v else 300
         hx, hy = (W / 2 - 350, 1110) if c.v else (W / 2 - 560, 800)
-        paste(im, hoot_img(hs, "point" if t > 1.8 else "idle", blink_at(t)), hx, hy - abs(math.sin(t * 2.5)) * 10, eob((t - 0.6) / 0.5))
-    s2 = eob((t - 2.0) / 0.5)
+        paste(im, hoot_img(hs, "point" if t > 0.5 else "idle", blink_at(t)), hx, hy - abs(math.sin(t * 2.5)) * 10, eob((t - 0.2) / 0.4))
+    s2 = eob((t - 0.4) / 0.4)
     cta = oc.get("cta", "SUBSCRIBE")
     btn = Image.new("RGBA", (800, 220), (0, 0, 0, 0)); bd = ImageDraw.Draw(btn)
     bd.rounded_rectangle((0, 0, 799, 219), radius=110, fill=(255, 40, 70))
-    f = font(F_BOLD, 76); tw = bd.textlength(cta, font=f); bd.text(((800 - tw) / 2, 28), cta, font=f, fill=(255, 255, 255))
-    sub = oc.get("cta_sub", "and hit LIKE for more puzzles!")
-    f2 = font(F_MED, 44); tw = bd.textlength(sub, font=f2); bd.text(((800 - tw) / 2, 128), sub, font=f2, fill=(255, 230, 230))
+    sub = oc.get("cta_sub", "")
+    f = font(F_BOLD, 76 if sub else 92); tw = bd.textlength(cta, font=f); bd.text(((800 - tw) / 2, 28 if sub else 50), cta, font=f, fill=(255, 255, 255))
+    if sub:
+        f2 = font(F_MED, 44); tw = bd.textlength(sub, font=f2); bd.text(((800 - tw) / 2, 128), sub, font=f2, fill=(255, 230, 230))
     paste(im, btn, W / 2, 1350 if c.v else 800, s2 * (1 + 0.04 * math.sin(t * 5)))
     return im.convert("RGB")
 

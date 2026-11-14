@@ -24,13 +24,12 @@ N = 4 Shorts. Write N+1 spec files in `work/TARGET/`:
 - `long.json` — orientation `"h"`, count_secs 5, label `"PUZZLE"`, **20 puzzles = one of each of the 20 formats**,
   shuffled order, easy → harder.
 - Every spec gets: `style` and `music_seed` from step 1 (long video: music_seed + 1), a `title_card`
-  {emoji, line1, line2, tag} and `outro` {line1, line2, line3: "Comment your score below!", cta: "SUBSCRIBE", cta_sub: "and hit LIKE for more puzzles!"},
+  {emoji, line1, line2, tag} and `outro` exactly {"line1": "LIKE &", "line2": "SUBSCRIBE!", "line3": "", "cta": "SUBSCRIBE", "cta_sub": ""},
   and a `say` block: `{"intro": "...", "items": [{"q": "...", "a": "..."}, ...], "outro": "..."}`.
   The voice is **Professor Hoot** (a wise, playful owl professor) and he only says SHORT catchphrases — the puzzle
   itself is carried by on-screen text, music and sound effects. intro ≤ 10 words (often starting "Hoo-hoo!"),
   q lines ≤ 6 words (e.g. "Which key fits? Think fast!"), a lines ≤ 10 words and state the answer first
-  (e.g. "Key B! Every tooth matches."), outro ≤ 16 words and MUST ask viewers to like and subscribe
-  (plus comment their score), e.g. "Hoo-hoo! Comment your score, hit like, and subscribe for more puzzles!". Vary the wording every video;
+  (e.g. "Key B! Every tooth matches."), outro is ALWAYS exactly "Like and subscribe!" (nothing else — keep the ending short). Vary the wording of all other lines every video;
   never the same line twice in a day. Simple words, fun tone, for ages 5–80.
 - After writing each spec run `python3 pipeline/tools.py check FILE`. It prints the **true answer** of every
   puzzle (computed from the drawing data). Make every `a` line and the `fact` lines agree with it. Fix and re-check
