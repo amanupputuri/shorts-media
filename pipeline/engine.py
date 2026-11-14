@@ -490,7 +490,7 @@ def draw_outro(c, t):
     lay.putalpha(lay.split()[-1].point(lambda v: int(v * a_))); im.alpha_composite(lay, (0, 900 if c.v else 520))
     if c.spec.get("mascot") is not False:
         hs = 300 if c.v else 300
-        hx, hy = (W / 2 - 340, 1070) if c.v else (W / 2 - 560, 800)
+        hx, hy = (W / 2 - 350, 1110) if c.v else (W / 2 - 560, 800)
         paste(im, hoot_img(hs, "point" if t > 1.8 else "idle", blink_at(t)), hx, hy - abs(math.sin(t * 2.5)) * 10, eob((t - 0.6) / 0.5))
     s2 = eob((t - 2.0) / 0.5)
     cta = oc.get("cta", "SUBSCRIBE")
