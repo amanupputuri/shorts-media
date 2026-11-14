@@ -26,8 +26,11 @@ N = 4 Shorts. Write N+1 spec files in `work/TARGET/`:
 - Every spec gets: `style` and `music_seed` from step 1 (long video: music_seed + 1), a `title_card`
   {emoji, line1, line2, tag} and `outro` {line1, line2, line3, cta ("FOLLOW" Shorts / "SUBSCRIBE" long), cta_sub},
   and a `say` block: `{"intro": "...", "items": [{"q": "...", "a": "..."}, ...], "outro": "..."}`.
-  Write fresh intro/outro lines every video (never the same wording twice in a day). Simple words, fun tone,
-  for ages 5–80. q lines ≤ 14 words; a lines ≤ 22 words and must state the answer first.
+  The voice is **Professor Hoot** (a wise, playful owl professor) and he only says SHORT catchphrases — the puzzle
+  itself is carried by on-screen text, music and sound effects. intro ≤ 10 words (often starting "Hoo-hoo!"),
+  q lines ≤ 6 words (e.g. "Which key fits? Think fast!"), a lines ≤ 10 words and state the answer first
+  (e.g. "Key B! Every tooth matches."), outro ≤ 14 words (comment your score + follow). Vary the wording every video;
+  never the same line twice in a day. Simple words, fun tone, for ages 5–80.
 - After writing each spec run `python3 pipeline/tools.py check FILE`. It prints the **true answer** of every
   puzzle (computed from the drawing data). Make every `a` line and the `fact` lines agree with it. Fix and re-check
   until it prints OK. Never ship a spec whose voice disagrees with `check`.
@@ -60,7 +63,7 @@ Emoji must be single standard emoji (no flags, no skin tones, no ZWJ sequences).
 ## 3. Voice (ElevenLabs connector)
 - `creative_create_flow` once (name "Wit Wonderland TARGET").
 - For each Short: `python3 pipeline/tools.py prompt sNN.json` → one `creative_generate_speech` call
-  (model `eleven_v4`, voice_id `c6SfcYrb2t09NHXiT80T` (Jarnathan), generations_count 1, same flow_id).
+  (model `eleven_v4`, voice_id `cPmGMZvsZ24aRiDy6Vc2` (**Professor Hoot**, the channel's owl mascot), generations_count 1, same flow_id).
 - Long video: `python3 pipeline/tools.py prompt long.json 2` → 2 calls (part 1 and part 2).
 - Never call generate twice for the same text. Collect generation_ids; read URLs with `creative_get_generations`
   (wait ~20 s first; up to 4 ids per call) and download each with curl to `work/TARGET/voice/`.
