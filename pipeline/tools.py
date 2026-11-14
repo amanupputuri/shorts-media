@@ -8,14 +8,15 @@
 import sys, json, datetime, os
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 
-FORMATS = ["odd4", "changed", "cups", "keys", "glasses", "path", "shadow", "mirror", "jar", "fit",
-           "twins", "gears", "piece", "illusion", "rotate", "stack", "count", "order", "pattern", "hidden"]
+FORMATS = ["odd4", "changed", "maze", "keys", "glasses", "path", "shadow", "mirror", "blocks", "fit",
+           "twins", "colortrap", "piece", "illusion", "rotate", "balance", "count", "order", "dots", "hidden"]
 NAMES = {"odd4": "Find the Odd One Out", "changed": "What Changed?", "cups": "Follow the Ball", "keys": "Which Key Fits?",
          "glasses": "Which Glass Fills First?", "path": "Which Path Gets the Prize?", "shadow": "Shadow Match",
          "mirror": "Mirror Match", "jar": "Which Jar Has More?", "fit": "How Many Fit?", "twins": "Find the Twins",
          "gears": "Which Way Does the Last Gear Turn?", "piece": "Which Piece Fits?", "illusion": "Illusion Check",
          "rotate": "Rotate Match", "stack": "What's at the Bottom?", "count": "Quick Count", "order": "Remember the Order",
-         "pattern": "Complete the Pattern", "hidden": "Find the Hidden One"}
+         "pattern": "Complete the Pattern", "hidden": "Find the Hidden One", "maze": "Mini Maze", "blocks": "Count the Blocks",
+         "colortrap": "Colour Trap", "balance": "Balance the Scale", "dots": "Connect the Dots"}
 START = datetime.date(2026, 11, 15)
 PALETTES = [([20, 40, 110], [70, 20, 120], [230, 60, 90]), ([20, 90, 80], [10, 40, 90], [240, 120, 40]),
             ([60, 20, 100], [20, 30, 90], [230, 60, 120]), ([90, 30, 30], [40, 20, 80], [40, 160, 220]),
@@ -46,6 +47,11 @@ def answer(item):
         _, pair = E.twins_set(item["seed"]); return "numbers %d and %d" % (pair[0] + 1, pair[1] + 1)
     if t == "gears": return ["A clockwise", "B anticlockwise"][E.gears_answer(item)]
     if t == "illusion": return ["A", "B", "same"][E.illusion_answer(item)]
+    if t == "maze": w = E.maze_answer(item); return "%s (%s)" % (L[w], item["starters"][w])
+    if t == "blocks": return "%s = %s (true total %d)" % (L[item["right"]], item["options"][item["right"]], E.blocks_total(item))
+    if t == "balance": return "%s = %s (true %g)" % (L[item["right"]], item["options"][item["right"]], E.balance_answer(item))
+    if t == "colortrap": return "%s = %s (ink %s)" % (L[item["right"]], item["options"][item["right"]], item["ink"])
+    if t == "dots": return "%s = %s (shape %s)" % (L[item["right"]], item["options"][item["right"]], item["shape"])
     if t == "jar": return "A" if item["counts"][0] > item["counts"][1] else "B"
     if t == "changed": return "number %d (%s became %s)" % (item["changed"] + 1, item["before"][item["changed"]], item["after_emoji"])
     if t == "hidden": return "the odd emoji %s" % item["odd"]
@@ -57,6 +63,7 @@ def answer(item):
     return "?"
 
 def check(spec):
+    import eyebrain as E2
     errs = []
     for i, it in enumerate(spec["items"]):
         t = it.get("type")
@@ -68,6 +75,12 @@ def check(spec):
         if t == "count" and it["n"] + it["m"] > 20: errs.append(f"item {i}: count n+m must be <= 20")
         if t == "path" and "NO WINNER" in answer(it): errs.append(f"item {i}: path has no winner")
         if t == "changed" and len(it["before"]) != 6: errs.append(f"item {i}: changed needs 6 emojis")
+        if t == "blocks" and int(it["options"][it["right"]]) != E2.blocks_total(it): errs.append(f"item {i}: blocks right option != total")
+        if t == "balance" and float(it["options"][it["right"]]) != E2.balance_answer(it): errs.append(f"item {i}: balance right option wrong")
+        if t == "balance" and E2.balance_answer(it) != int(E2.balance_answer(it)): errs.append(f"item {i}: balance answer not whole")
+        if t == "colortrap" and it["options"][it["right"]].lower() != it["ink"]: errs.append(f"item {i}: colortrap right must be the ink colour")
+        if t == "colortrap" and it["word"].lower() == it["ink"]: errs.append(f"item {i}: colortrap word must differ from ink")
+        if t == "dots" and it["shape"] not in E2.DOT_SHAPES: errs.append(f"item {i}: unknown dots shape")
         if t == "hidden" and it["base"] == it["odd"]: errs.append(f"item {i}: hidden base == odd")
     return errs
 

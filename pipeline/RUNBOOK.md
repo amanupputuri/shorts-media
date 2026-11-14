@@ -36,7 +36,6 @@ Write 11 spec files in `work/TARGET/`:
 Emoji must be single standard emoji (no flags, no skin tones, no ZWJ sequences).
 - **odd4** `{"type":"odd4","options":[[label,emoji]x4],"right":i}` — 4 things, one doesn't belong (reason in fact).
 - **changed** `{"type":"changed","prompt":"Remember these 6!","prompt2":"Which one changed?","before":[6 emoji],"changed":i,"after_emoji":e}`
-- **cups** `{"type":"cups","start":0-2,"swaps":[[a,b],...]}` 3–6 swaps of slot numbers 0–2. Answer = check output.
 - **keys** `{"type":"keys","lock":[5 ints 1-3],"keys":[3 lists],"right":i}` keys[right] == lock; others differ in 1–2 teeth.
 - **glasses** `{"type":"glasses","pipes":{"1":[[child,height0-1,blocked]],...}}` glasses 1→2,3; 2→4,5; 3→5,6 (any subset,
   some blocked). Answer = check output (water takes the lowest open pipe).
@@ -44,17 +43,18 @@ Emoji must be single standard emoji (no flags, no skin tones, no ZWJ sequences).
   4–7 rungs, rows ≥ 1 apart for the same lane pair. Answer = check output.
 - **shadow** `{"type":"shadow","object":e,"shadows":[3 entries, one == object, others similar animals/objects or "e|flip"],"right":i}`
 - **mirror** `{"type":"mirror","kind":"text"|"emoji","content":"WORD" (A–Z, 4–6 letters, not symmetric) or emoji string,"opts":[permutation of "h","v","r"],"right": index of "h"}`
-- **jar** `{"type":"jar","counts":[a,b],"sizes":[s1,s2],"seed":n}` counts 20–45, differ by 4–9; give the jar with MORE sweets the SMALLER size (0.85–0.95) and the other 1.15–1.3.
 - **fit** `{"type":"fit","item":e,"grid":[cols 3-5,rows 2-4],"options":[3 numbers as strings],"right":i}` options[right] == cols*rows.
 - **twins** `{"type":"twins","seed":n}` any int; answer = check output.
-- **gears** `{"type":"gears","n":3-6,"first":"cw"|"ccw"}` answer = check output.
 - **piece** `{"type":"piece","emoji":e (big animal/object face),"missing":0-8,"options":[3 of: the missing index, another index, "<missing>r"],"right":i,"bg":[r,g,b] pale}`
 - **illusion** `{"type":"illusion","kind":"lines"|"circles","diff":-1|0|1}` (0 = same — use 0 most of the time, ±1 sometimes).
 - **rotate** `{"type":"rotate","cells":[[r,c] 5 cells in 4x4, asymmetric],"opts":[[angle 90|180|270, mirrored bool] x3],"right":i,"color":[r,g,b]}` exactly one opt not mirrored.
-- **stack** `{"type":"stack","shapes":[[kind circle|square|triangle|star, color red|blue|green|yellow|purple|orange, dx -80..80, dy -80..80, size 80-130] x4-5 bottom→top],"options":[[kind,color]x3],"right":i}` bottom shape must be partly hidden.
 - **count** `{"type":"count","target":e,"others":[2-3 emoji],"n":4-9,"m":8-12,"seed":k,"options":[3 strings],"right":i}` n+m ≤ 20, options[right] == n.
 - **order** `{"type":"order","prompt":"Remember the order!","prompt2":"Which one came SECOND?","seq":[4 emoji],"ask_pos":1-4,"options":[3 emoji incl. seq[ask_pos-1]],"right":i}`
-- **pattern** `{"type":"pattern","seq":[5-6 emoji repeating ABC/ABB/AB pattern],"options":[3 emoji],"right":i}`
+- **maze** `{"type":"maze","starters":[3 emoji],"prize":e,"seed":n,"goal_col":0-6 (optional, default 3)}` answer = check output (each animal has its own sealed area; one contains the prize).
+- **blocks** `{"type":"blocks","heights":[[3x3 column heights 0-4]],"options":[3 strings],"right":i}` options[right] == total; taller columns at the back-left so hidden blocks are implied; total 5-14.
+- **colortrap** `{"type":"colortrap","prompt":"Say the COLOUR, not the word!","word":colour name,"ink":one of red|blue|green|yellow|purple|orange|pink (≠ word),"options":[3 colour names incl. ink and word],"right":index of ink}`
+- **balance** `{"type":"balance","rule":[[emojiA,a],[emojiB,b]],"q_n":n,"options":[3 strings],"right":i}` means a×A = b×B; question: n×B = ? A. Answer n·a/b must be a whole number ≤ 9; options[right] equals it.
+- **dots** `{"type":"dots","prompt":"Connect the dots... what is it?","shape":one of star|house|fish|heart|boat|arrow|tree|rocket|crown|cat|kite|umbrella,"options":[3 names incl. the shape],"right":i}`
 - **hidden** `{"type":"hidden","base":e,"odd":very similar emoji (😀/😃, 🕐/🕑, 🐻/🐨, 🍎/🍅, 🌕/🌝),"pos":[row 0-5,col 0-11]}`
 
 ## 3. Voice (ElevenLabs connector)

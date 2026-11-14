@@ -1051,3 +1051,282 @@ def min_ask(item):
     if t_ == "count": return 3.4
     if t_ == "order": return 0.5 + 0.75 * len(item["seq"]) + 1.4
     return _old_min_ask(item)
+
+# ================================================================ REPLACEMENTS (v2)
+# ---------------------------------------------------------------- Count the blocks (isometric)
+def blocks_total(item): return sum(sum(r) for r in item["heights"])
+
+def draw_blocks(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c)
+    d = ImageDraw.Draw(im)
+    H = item["heights"]; R, C = len(H), len(H[0])
+    s = 95 if c.v else 85
+    ox = c.W / 2 if c.v else x0 + 420
+    oy = y0 + (330 if c.v else 330)
+    def iso(gx, gy, gz):
+        return ox + (gx - gy) * s * 0.87, oy + (gx + gy) * s * 0.5 - gz * s
+    cols = [(250, 190, 70), (240, 120, 90), (110, 180, 240), (130, 210, 130)]
+    k = 0
+    order = sorted([(r_, q) for r_ in range(R) for q in range(C)], key=lambda p: p[0] + p[1])
+    for (r_, q) in order:
+        for z in range(H[r_][q]):
+            a = eob((t - 0.3 - 0.08 * k) / 0.3) if phase == "ask" else 1
+            k += 1
+            if a < 0.05: continue
+            base = cols[(r_ + q + z) % 4]
+            top = [iso(q, r_, z + 1), iso(q + 1, r_, z + 1), iso(q + 1, r_ + 1, z + 1), iso(q, r_ + 1, z + 1)]
+            left = [iso(q, r_ + 1, z + 1), iso(q + 1, r_ + 1, z + 1), iso(q + 1, r_ + 1, z), iso(q, r_ + 1, z)]
+            right = [iso(q + 1, r_, z + 1), iso(q + 1, r_ + 1, z + 1), iso(q + 1, r_ + 1, z), iso(q + 1, r_, z)]
+            dy = (1 - a) * -200
+            sh = lambda P: [(x, y + dy) for x, y in P]
+            d.polygon(sh(left), fill=tuple(int(v * 0.75) for v in base), outline=(30, 30, 60))
+            d.polygon(sh(right), fill=tuple(int(v * 0.6) for v in base), outline=(30, 30, 60))
+            d.polygon(sh(top), fill=base, outline=(30, 30, 60))
+            if phase == "reveal" and z == H[r_][q] - 1 and pt > 0.3:
+                cx_ = sum(p[0] for p in top) / 4; cy_ = sum(p[1] for p in top) / 4
+                f = font(F_BOLD, 46); L = str(H[r_][q]); tw = d.textlength(L, font=f)
+                d.ellipse((cx_ - 30, cy_ - 30, cx_ + 30, cy_ + 30), fill=(255, 255, 255))
+                d.text((cx_ - tw / 2, cy_ - 32), L, font=f, fill=(30, 30, 60))
+    opts = item["options"]
+    for q, o in enumerate(opts):
+        if c.v: ox_, oy_, ow, oh = x0 + (x1 - x0) * (q + 0.5) / 3, y1 - 60, 260, 150
+        else: ox_, oy_, ow, oh = x0 + 1250, y0 + 170 + q * 190, 330, 150
+        sc = eob((t - 1.4 - 0.2 * q) / 0.4) if phase == "ask" else 1
+        if sc < 0.05: continue
+        fill = (255, 255, 255)
+        if phase == "reveal" and pt > 0.9: fill = (40, 190, 90) if q == item["right"] else (150, 40, 55)
+        d.rounded_rectangle((ox_ - ow / 2, oy_ - oh / 2, ox_ + ow / 2, oy_ + oh / 2), radius=30, fill=fill, outline=c.accent, width=6)
+        f = font(F_BOLD, 90); tw = d.textlength(o, font=f)
+        d.text((ox_ - tw / 2 + 20, oy_ - 62), o, font=f, fill=(30, 30, 60) if fill == (255, 255, 255) else (255, 255, 255))
+        _label(d, ox_ - ow / 2 + 40, oy_, "ABC"[q], c, r=30, size=40)
+    return ox, oy
+
+# ---------------------------------------------------------------- Connect the dots
+DOT_SHAPES = {
+ "star": [(0.5, 0.0), (0.62, 0.36), (1.0, 0.38), (0.7, 0.6), (0.81, 1.0), (0.5, 0.76), (0.19, 1.0), (0.3, 0.6), (0.0, 0.38), (0.38, 0.36)],
+ "house": [(0.1, 1.0), (0.1, 0.45), (0.0, 0.45), (0.5, 0.0), (1.0, 0.45), (0.9, 0.45), (0.9, 1.0), (0.6, 1.0), (0.6, 0.7), (0.4, 0.7), (0.4, 1.0)],
+ "fish": [(0.0, 0.5), (0.2, 0.25), (0.5, 0.15), (0.75, 0.3), (1.0, 0.1), (0.92, 0.5), (1.0, 0.9), (0.75, 0.7), (0.5, 0.85), (0.2, 0.75)],
+ "heart": [(0.5, 0.25), (0.65, 0.05), (0.88, 0.05), (1.0, 0.25), (0.95, 0.5), (0.5, 1.0), (0.05, 0.5), (0.0, 0.25), (0.12, 0.05), (0.35, 0.05)],
+ "boat": [(0.0, 0.62), (1.0, 0.62), (0.82, 0.95), (0.18, 0.95), (0.0, 0.62), (0.48, 0.62), (0.48, 0.0), (0.9, 0.5), (0.48, 0.5)],
+ "arrow": [(0.0, 0.38), (0.6, 0.38), (0.6, 0.12), (1.0, 0.5), (0.6, 0.88), (0.6, 0.62), (0.0, 0.62)],
+ "tree": [(0.5, 0.0), (0.8, 0.35), (0.65, 0.35), (0.92, 0.7), (0.58, 0.7), (0.58, 1.0), (0.42, 1.0), (0.42, 0.7), (0.08, 0.7), (0.35, 0.35), (0.2, 0.35)],
+ "rocket": [(0.5, 0.0), (0.68, 0.25), (0.68, 0.7), (0.88, 0.95), (0.62, 0.85), (0.38, 0.85), (0.12, 0.95), (0.32, 0.7), (0.32, 0.25)],
+ "crown": [(0.0, 1.0), (0.0, 0.2), (0.25, 0.55), (0.5, 0.05), (0.75, 0.55), (1.0, 0.2), (1.0, 1.0)],
+ "cat": [(0.15, 0.0), (0.38, 0.28), (0.62, 0.28), (0.85, 0.0), (0.92, 0.45), (0.8, 0.85), (0.5, 1.0), (0.2, 0.85), (0.08, 0.45)],
+ "kite": [(0.5, 0.0), (0.9, 0.4), (0.5, 0.75), (0.1, 0.4), (0.5, 0.0), (0.5, 0.75), (0.45, 0.85), (0.55, 0.92), (0.48, 1.0)],
+ "umbrella": [(0.0, 0.45), (0.15, 0.18), (0.5, 0.0), (0.85, 0.18), (1.0, 0.45), (0.52, 0.45), (0.52, 0.9), (0.42, 1.0), (0.34, 0.9)],
+}
+def draw_dots(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c)
+    d = ImageDraw.Draw(im)
+    pts = DOT_SHAPES[item["shape"]]
+    S = 520 if c.v else 480
+    ox, oy = (c.W / 2 - S / 2, y0 + 20) if c.v else (x0 + 120, y0 + 60)
+    P = [(ox + x * S, oy + y * S) for x, y in pts]
+    closed = item["shape"] not in ("boat", "kite", "umbrella")
+    seq = P + ([P[0]] if closed else [])
+    if phase == "reveal":
+        n = len(seq) - 1; prog = cl(pt / 1.6) * n
+        k = int(prog); fr = prog - k
+        line = seq[:k + 1]
+        if k < n: line = line + [(seq[k][0] + (seq[k + 1][0] - seq[k][0]) * fr, seq[k][1] + (seq[k + 1][1] - seq[k][1]) * fr)]
+        if pt > 1.7 and closed:
+            ov = Image.new("RGBA", im.size, (0, 0, 0, 0)); ImageDraw.Draw(ov).polygon(P, fill=c.accent + (120,)); im.alpha_composite(ov); d = ImageDraw.Draw(im)
+        if len(line) > 1: d.line(line, fill=(60, 255, 120), width=12, joint="curve")
+    f = font(F_BOLD, 34)
+    for i, (x, y) in enumerate(P):
+        a = eob((t - 0.3 - 0.1 * i) / 0.3) if phase == "ask" else 1
+        if a < 0.05: continue
+        r = 14 * a
+        d.ellipse((x - r, y - r, x + r, y + r), fill=(255, 255, 255))
+        d.text((x + 16, y - 40), str(i + 1), font=f, fill=c.accent)
+    opts = item["options"]
+    for q, o in enumerate(opts):
+        if c.v: ox_, oy_, ow, oh = x0 + (x1 - x0) * (q + 0.5) / 3, y1 - 60, 300, 140
+        else: ox_, oy_, ow, oh = x0 + 1250, y0 + 170 + q * 190, 380, 150
+        sc = eob((t - 1.6 - 0.2 * q) / 0.4) if phase == "ask" else 1
+        if sc < 0.05: continue
+        fill = (255, 255, 255)
+        if phase == "reveal" and pt > 1.0: fill = (40, 190, 90) if q == item["right"] else (150, 40, 55)
+        d.rounded_rectangle((ox_ - ow / 2, oy_ - oh / 2, ox_ + ow / 2, oy_ + oh / 2), radius=30, fill=fill, outline=c.accent, width=6)
+        f2 = font(F_BOLD, 52)
+        sz = 52
+        while d.textlength(o, font=f2) > ow - 100: sz -= 4; f2 = font(F_BOLD, sz)
+        tw = d.textlength(o, font=f2)
+        d.text((ox_ - tw / 2 + 25, oy_ - sz * 0.68), o, font=f2, fill=(30, 30, 60) if fill == (255, 255, 255) else (255, 255, 255))
+        _label(d, ox_ - ow / 2 + 40, oy_, "ABC"[q], c, r=30, size=40)
+    return ox + S / 2, oy + S / 2
+
+# ---------------------------------------------------------------- Colour trap
+INKS = {"red": (240, 60, 70), "blue": (60, 130, 245), "green": (60, 200, 100), "yellow": (250, 210, 40), "purple": (170, 90, 240), "orange": (250, 140, 40), "pink": (255, 110, 180)}
+def draw_colortrap(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c)
+    d = ImageDraw.Draw(im)
+    cx, cy = (c.W / 2, y0 + 200) if c.v else (x0 + 460, (y0 + y1) / 2 - 20)
+    box = (cx - (440 if c.v else 420), cy - 150, cx + (440 if c.v else 420), cy + 150)
+    d.rounded_rectangle(box, radius=40, fill=(250, 250, 250))
+    a = eob((t - 0.3) / 0.4) if phase == "ask" else 1
+    lay = Image.new("RGBA", (int(box[2] - box[0]), 300), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
+    text_center(ld, item["word"].upper(), lay.width / 2, 40, 190, fill=INKS[item["ink"]], maxw=lay.width - 60)
+    paste(im, lay, cx, cy, a)
+    opts = item["options"]
+    for q, o in enumerate(opts):
+        if c.v: ox_, oy_, ow, oh = c.W / 2, y0 + 470 + q * 160, 640, 130
+        else: ox_, oy_, ow, oh = x0 + 1250, y0 + 160 + q * 190, 420, 150
+        sc = eob((t - 1.0 - 0.2 * q) / 0.4) if phase == "ask" else 1
+        if sc < 0.05: continue
+        fill = (255, 255, 255)
+        if phase == "reveal": fill = (40, 190, 90) if q == item["right"] else (150, 40, 55)
+        d.rounded_rectangle((ox_ - ow / 2, oy_ - oh / 2, ox_ + ow / 2, oy_ + oh / 2), radius=30, fill=fill, outline=c.accent, width=6)
+        f = font(F_BOLD, 60); tw = d.textlength(o.upper(), font=f)
+        d.text((ox_ - tw / 2 + 20, oy_ - 42), o.upper(), font=f, fill=(30, 30, 60) if fill == (255, 255, 255) else (255, 255, 255))
+        _label(d, ox_ - ow / 2 + 45, oy_, "ABC"[q], c, r=32, size=42)
+    if phase == "reveal":
+        glow_box(im, box, color=INKS[item["ink"]], r=40)
+    return cx, cy
+
+# ---------------------------------------------------------------- Balance the scale
+def balance_answer(item):
+    (a_e, a_n), (b_e, b_n) = item["rule"]          # a_n of A == b_n of B
+    q_n = item["q_n"]                              # q_n of B on the left
+    return q_n * a_n / b_n                         # how many A balance it
+
+def _scale(d, im, cx, cy, w, left, right, tilt, c, qmark=False):
+    ang = math.radians(tilt)
+    dx, dy = math.cos(ang) * w / 2, math.sin(ang) * w / 2
+    d.polygon([(cx - 55, cy + 200), (cx + 55, cy + 200), (cx, cy)], fill=(150, 160, 180))
+    d.line((cx - dx, cy - dy, cx + dx, cy + dy), fill=(200, 210, 230), width=16)
+    for side, items, sx, sy in ((-1, left, cx - dx, cy - dy), (1, right, cx + dx, cy + dy)):
+        d.rounded_rectangle((sx - 160, sy - 16, sx + 160, sy + 8), radius=8, fill=(230, 200, 140))
+        if qmark and side == 1:
+            f = font(F_BOLD, 90); tw = d.textlength("?", font=f)
+            d.rounded_rectangle((sx - 60, sy - 140, sx + 60, sy - 18), radius=20, fill=(255, 255, 255, 60), outline=c.accent, width=6)
+            d.text((sx - tw / 2, sy - 140), "?", font=f, fill=c.accent)
+            continue
+        em, n = items
+        size = 100 if n <= 3 else 80
+        per_row = 3
+        for i in range(n):
+            r_, k = divmod(i, per_row)
+            cnt = min(per_row, n - r_ * per_row)
+            px = sx + (k - (cnt - 1) / 2) * size * 1.0
+            py = sy - size / 2 - 14 - r_ * size * 0.9
+            paste(im, emoji_img(em, size), px, py)
+
+def draw_balance(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c)
+    d = ImageDraw.Draw(im)
+    (a_e, a_n), (b_e, b_n) = item["rule"]
+    w = 680 if c.v else 520
+    if c.v: c1, c2 = (c.W / 2, y0 + 190), (c.W / 2, y0 + 560)
+    else: c1, c2 = (x0 + 330, y0 + 330), (x0 + 900, y0 + 330)
+    a = eob((t - 0.2) / 0.4) if phase == "ask" else 1
+    if a > 0.05:
+        _scale(d, im, c1[0], c1[1], w, (a_e, a_n), (b_e, b_n), 0, c)
+        f = font(F_BOLD, 90); tw = d.textlength("=", font=f)
+        d.text((c1[0] - tw / 2, c1[1] - 150), "=", font=f, fill=c.accent, stroke_width=5, stroke_fill=(20, 10, 40))
+    a2 = eob((t - 1.2) / 0.4) if phase == "ask" else 1
+    if a2 > 0.05:
+        ans = int(balance_answer(item))
+        if phase == "reveal" and pt > 0.3:
+            tilt = -8 * (1 - eo((pt - 0.3) / 0.6))
+            _scale(d, im, c2[0], c2[1], w, (b_e, item["q_n"]), (a_e, ans), tilt, c)
+        else:
+            _scale(d, im, c2[0], c2[1], w, (b_e, item["q_n"]), None, -8, c, qmark=True)
+    opts = item["options"]
+    for q, o in enumerate(opts):
+        if c.v: ox_, oy_, ow, oh = x0 + (x1 - x0) * (q + 0.5) / 3, y1 - 30, 260, 140
+        else: ox_, oy_, ow, oh = x0 + 1380, y0 + 170 + q * 190, 300, 150
+        sc = eob((t - 2.0 - 0.2 * q) / 0.4) if phase == "ask" else 1
+        if sc < 0.05: continue
+        fill = (255, 255, 255)
+        if phase == "reveal" and pt > 0.9: fill = (40, 190, 90) if q == item["right"] else (150, 40, 55)
+        d.rounded_rectangle((ox_ - ow / 2, oy_ - oh / 2, ox_ + ow / 2, oy_ + oh / 2), radius=30, fill=fill, outline=c.accent, width=6)
+        e = emoji_img(a_e, 70)
+        f = font(F_BOLD, 80); tw = d.textlength(o, font=f)
+        d.text((ox_ - tw / 2 - 10, oy_ - 56), o, font=f, fill=(30, 30, 60) if fill == (255, 255, 255) else (255, 255, 255))
+        paste(im, e, ox_ + 70, oy_)
+        _label(d, ox_ - ow / 2 + 40, oy_ - oh / 2 + 36, "ABC"[q], c, r=28, size=38)
+    return c2
+
+# ---------------------------------------------------------------- Mini maze (3 separate regions)
+def maze_build(item, Wc=7, Hc=8):
+    rnd = _rnd.Random(item["seed"])
+    seeds = [(0, 1), (0, Wc // 2), (0, Wc - 2)]
+    region = [[-1] * Wc for _ in range(Hc)]
+    fronts = []
+    for k, (r_, q) in enumerate(seeds):
+        region[r_][q] = k; fronts.append([(r_, q)])
+    left = Wc * Hc - 3
+    while left:
+        k = rnd.randrange(3)
+        if not fronts[k]: continue
+        r_, q = rnd.choice(fronts[k])
+        nb = [(r_ + a, q + b) for a, b in ((1, 0), (-1, 0), (0, 1), (0, -1)) if 0 <= r_ + a < Hc and 0 <= q + b < Wc and region[r_ + a][q + b] < 0]
+        if not nb:
+            fronts[k].remove((r_, q)); continue
+        n = rnd.choice(nb); region[n[0]][n[1]] = k; fronts[k].append(n); left -= 1
+    # spanning tree per region
+    opened = set(); visited = set()
+    for k, s in enumerate(seeds):
+        stack = [s]; visited.add(s)
+        while stack:
+            cur = stack[-1]
+            nb = [(cur[0] + a, cur[1] + b) for a, b in ((1, 0), (-1, 0), (0, 1), (0, -1))
+                  if 0 <= cur[0] + a < Hc and 0 <= cur[1] + b < Wc and (cur[0] + a, cur[1] + b) not in visited and region[cur[0] + a][cur[1] + b] == k]
+            if not nb: stack.pop(); continue
+            n = rnd.choice(nb); opened.add(frozenset((cur, n))); visited.add(n); stack.append(n)
+    goal = (Hc - 1, item.get("goal_col", Wc // 2))
+    win = region[goal[0]][goal[1]]
+    # path from seed to goal
+    prev = {seeds[win]: None}; queue = [seeds[win]]
+    while queue:
+        cur = queue.pop(0)
+        for a, b in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            n = (cur[0] + a, cur[1] + b)
+            if n not in prev and frozenset((cur, n)) in opened: prev[n] = cur; queue.append(n)
+    path = []; cur = goal
+    while cur: path.append(cur); cur = prev.get(cur)
+    return region, opened, seeds, goal, win, path[::-1]
+
+def maze_answer(item): return maze_build(item)[4]
+
+def draw_maze(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c)
+    d = ImageDraw.Draw(im)
+    Wc, Hc = 7, 8
+    region, opened, seeds, goal, win, path = maze_build(item, Wc, Hc)
+    cell = 100 if c.v else 72
+    ox = c.W / 2 - Wc * cell / 2 if c.v else x0 + 120
+    oy = y0 + 70 if c.v else y0 + 60
+    d.rectangle((ox, oy, ox + Wc * cell, oy + Hc * cell), fill=(255, 255, 255, 235))
+    a = eo((t - 0.3) / 0.5) if phase == "ask" else 1
+    wc = (30, 30, 60, int(255 * a))
+    for r_ in range(Hc):
+        for q in range(Wc):
+            X, Y = ox + q * cell, oy + r_ * cell
+            if q + 1 < Wc and frozenset(((r_, q), (r_, q + 1))) not in opened:
+                d.line((X + cell, Y, X + cell, Y + cell), fill=wc, width=8)
+            if r_ + 1 < Hc and frozenset(((r_, q), (r_ + 1, q))) not in opened:
+                d.line((X, Y + cell, X + cell, Y + cell), fill=wc, width=8)
+    # outer walls with entrances at seed tops
+    for q in range(Wc):
+        if (0, q) not in seeds: d.line((ox + q * cell, oy, ox + (q + 1) * cell, oy), fill=(30, 30, 60), width=10)
+        d.line((ox + q * cell, oy + Hc * cell, ox + (q + 1) * cell, oy + Hc * cell), fill=(30, 30, 60), width=10)
+    d.line((ox, oy, ox, oy + Hc * cell), fill=(30, 30, 60), width=10); d.line((ox + Wc * cell, oy, ox + Wc * cell, oy + Hc * cell), fill=(30, 30, 60), width=10)
+    for k, (r_, q) in enumerate(seeds):
+        sx = ox + (q + 0.5) * cell
+        paste(im, emoji_img(item["starters"][k], cell * 0.8), sx, oy - cell * 0.55)
+        f = font(F_BOLD, 40); L = "ABC"[k]; tw = d.textlength(L, font=f)
+        d.text((sx - cell * 0.55 - tw, oy - cell * 0.9), L, font=f, fill=c.accent)
+    gx, gy = ox + (goal[1] + 0.5) * cell, oy + (goal[0] + 0.5) * cell
+    paste(im, emoji_img(item["prize"], cell * 0.7), gx, gy)
+    if phase == "reveal":
+        P = [(ox + (q + 0.5) * cell, oy + (r_ + 0.5) * cell) for r_, q in path]
+        P = [(P[0][0], oy - 10)] + P
+        k = max(2, int(len(P) * cl(pt / 1.8)))
+        d.line(P[:k], fill=(60, 220, 120), width=14, joint="curve")
+        return gx, gy
+    return c.W / 2, (y0 + y1) / 2
+
+DRAW.update({"blocks": draw_blocks, "dots": draw_dots, "colortrap": draw_colortrap, "balance": draw_balance, "maze": draw_maze})
