@@ -2223,3 +2223,425 @@ def min_ask(item):
     if t_ == "movingcount": return 5.2
     if t_ == "lightorder": return 0.6 + 0.7 * len(item["seq"]) + 1.4
     return _old_min_ask4(item)
+
+# ================================================================ CANDIDATES (v6) — 20 more
+def _seq_show(t, n, step=0.7, t0=0.5):
+    k = int((t - t0) / step)
+    return k if 0 <= k < n and ((t - t0) % step) < step * 0.8 else None
+
+# 58 Which one did NOT appear
+def draw_shapemiss(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    cx, cy = (c.W / 2, y0 + 260) if c.v else (x0 + 420, (y0 + y1) / 2 + 20)
+    d.rounded_rectangle((cx - 220, cy - 220, cx + 220, cy + 220), radius=40, fill=(255, 255, 255, 235))
+    seq = item["seq"]
+    if phase == "ask":
+        k = _seq_show(t, len(seq))
+        if k is not None: paste(im, emoji_img(seq[k], 300), cx, cy, eob(((t - 0.5) % 0.7) / 0.2))
+        elif t > 0.5 + 0.7 * len(seq):
+            f = font(F_BOLD, 200); tw = d.textlength("?", font=f); d.text((cx - tw / 2, cy - 140), "?", font=f, fill=(30, 30, 60))
+    else:
+        f = font(F_BOLD, 200); tw = d.textlength("?", font=f); d.text((cx - tw / 2, cy - 140), "?", font=f, fill=(30, 30, 60))
+    if phase != "ask" or t > 0.5 + 0.7 * len(seq):
+        _emoji_opts(c, im, d, item, phase, pt, t, 0.6 + 0.7 * len(seq), y0 + 680, x0 + 1250)
+    return cx, cy
+
+# 59 Spotlight
+def draw_spotlight(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    S = 520 if c.v else 460
+    cx, cy = (c.W / 2, y0 + 290) if c.v else (x0 + 420, (y0 + y1) / 2 + 30)
+    pic = Image.new("RGBA", (S, S), (250, 245, 230, 255)); e = emoji_img(item["emoji"], int(S * 0.9)); pic.paste(e, (int(S / 2 - e.width / 2), int(S / 2 - e.height / 2)), e)
+    dark = Image.new("L", (S, S), 255)
+    if phase == "reveal": dark = Image.new("L", (S, S), int(255 * (1 - eo(pt / 0.6))))
+    else:
+        tt = t if phase == "ask" else 4.0
+        ang = tt * 1.6; r = S * 0.17
+        sx, sy = S / 2 + math.cos(ang) * S * 0.28, S / 2 + math.sin(ang * 1.3) * S * 0.28
+        ImageDraw.Draw(dark).ellipse((sx - r, sy - r, sx + r, sy + r), fill=0)
+        dark = dark.filter(ImageFilter.GaussianBlur(10))
+    shade = Image.new("RGBA", (S, S), (15, 15, 30, 255)); shade.putalpha(dark)
+    pic.alpha_composite(shade)
+    m = Image.new("L", (S, S), 0); ImageDraw.Draw(m).rounded_rectangle((0, 0, S, S), radius=40, fill=255); pic.putalpha(m)
+    im.paste(pic, (int(cx - S / 2), int(cy - S / 2)), pic)
+    _opt_row(c, d, item, phase, pt, t, item["options"], y1 - 30 if c.v else 0, 1.2)
+    return cx, cy
+
+# 60 Pixelated
+def draw_pixel(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    S = 520 if c.v else 460
+    cx, cy = (c.W / 2, y0 + 290) if c.v else (x0 + 420, (y0 + y1) / 2 + 30)
+    pic = Image.new("RGBA", (S, S), (250, 245, 230, 255)); e = emoji_img(item["emoji"], int(S * 0.9)); pic.paste(e, (int(S / 2 - e.width / 2), int(S / 2 - e.height / 2)), e)
+    if phase == "reveal" and pt > 0.3: n = S
+    else:
+        tt = t if phase == "ask" else 4.5
+        n = int(5 + 7 * cl(tt / 4.5))
+    if n < S: pic = pic.resize((n, n), Image.BILINEAR).resize((S, S), Image.NEAREST)
+    m = Image.new("L", (S, S), 0); ImageDraw.Draw(m).rounded_rectangle((0, 0, S, S), radius=40, fill=255); pic.putalpha(m)
+    im.paste(pic, (int(cx - S / 2), int(cy - S / 2)), pic)
+    _opt_row(c, d, item, phase, pt, t, item["options"], y1 - 30 if c.v else 0, 1.2)
+    return cx, cy
+
+# 61 Find it in the crowd
+def draw_crowd(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    cols, rows = (6, 6) if c.v else (12, 4)
+    cell, ox, oy = _grid_geom(c, cols, rows, 160 if c.v else 120, 150)
+    rnd = _rnd.Random(item.get("seed", 1))
+    _panel(d, ox, oy, cols * cell, rows * cell)
+    pr, pc = item["pos"]; pr %= rows; pc %= cols
+    a = eo((t - 0.3) / 0.5) if phase == "ask" else 1
+    for r_ in range(rows):
+        for k in range(cols):
+            e = item["target"] if (r_, k) == (pr, pc) else rnd.choice(item["pool"])
+            sc = 0.3 if (phase == "reveal" and (r_, k) != (pr, pc) and pt > 0.3) else 1
+            paste(im, emoji_img(e, cell * 0.7), ox + (k + 0.5) * cell, oy + (r_ + 0.5) * cell, 1, a * sc)
+    hx = c.W / 2
+    f = font(F_BOLD, 56); txt = "Find:"; tw = d.textlength(txt, font=f)
+    d.text((hx - tw - 10, oy - 130), txt, font=f, fill=(255, 255, 255)); paste(im, emoji_img(item["target"], 100), hx + 60, oy - 95)
+    cx, cy = ox + (pc + 0.5) * cell, oy + (pr + 0.5) * cell
+    if phase == "reveal": _circle_hit(d, cx, cy, cell * 0.6, pt)
+    return cx, cy
+
+# 62 Pattern memory
+def _mini_grid(size, cells, n=4, on=(255, 210, 60)):
+    im = Image.new("RGBA", (size, size), (0, 0, 0, 0)); d = ImageDraw.Draw(im); g = size / n
+    for i in range(n * n):
+        r_, q = divmod(i, n)
+        d.rounded_rectangle((q * g + 4, r_ * g + 4, (q + 1) * g - 4, (r_ + 1) * g - 4), radius=int(g * 0.18), fill=on if i in cells else (255, 255, 255, 200))
+    return im
+
+def draw_patmem(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    S = 440 if c.v else 420
+    cx, cy = (c.W / 2, y0 + 240) if c.v else (x0 + 380, (y0 + y1) / 2 + 30)
+    show = (phase == "ask" and 0.4 <= t < 2.6)
+    paste(im, _mini_grid(S, item["patterns"][item["right"]] if show else [], on=c.accent), cx, cy)
+    if phase != "ask" or t >= 2.6:
+        n = len(item["patterns"])
+        for q, pat in enumerate(item["patterns"]):
+            ox, oy = (x0 + (x1 - x0) * (q + 0.5) / n, y0 + 680) if c.v else (x0 + 820 + q * 300, (y0 + y1) / 2 + 30)
+            sz = 250 if c.v else 240
+            fill = (255, 255, 255, 40)
+            if phase == "reveal" and pt > 0.4: fill = (40, 190, 90, 255) if q == item["right"] else (150, 40, 55, 255)
+            d.rounded_rectangle((ox - sz / 2 - 14, oy - sz / 2 - 14, ox + sz / 2 + 14, oy + sz / 2 + 14), radius=24, fill=fill, outline=c.accent, width=5)
+            paste(im, _mini_grid(sz, pat, on=c.accent), ox, oy, eob((t - 2.7 - 0.2 * q) / 0.4) if phase == "ask" else 1)
+            _label(d, ox - sz / 2, oy - sz / 2, "ABC"[q], c, r=28, size=38)
+    return cx, cy
+
+# 63 Odd pattern out (rotations vs mirror)
+def _rot_cells(cells, k, n=3):
+    out = set(cells)
+    for _ in range(k % 4): out = {(q) * n + (n - 1 - r_) for r_, q in (divmod(i, n) for i in out)}
+    return out
+
+def draw_oddpattern(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    base = item["cells"]; n = 3
+    pats = []
+    for i, k in enumerate(item["rots"]):
+        cells = _rot_cells(base, k)
+        if i == item["odd"]: cells = {r_ * n + (n - 1 - q) for r_, q in (divmod(x, n) for x in cells)}
+        pats.append(cells)
+    sz = 300 if c.v else 280
+    pos = [(c.W / 2 - 190, y0 + 190), (c.W / 2 + 190, y0 + 190), (c.W / 2 - 190, y0 + 590), (c.W / 2 + 190, y0 + 590)] if c.v else [(x0 + 200 + i * 410, (y0 + y1) / 2 + 30) for i in range(4)]
+    for i, (px, py) in enumerate(pos):
+        fill = (255, 255, 255, 40)
+        if phase == "reveal" and pt > 0.4 and i == item["odd"]: fill = (40, 190, 90, 255)
+        d.rounded_rectangle((px - sz / 2 - 14, py - sz / 2 - 14, px + sz / 2 + 14, py + sz / 2 + 14), radius=24, fill=fill, outline=c.accent, width=5)
+        paste(im, _mini_grid(sz, pats[i], n=3, on=(255, 120, 80)), px, py, eob((t - 0.3 - 0.2 * i) / 0.4) if phase == "ask" else 1)
+        _label(d, px - sz / 2, py - sz / 2, "ABCD"[i], c, r=28, size=38)
+    return pos[item["odd"]]
+
+# 64 Colour count
+def draw_colorcount(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    rnd = _rnd.Random(item.get("seed", 1))
+    shapes = [nm for nm, k in item["counts"].items() for _ in range(k)]; rnd.shuffle(shapes)
+    bx = (x0 + 20, y0, x1 - 20, y0 + 600) if c.v else (x0 + 40, y0 + 60, x0 + 940, y1 - 20)
+    d.rounded_rectangle(bx, radius=40, fill=(255, 255, 255, 235))
+    cols, rows = 6, 5; cells = [(r_, q) for r_ in range(rows) for q in range(cols)]; rnd.shuffle(cells)
+    cw, ch = (bx[2] - bx[0]) / cols, (bx[3] - bx[1]) / rows
+    kinds = ["circle", "square", "triangle", "star"]
+    for i, nm in enumerate(shapes[:len(cells)]):
+        r_, q = cells[i]
+        px = bx[0] + cw * (q + 0.5) + rnd.uniform(-cw * 0.12, cw * 0.12); py = bx[1] + ch * (r_ + 0.5) + rnd.uniform(-ch * 0.1, ch * 0.1)
+        a = eob((t - 0.3 - 0.03 * i) / 0.3) if phase == "ask" else 1
+        col = INKS[nm]
+        if phase == "reveal" and nm != item["ask"]: col = tuple(int(v * 0.35 + 160) for v in col)
+        _draw_shape(d, rnd.choice(kinds), col, px, py, min(cw, ch) * 0.3 * a)
+    _opt_row(c, d, item, phase, pt, t, item["options"], bx[3] + 120 if c.v else 0, 1.6)
+    return (bx[0] + bx[2]) / 2, (bx[1] + bx[3]) / 2
+
+# 65 What moved
+def draw_moved(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    slots = list(item["slots"]); cols = 4
+    a_, b_ = item["move"]
+    after = phase != "ask" or t >= 3.0
+    if after: slots[b_], slots[a_] = slots[a_], ""
+    cw, ch = ((x1 - x0) / cols, 230) if c.v else (230, 230)
+    ox = x0 if c.v else x0 + 40; oy = y0 + 20 if c.v else y0 + 80
+    for i, e in enumerate(slots):
+        r_, q = divmod(i, cols); cx, cy = ox + cw * (q + 0.5), oy + ch * (r_ + 0.5)
+        box = (cx - 100, cy - 100, cx + 100, cy + 100)
+        d.rounded_rectangle(box, radius=26, fill=(255, 255, 255, 220 if e else 50))
+        if e: paste(im, emoji_img(e, 130), cx, cy)
+        if phase == "reveal" and i == b_: glow_box(im, box, r=26)
+    if phase == "ask" and 3.0 <= t < 3.45:
+        im.alpha_composite(Image.new("RGBA", im.size, (255, 255, 255, int(255 * cl(1 - abs(t - 3.22) / 0.22)))))
+    if after: _emoji_opts(c, im, d, item, phase, pt, t, 3.6, y0 + 660, x0 + 1300)
+    return c.W / 2, (y0 + y1) / 2
+
+# 66 Same or different
+def draw_samediff(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    sc = item["scene"]; diff = item.get("diff")
+    cell = 115 if c.v else 110; pw = cell * 3 + 40
+    panels = [(c.W / 2, y0 + 200), (c.W / 2, y0 + 610)] if c.v else [(c.W / 2 - 520, (y0 + y1) / 2 + 30), (c.W / 2 - 80, (y0 + y1) / 2 + 30)]
+    for p, (px, py) in enumerate(panels):
+        d.rounded_rectangle((px - pw / 2, py - pw / 2, px + pw / 2, py + pw / 2), radius=30, fill=(255, 255, 255))
+        for i, e in enumerate(sc):
+            r_, k = divmod(i, 3)
+            em = diff[1] if (p == 1 and diff and i == diff[0]) else e
+            ex, ey = px - cell + k * cell, py - cell + r_ * cell
+            paste(im, emoji_img(em, cell * 0.7), ex, ey, eob((t - 0.2 - 0.3 * p) / 0.4) if phase == "ask" else 1)
+            if phase == "reveal" and diff and i == diff[0]: _circle_hit(d, ex, ey, cell * 0.5, pt)
+    _opt_row(c, d, item, phase, pt, t, ["Same", "Different"], y1 + 40 if c.v else 0, 1.4, h_x=x0 + 1380)
+    return panels[1]
+
+# 67 Bigger group
+def draw_biggroup(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    rnd = _rnd.Random(item.get("seed", 1))
+    show = (phase == "ask" and 0.5 <= t < 1.8) or phase == "reveal"
+    boxes = [(x0 + 10, y0 + 40, c.W / 2 - 20, y0 + 560), (c.W / 2 + 20, y0 + 40, x1 - 10, y0 + 560)] if c.v else [(x0 + 60, y0 + 80, x0 + 760, y1 - 40), (x0 + 820, y0 + 80, x0 + 1520, y1 - 40)]
+    win = 0 if item["counts"][0] > item["counts"][1] else 1
+    for k, bx in enumerate(boxes):
+        fill = (255, 255, 255, 230)
+        if phase == "reveal" and pt > 0.5: fill = (40, 190, 90, 255) if k == win else (150, 40, 55, 255)
+        d.rounded_rectangle(bx, radius=30, fill=fill)
+        _label(d, bx[0] + 40, bx[1] + 40, "AB"[k], c, r=30, size=40)
+        if show:
+            for _ in range(item["counts"][k]):
+                px = rnd.uniform(bx[0] + 40, bx[2] - 40); py = rnd.uniform(bx[1] + 80, bx[3] - 40); r = 18
+                d.ellipse((px - r, py - r, px + r, py + r), fill=(60, 120, 230))
+        else:
+            f = font(F_BOLD, 150); tw = d.textlength("?", font=f); d.text(((bx[0] + bx[2]) / 2 - tw / 2, (bx[1] + bx[3]) / 2 - 100), "?", font=f, fill=(30, 30, 60))
+        if phase == "reveal":
+            f2 = font(F_BOLD, 80); txt = str(item["counts"][k]); tw = d.textlength(txt, font=f2)
+            d.text(((bx[0] + bx[2]) / 2 - tw / 2, bx[3] + 10), txt, font=f2, fill=(255, 255, 255))
+    return ((boxes[win][0] + boxes[win][2]) / 2, (boxes[win][1] + boxes[win][3]) / 2)
+
+# 68 Speed read
+def draw_speedread(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    cx, cy = (c.W / 2, y0 + 250) if c.v else (x0 + 480, (y0 + y1) / 2 + 30)
+    box = (cx - 400, cy - 130, cx + 400, cy + 130)
+    d.rounded_rectangle(box, radius=40, fill=(255, 255, 255))
+    show = (phase == "ask" and 1.0 <= t < 1.35) or phase == "reveal"
+    if show:
+        f = font(F_BOLD, 150); tw = d.textlength(item["word"], font=f); d.text((cx - tw / 2, cy - 110), item["word"], font=f, fill=(40, 40, 70))
+    else:
+        f = font(F_BOLD, 90); txt = "READY?" if (phase == "ask" and t < 1.0) else "???"; tw = d.textlength(txt, font=f); d.text((cx - tw / 2, cy - 65), txt, font=f, fill=(150, 150, 180))
+    if phase != "ask" or t > 1.5:
+        _opt_row(c, d, item, phase, pt, t, item["options"], y0 + 620 if c.v else 0, 1.6, h_x=x0 + 1300)
+    return cx, cy
+
+# 69 Number that appears twice
+def dupnum_answer(item):
+    seen = {}
+    for i, n in enumerate(item["nums"]):
+        if n in seen: return n, seen[n], i
+        seen[n] = i
+    return None
+
+def draw_dupnum(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    nums = item["nums"]; cols = 4 if c.v else 8; rows = math.ceil(len(nums) / cols)
+    cell, ox, oy = _grid_geom(c, cols, rows, 30 if c.v else 80, 170)
+    _panel(d, ox, oy, cols * cell, rows * cell)
+    ans = dupnum_answer(item); f = font(F_BOLD, cell * 0.42)
+    for i, n in enumerate(nums):
+        r_, q = divmod(i, cols); cx, cy = ox + (q + 0.5) * cell, oy + (r_ + 0.5) * cell
+        txt = str(n); tw = d.textlength(txt, font=f)
+        col = CANDY[(n * 7) % 6]; col = tuple(int(v * 0.7) for v in col)
+        d.text((cx - tw / 2, cy - cell * 0.3), txt, font=f, fill=col)
+        if phase == "reveal" and i in ans[1:]: _circle_hit(d, cx, cy, cell * 0.45, pt)
+    i = ans[1]; r_, q = divmod(i, cols)
+    return ox + (q + 0.5) * cell, oy + (r_ + 0.5) * cell
+
+# 70 Which glass has the most water
+def fill_answer(item):
+    v = [w * l for w, l in item["glasses"]]; return v.index(max(v))
+
+def draw_fill(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    gl = item["glasses"]; n = len(gl)
+    H = 460 if c.v else 420
+    base = y0 + 600 if c.v else y1 - 80
+    for k, (w, l) in enumerate(gl):
+        cx = x0 + (x1 - x0) * (k + 0.5) / n if c.v else x0 + 250 + k * 380
+        W = 120 + w * 140
+        top = base - H
+        lvl = l * (cl(t / 1.0) if phase == "ask" else 1)
+        d.rectangle((cx - W / 2 + 8, base - H * lvl, cx + W / 2 - 8, base - 6), fill=(70, 160, 255))
+        d.line((cx - W / 2, top, cx - W / 2, base, cx + W / 2, base, cx + W / 2, top), fill=(255, 255, 255), width=10, joint="curve")
+        _label(d, cx, base + 60, "ABC"[k], c)
+        if phase == "reveal" and k == fill_answer(item) and pt > 0.5: glow_box(im, (cx - W / 2 - 20, top - 20, cx + W / 2 + 20, base + 20), r=20)
+    k = fill_answer(item)
+    return (x0 + (x1 - x0) * (k + 0.5) / n if c.v else x0 + 250 + k * 380), base - H / 2
+
+# 71 Longest snake
+def _snake_pts(x0, x1, y, amp, freq, steps=120):
+    return [(x0 + (x1 - x0) * i / steps, y + amp * math.sin(i / steps * math.pi * 2 * freq)) for i in range(steps + 1)]
+
+def snakes_answer(item):
+    L = []
+    for amp, freq in item["waves"]:
+        p = _snake_pts(0, 800, 0, amp, freq, 400); L.append(sum(math.dist(p[i], p[i + 1]) for i in range(len(p) - 1)))
+    return L.index(max(L))
+
+def draw_snakes(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    cols = [(240, 80, 90), (70, 150, 240), (80, 200, 110)]
+    win = snakes_answer(item)
+    for k, (amp, freq) in enumerate(item["waves"]):
+        y = y0 + 120 + k * 260 if c.v else y0 + 120 + k * 220
+        xa, xb = (x0 + 120, x1 - 40) if c.v else (x0 + 160, x0 + 1100)
+        P = _snake_pts(xa, xb, y, amp, freq)
+        a = eo((t - 0.3 - 0.2 * k) / 0.6) if phase == "ask" else 1
+        kk = max(2, int(len(P) * a))
+        wdt = 22 if (phase == "reveal" and k == win and pt > 0.4) else 14
+        d.line(P[:kk], fill=cols[k], width=wdt, joint="curve")
+        _label(d, xa - 70, y, "ABC"[k], c)
+    if c.v:
+        _opt_row(c, d, dict(item, right=win), phase, pt, t, ["A", "B", "C"], y1 - 30, 1.4)
+    return x0 + 500, y0 + 120 + win * (260 if c.v else 220)
+
+# 72 Count the squares
+def squares_total(item): return sum(k * k for k in range(1, item["n"] + 1))
+
+def draw_squares(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    n = item["n"]; S = 480 if c.v else 440
+    ox, oy = (c.W / 2 - S / 2, y0 + 40) if c.v else (x0 + 180, y0 + 90)
+    a = eo((t - 0.3) / 0.6) if phase == "ask" else 1
+    col = (255, 255, 255, int(255 * a))
+    for i in range(n + 1):
+        d.line((ox + S * i / n, oy, ox + S * i / n, oy + S), fill=col, width=10)
+        d.line((ox, oy + S * i / n, ox + S, oy + S * i / n), fill=col, width=10)
+    if phase == "reveal" and pt > 0.3:
+        k = int(cl((pt - 0.3) / 1.5) * n) + 1
+        k = min(k, n); g = S / n
+        d.rectangle((ox, oy, ox + g * k, oy + g * k), outline=(60, 255, 120), width=12)
+    _opt_row(c, d, item, phase, pt, t, item["options"], y1 - 40 if c.v else 0, 1.4)
+    return ox + S / 2, oy + S / 2
+
+# 73 Colour memory
+def draw_colormem(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    cx, cy = (c.W / 2, y0 + 260) if c.v else (x0 + 420, (y0 + y1) / 2 + 30)
+    show = (phase == "ask" and 0.5 <= t < 2.3) or (phase == "reveal" and pt > 0.3)
+    e = emoji_img(item["shape"], 380)
+    mask = e.split()[-1].point(lambda v: 255 if v > 60 else 0)
+    col = INKS[item["color"]] if show else (150, 150, 165)
+    sil = Image.new("RGBA", e.size, col + (255,)); sil.putalpha(mask)
+    d.rounded_rectangle((cx - 240, cy - 240, cx + 240, cy + 240), radius=40, fill=(255, 255, 255, 230))
+    paste(im, sil, cx, cy)
+    if phase != "ask" or t >= 2.3:
+        _opt_row(c, d, item, phase, pt, t, item["options"], y0 + 680 if c.v else 0, 2.4)
+    return cx, cy
+
+# 74 Silhouette guess
+def draw_silhouette(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    cx, cy = (c.W / 2, y0 + 270) if c.v else (x0 + 420, (y0 + y1) / 2 + 30)
+    e = emoji_img(item["emoji"], 420)
+    d.rounded_rectangle((cx - 260, cy - 260, cx + 260, cy + 260), radius=40, fill=(255, 255, 255, 230))
+    if phase == "reveal" and pt > 0.3: paste(im, e, cx, cy)
+    else:
+        sil = Image.new("RGBA", e.size, (25, 25, 40, 255)); sil.putalpha(e.split()[-1].point(lambda v: 255 if v > 60 else 0))
+        paste(im, sil, cx, cy, eob((t - 0.2) / 0.4) if phase == "ask" else 1)
+    _opt_row(c, d, item, phase, pt, t, item["options"], y1 - 30 if c.v else 0, 1.2)
+    return cx, cy
+
+# 75 Upside-down word
+def draw_upsideword(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    cx, cy = (c.W / 2, y0 + 250) if c.v else (x0 + 480, (y0 + y1) / 2 + 30)
+    f = font(F_BOLD, 170); tmp = ImageDraw.Draw(Image.new("RGBA", (1, 1)))
+    w = int(tmp.textlength(item["word"], font=f)) + 60
+    lay = Image.new("RGBA", (w, 230), (0, 0, 0, 0)); ImageDraw.Draw(lay).text((30, 0), item["word"], font=f, fill=(40, 40, 70))
+    rot = 180 if phase != "reveal" else 180 * (1 - eo(pt / 0.7))
+    lay = lay.rotate(rot, expand=True, resample=Image.BICUBIC)
+    d.rounded_rectangle((cx - 420, cy - 150, cx + 420, cy + 150), radius=40, fill=(255, 255, 255))
+    sc = min(1, 780 / lay.width)
+    paste(im, lay, cx, cy, sc)
+    _opt_row(c, d, item, phase, pt, t, item["options"], y0 + 620 if c.v else 0, 1.2, h_x=x0 + 1300)
+    return cx, cy
+
+# 76 Colour change
+def draw_colorchange(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    cols = item["colors"]; n = len(cols); per = 3
+    after = phase != "ask" or t >= 3.0
+    f = font(F_BOLD, 44)
+    for i, nm in enumerate(cols):
+        r_, q = divmod(i, per)
+        cx = x0 + (x1 - x0) * (q + 0.5) / per if c.v else x0 + 200 + q * 330
+        cy = y0 + 200 + r_ * 380 if c.v else y0 + 200 + r_ * 330
+        col = INKS[item["new"] if (after and i == item["changed"]) else nm]
+        R = 85
+        d.line((cx, cy + R * 1.2, cx + 10, cy + R * 2.6), fill=(230, 230, 240), width=5)
+        d.ellipse((cx - R, cy - R * 1.2, cx + R, cy + R * 1.2), fill=col, outline=(30, 30, 60), width=5)
+        d.text((cx - R - 30, cy - R * 1.2 - 20), str(i + 1), font=f, fill=c.accent)
+        if phase == "reveal" and i == item["changed"]: _circle_hit(d, cx, cy, R * 1.5, pt)
+    if phase == "ask" and 3.0 <= t < 3.45:
+        im.alpha_composite(Image.new("RGBA", im.size, (255, 255, 255, int(255 * cl(1 - abs(t - 3.22) / 0.22)))))
+    return c.W / 2, (y0 + y1) / 2
+
+# 77 Hidden number (dot plate)
+def draw_hiddennum(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
+    S = 560 if c.v else 520
+    cx, cy = (c.W / 2, y0 + 300) if c.v else (x0 + 420, (y0 + y1) / 2 + 30)
+    mask = Image.new("L", (S, S), 0); md = ImageDraw.Draw(mask)
+    f = font(F_BOLD, int(S * 0.75)); tw = md.textlength(item["digit"], font=f)
+    md.text((S / 2 - tw / 2, S * 0.02), item["digit"], font=f, fill=255)
+    rnd = _rnd.Random(item.get("seed", 1)); fg, bg = tuple(item["fg"]), tuple(item["bg"])
+    plate = Image.new("RGBA", (S, S), (0, 0, 0, 0)); pd = ImageDraw.Draw(plate)
+    pd.ellipse((0, 0, S, S), fill=(250, 248, 240))
+    step = S / 26
+    for gy in range(27):
+        for gx in range(27):
+            x = gx * step + rnd.uniform(-3, 3); y = gy * step + rnd.uniform(-3, 3)
+            if math.hypot(x - S / 2, y - S / 2) > S / 2 - 12: continue
+            r = rnd.uniform(step * 0.32, step * 0.48)
+            inside = mask.getpixel((int(min(S - 1, max(0, x))), int(min(S - 1, max(0, y))))) > 128
+            base = fg if inside else bg
+            jit = rnd.randint(-18, 18)
+            col = tuple(max(0, min(255, v + jit)) for v in base)
+            if phase == "reveal" and pt > 0.4 and inside: col = (30, 30, 60)
+            pd.ellipse((x - r, y - r, x + r, y + r), fill=col)
+    paste(im, plate, cx, cy, eob((t - 0.2) / 0.4) if phase == "ask" else 1)
+    _opt_row(c, d, item, phase, pt, t, item["options"], y1 - 20 if c.v else 0, 1.2)
+    return cx, cy
+
+DRAW.update({"shapemiss": draw_shapemiss, "spotlight": draw_spotlight, "pixel": draw_pixel, "crowd": draw_crowd,
+             "patmem": draw_patmem, "oddpattern": draw_oddpattern, "colorcount": draw_colorcount, "moved": draw_moved,
+             "samediff": draw_samediff, "biggroup": draw_biggroup, "speedread": draw_speedread, "dupnum": draw_dupnum,
+             "fill": draw_fill, "snakes": draw_snakes, "squares": draw_squares, "colormem": draw_colormem,
+             "silhouette": draw_silhouette, "upsideword": draw_upsideword, "colorchange": draw_colorchange, "hiddennum": draw_hiddennum})
+_old_min_ask5 = min_ask
+def min_ask(item):
+    t_ = item.get("type")
+    if t_ == "shapemiss": return 0.5 + 0.7 * len(item["seq"]) + 1.4
+    if t_ in ("spotlight", "pixel"): return 4.6
+    if t_ == "patmem": return 3.8
+    if t_ in ("moved", "colorchange"): return 5.4
+    if t_ == "biggroup": return 2.6
+    if t_ == "speedread": return 2.6
+    if t_ == "colormem": return 3.6
+    return _old_min_ask5(item)
