@@ -10,7 +10,7 @@ retry once, skip that video, and carry on. Report at the end.
 - All times are **Asia/Kolkata (IST)**.
 
 ## 1. Pick the target date
-- If IST time now is before 07:00 → TARGET = today, else TARGET = tomorrow.
+- If IST time now is before 11:00 → TARGET = today, else TARGET = tomorrow.
 - Metricool: `getBrandSettings` → blogId **8098288**. `getScheduledPosts` for TARGET 00:00–23:59 IST
   (timezone `Asia/Calcutta`). If **5 or more** YouTube posts already exist that day → it is already done:
   stop and report "already scheduled".
@@ -83,7 +83,9 @@ Name files `TARGET-s01.mp4 … TARGET-s10.mp4`, `TARGET-long.mp4`. URL:
 (Metricool copies the file when the post is created, so replacing the branch next day is safe.)
 
 ## 6. Schedule in Metricool (createScheduledPost, blogId 8098288, timezone Asia/Calcutta)
-Shorts at 08:03, 09:17, 10:31, 11:46, 13:02, 14:16, 15:33, 16:47, 18:04, 19:21 on TARGET. Long video at 17:30.
+Pick 11 **random** times on TARGET between 12:00 and 22:00 IST (random minutes, not round numbers, at least 35 minutes apart,
+and never earlier than 30 minutes after now). Generate them with Python `random` seeded by TARGET. 10 go to the Shorts in random
+order; the long video gets one of the times between 15:00 and 20:00.
 info: autoPublish true, draft false, providers [{"network":"youtube"}], media [URL], firstCommentText
 "What was your score? 👇", youtubeData {title, type "short" (long: "video"), privacy "public", tags,
 category "EDUCATION", madeForKids false, isAiGeneratedContent false}.
