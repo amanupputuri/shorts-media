@@ -8,15 +8,19 @@
 import sys, json, datetime, os
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 
-FORMATS = ["odd4", "changed", "maze", "keys", "glasses", "path", "shadow", "mirror", "blocks", "fit",
-           "twins", "colortrap", "piece", "illusion", "rotate", "balance", "count", "order", "dots", "hidden"]
+FORMATS = ["odd4", "changed", "twins", "count", "order", "spotdiff", "oddcolor", "memgrid", "missing", "flipped", "numflash",
+           "whereflash", "bug", "rowdiff", "countdiff", "arrowout", "cardflip", "diceflash", "zoom", "lightorder", "split"]
 NAMES = {"odd4": "Find the Odd One Out", "changed": "What Changed?", "cups": "Follow the Ball", "keys": "Which Key Fits?",
          "glasses": "Which Glass Fills First?", "path": "Which Path Gets the Prize?", "shadow": "Shadow Match",
          "mirror": "Mirror Match", "jar": "Which Jar Has More?", "fit": "How Many Fit?", "twins": "Find the Twins",
          "gears": "Which Way Does the Last Gear Turn?", "piece": "Which Piece Fits?", "illusion": "Illusion Check",
          "rotate": "Rotate Match", "stack": "What's at the Bottom?", "count": "Quick Count", "order": "Remember the Order",
          "pattern": "Complete the Pattern", "hidden": "Find the Hidden One", "maze": "Mini Maze", "blocks": "Count the Blocks",
-         "colortrap": "Colour Trap", "balance": "Balance the Scale", "dots": "Connect the Dots"}
+         "colortrap": "Colour Trap", "balance": "Balance the Scale", "dots": "Connect the Dots",
+         "spotdiff": "Spot the Difference", "oddcolor": "Odd Colour Out", "memgrid": "Memory Grid", "missing": "What's Missing?",
+         "flipped": "Upside-Down One", "numflash": "Number Flash", "whereflash": "Where Was It?", "bug": "Bug Arrows",
+         "rowdiff": "Which Row Is Different?", "countdiff": "How Many Differences?", "arrowout": "Arrow Out",
+         "cardflip": "Card Flip Memory", "diceflash": "Dice Flash", "zoom": "Zoom Out", "lightorder": "Light Order", "split": "Split Picture"}
 START = datetime.date(2026, 11, 15)
 PALETTES = [([20, 40, 110], [70, 20, 120], [230, 60, 90]), ([20, 90, 80], [10, 40, 90], [240, 120, 40]),
             ([60, 20, 100], [20, 30, 90], [230, 60, 120]), ([90, 30, 30], [40, 20, 80], [40, 160, 220]),
@@ -26,7 +30,7 @@ BGS = ["bubbles", "stars", "grid", "waves", "confetti"]
 
 def day_info(date):
     d = datetime.date.fromisoformat(date); n = (d - START).days
-    fmt = FORMATS[n % 20]; p = PALETTES[n % len(PALETTES)]
+    fmt = FORMATS[n % len(FORMATS)]; p = PALETTES[n % len(PALETTES)]
     return {"day_index": n, "format": fmt, "format_name": NAMES[fmt],
             "style": {"palette": [p[0], p[1]], "accent": [255, 210, 60], "pill": p[2], "bg": BGS[n % len(BGS)]},
             "music_seed": n}
@@ -47,6 +51,22 @@ def answer(item):
         _, pair = E.twins_set(item["seed"]); return "numbers %d and %d" % (pair[0] + 1, pair[1] + 1)
     if t == "gears": return ["A clockwise", "B anticlockwise"][E.gears_answer(item)]
     if t == "illusion": return ["A", "B", "same"][E.illusion_answer(item)]
+    if t == "spotdiff": return "cell %d changed to %s" % (item["diff"] + 1, item["alt"])
+    if t == "oddcolor": return "row %d col %d" % (item["pos"][0] + 1, item["pos"][1] + 1)
+    if t == "memgrid": return "square %d" % (item["seq"][-1] + 1)
+    if t == "missing": return "%s = %s (gone %s)" % (L[item["right"]], item["options"][item["right"]], item["before"][item["gone"]])
+    if t in ("flipped", "arrowout", "letterhunt", "oddsize"): return "row %d col %d" % (item["pos"][0] + 1, item["pos"][1] + 1)
+    if t == "numflash": return "%s = %s (shown %s)" % (L[item["right"]], item["options"][item["right"]], item["number"])
+    if t == "whereflash": return "square %d (%s)" % (item["target_idx"] + 1, item["grid"][item["target_idx"]])
+    if t == "bug":
+        p = E.bug_path(item); return "OFF GRID - fix" if p is None else "square %d" % (p[-1][0] * 4 + p[-1][1] + 1)
+    if t == "rowdiff": return "row %s" % "ABCDE"[item["odd_row"]]
+    if t == "countdiff": return "%s = %s (true %d)" % (L[item["right"]], item["options"][item["right"]], len(item["diffs"]))
+    if t == "cardflip": return "%s = %s (true %s)" % (L[item["right"]], item["options"][item["right"]], " & ".join(map(str, E.cardflip_pair(item))))
+    if t == "diceflash": return "%s = %s (true %d)" % (L[item["right"]], item["options"][item["right"]], sum(item["dice"]))
+    if t == "zoom": return "%s = %s" % (L[item["right"]], item["options"][item["right"]])
+    if t == "lightorder": return "%s = %s (true %s)" % (L[item["right"]], item["options"][item["right"]], item["seq"][item["ask_pos"] - 1])
+    if t == "split": return "bottom %d" % (E.split_answer(item) + 1)
     if t == "maze": w = E.maze_answer(item); return "%s (%s)" % (L[w], item["starters"][w])
     if t == "blocks": return "%s = %s (true total %d)" % (L[item["right"]], item["options"][item["right"]], E.blocks_total(item))
     if t == "balance": return "%s = %s (true %g)" % (L[item["right"]], item["options"][item["right"]], E.balance_answer(item))
@@ -81,6 +101,14 @@ def check(spec):
         if t == "colortrap" and it["options"][it["right"]].lower() != it["ink"]: errs.append(f"item {i}: colortrap right must be the ink colour")
         if t == "colortrap" and it["word"].lower() == it["ink"]: errs.append(f"item {i}: colortrap word must differ from ink")
         if t == "dots" and it["shape"] not in E2.DOT_SHAPES: errs.append(f"item {i}: unknown dots shape")
+        if t == "missing" and it["options"][it["right"]] != it["before"][it["gone"]]: errs.append(f"item {i}: missing right option wrong")
+        if t == "numflash" and it["options"][it["right"]] != it["number"]: errs.append(f"item {i}: numflash right option wrong")
+        if t == "bug" and E2.bug_path(it) is None: errs.append(f"item {i}: bug walks off the 4x4 grid")
+        if t == "countdiff" and int(it["options"][it["right"]]) != len(it["diffs"]): errs.append(f"item {i}: countdiff right option wrong")
+        if t == "cardflip" and (len(E2.cardflip_pair(it)) != 2 or it["options"][it["right"]] != " & ".join(map(str, E2.cardflip_pair(it)))): errs.append(f"item {i}: cardflip needs exactly 2 targets and matching right option")
+        if t == "diceflash" and int(it["options"][it["right"]]) != sum(it["dice"]): errs.append(f"item {i}: diceflash right option wrong")
+        if t == "lightorder" and it["options"][it["right"]].lower() != it["seq"][it["ask_pos"] - 1]: errs.append(f"item {i}: lightorder right option wrong")
+        if t == "rowdiff" and abs(it["swap"][0] - it["swap"][1]) != 1: errs.append(f"item {i}: rowdiff swap must be neighbours")
         if t == "hidden" and it["base"] == it["odd"]: errs.append(f"item {i}: hidden base == odd")
     return errs
 

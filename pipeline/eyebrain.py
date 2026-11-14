@@ -1668,10 +1668,10 @@ def draw_letterhunt(c, im, item, phase, pt, t):
 # 36 Upside-down one
 def draw_flipped(c, im, item, phase, pt, t):
     d = ImageDraw.Draw(im)
-    cols, rows = (5, 6) if c.v else (10, 4)
+    cols, rows = (5, 6) if c.v else (8, 4)
     cell, ox, oy = _grid_geom(c, cols, rows, 40 if c.v else 80, 160)
     _panel(d, ox, oy, cols * cell, rows * cell)
-    e = emoji_img(item["emoji"], cell * 0.75)
+    e = emoji_img(item["emoji"], cell * 0.6)
     odd = e.transpose(Image.ROTATE_180) if item.get("mode", "rot") == "rot" else e.transpose(Image.FLIP_LEFT_RIGHT)
     pr, pc = item["pos"]; pr %= rows; pc %= cols
     a = eo((t - 0.3) / 0.5) if phase == "ask" else 1
@@ -1707,7 +1707,7 @@ def draw_blinks(c, im, item, phase, pt, t):
 # 38 Number flash
 def draw_numflash(c, im, item, phase, pt, t):
     x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
-    cx, cy = (c.W / 2, y0 + 250) if c.v else (c.W / 2, y0 + 160)
+    cx, cy = (c.W / 2, y0 + 250) if c.v else (x0 + 480, (y0 + y1) / 2 + 30)
     box = (cx - 380, cy - 140, cx + 380, cy + 140)
     d.rounded_rectangle(box, radius=40, fill=(255, 255, 255))
     f = font(F_BOLD, 190)
@@ -1717,7 +1717,7 @@ def draw_numflash(c, im, item, phase, pt, t):
     tw = d.textlength(txt, font=ff); d.text((cx - tw / 2, cy - (130 if show else 75)), txt, font=ff, fill=(40, 40, 70))
     labels = item["options"]
     if phase != "ask" or t > 2.3:
-        _opt_row(c, d, item, phase, pt, t, labels, y0 + 640 if c.v else 0, 2.4, h_x=c.W / 2)
+        _opt_row(c, d, item, phase, pt, t, labels, y0 + 640 if c.v else 0, 2.4, h_x=x0 + 1300)
     if phase == "reveal": glow_box(im, box, r=40)
     return cx, cy
 
@@ -1987,7 +1987,7 @@ def draw_cardflip(c, im, item, phase, pt, t):
     x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
     cols, rows = (3, 3) if c.v else (5, 2)
     cards = item["cards"]
-    cw, ch = (230, 220) if c.v else (230, 230)
+    cw, ch = (230, 200) if c.v else (230, 230)
     ox = c.W / 2 - cols * cw / 2 if c.v else x0 + 40; oy = y0 + 10 if c.v else y0 + 80
     show = phase == "ask" and 0.4 <= t < 3.0
     pair = cardflip_pair(item)
@@ -2004,10 +2004,10 @@ def draw_cardflip(c, im, item, phase, pt, t):
             L = str(i + 1); tw = d.textlength(L, font=f); d.text((cx - tw / 2, cy - 46), L, font=f, fill=(255, 255, 255))
     if phase != "ask" or t >= 3.0:
         f2 = font(F_BOLD, 56); txt = "Where are the two"; tw = d.textlength(txt, font=f2)
-        tx, ty = (c.W / 2, oy + rows * ch + 60) if c.v else (x0 + 1430, y0 + 60)
+        tx, ty = (c.W / 2, oy + rows * ch + 50) if c.v else (x0 + 1430, y0 + 60)
         d.text((tx - tw / 2 - 60, ty - 36), txt, font=f2, fill=(255, 255, 255))
         paste(im, emoji_img(item["target"], 90), tx + tw / 2 + 10, ty)
-        _opt_row(c, d, item, phase, pt, t, item["options"], ty + 170 if c.v else 0, 3.2, h_x=x0 + 1430)
+        _opt_row(c, d, item, phase, pt, t, item["options"], ty + 140 if c.v else 0, 3.2, h_x=x0 + 1430)
     return c.W / 2, (y0 + y1) / 2
 
 # 50 Quick swap
@@ -2060,15 +2060,15 @@ def _die(size, n):
 def draw_diceflash(c, im, item, phase, pt, t):
     x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
     show = (phase == "ask" and 0.6 <= t < 2.0) or phase == "reveal"
-    cy = y0 + 230 if c.v else y0 + 200
+    cy = y0 + 230 if c.v else (y0 + y1) / 2 + 30
     for k, v in enumerate(item["dice"]):
-        cx = c.W / 2 + (k - (len(item["dice"]) - 1) / 2) * 340
+        cx = (c.W / 2 if c.v else x0 + 480) + (k - (len(item["dice"]) - 1) / 2) * 340
         if show: paste(im, _die(280, v), cx, cy)
         else:
             d.rounded_rectangle((cx - 140, cy - 140, cx + 140, cy + 140), radius=46, fill=(90, 90, 130), outline=(255, 255, 255), width=8)
             f = font(F_BOLD, 150); tw = d.textlength("?", font=f); d.text((cx - tw / 2, cy - 105), "?", font=f, fill=(255, 255, 255))
     if phase != "ask" or t >= 2.1:
-        _opt_row(c, d, item, phase, pt, t, item["options"], y0 + 620 if c.v else 0, 2.2, h_x=c.W / 2)
+        _opt_row(c, d, item, phase, pt, t, item["options"], y0 + 620 if c.v else 0, 2.2, h_x=x0 + 1300)
     return c.W / 2, cy
 
 # 52 Who's hiding

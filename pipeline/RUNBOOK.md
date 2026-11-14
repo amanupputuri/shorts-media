@@ -21,7 +21,7 @@ Read `pipeline/used.json` (list of short keys of puzzles already used). Never re
 N = 4 Shorts. Write N+1 spec files in `work/TARGET/`:
 - `s01.json … sNN.json` — Shorts. Each: **3 puzzles, all of the day's format**, orientation `"v"`, count_secs 3,
   label `"PUZZLE"`. Vary difficulty: easy, medium, tricky.
-- `long.json` — orientation `"h"`, count_secs 5, label `"PUZZLE"`, **20 puzzles = one of each of the 20 formats**,
+- `long.json` — orientation `"h"`, count_secs 5, label `"PUZZLE"`, **20 puzzles = one each of 20 of the 21 formats**,
   shuffled order, easy → harder.
 - Every spec gets: `style` and `music_seed` from step 1 (long video: music_seed + 1), a `title_card`
   {emoji, line1, line2, tag} and `outro` exactly {"line1": "LIKE &", "line2": "SUBSCRIBE!", "line3": "", "cta": "SUBSCRIBE", "cta_sub": ""},
@@ -35,30 +35,30 @@ N = 4 Shorts. Write N+1 spec files in `work/TARGET/`:
   puzzle (computed from the drawing data). Make every `a` line and the `fact` lines agree with it. Fix and re-check
   until it prints OK. Never ship a spec whose voice disagrees with `check`.
 
-### Puzzle schemas (all items also have `prompt` (on-screen question) and `fact` [line1 ≤ 26 chars, line2 ≤ 34 chars])
-Emoji must be single standard emoji (no flags, no skin tones, no ZWJ sequences).
+### Puzzle schemas — the 21 formats (all items also have `prompt` (on-screen question, ≤ 32 characters) and `fact` [line1 ≤ 26 chars, line2 ≤ 34 chars])
+Emoji must be single standard emoji (no flags, no skin tones, no ZWJ sequences). Shorts use only the format of the day;
+the long video uses all 21 (one each; drop one so it is 20).
 - **odd4** `{"type":"odd4","options":[[label,emoji]x4],"right":i}` — 4 things, one doesn't belong (reason in fact).
 - **changed** `{"type":"changed","prompt":"Remember these 6!","prompt2":"Which one changed?","before":[6 emoji],"changed":i,"after_emoji":e}`
-- **keys** `{"type":"keys","lock":[5 ints 1-3],"keys":[3 lists],"right":i}` keys[right] == lock; others differ in 1–2 teeth.
-- **glasses** `{"type":"glasses","pipes":{"1":[[child,height0-1,blocked]],...}}` glasses 1→2,3; 2→4,5; 3→5,6 (any subset,
-  some blocked). Answer = check output (water takes the lowest open pipe).
-- **path** `{"type":"path","starters":[3 emoji],"prize":e,"prize_slot":0-2,"rows":8,"rungs":[[row 0.8-7.2, left_lane 0|1],...]}`
-  4–7 rungs, rows ≥ 1 apart for the same lane pair. Answer = check output.
-- **shadow** `{"type":"shadow","object":e,"shadows":[3 entries, one == object, others similar animals/objects or "e|flip"],"right":i}`
-- **mirror** `{"type":"mirror","kind":"text"|"emoji","content":"WORD" (A–Z, 4–6 letters, not symmetric) or emoji string,"opts":[permutation of "h","v","r"],"right": index of "h"}`
-- **fit** `{"type":"fit","item":e,"grid":[cols 3-5,rows 2-4],"options":[3 numbers as strings],"right":i}` options[right] == cols*rows.
 - **twins** `{"type":"twins","seed":n}` any int; answer = check output.
-- **piece** `{"type":"piece","emoji":e (big animal/object face),"missing":0-8,"options":[3 of: the missing index, another index, "<missing>r"],"right":i,"bg":[r,g,b] pale}`
-- **illusion** `{"type":"illusion","kind":"lines"|"circles","diff":-1|0|1}` (0 = same — use 0 most of the time, ±1 sometimes).
-- **rotate** `{"type":"rotate","cells":[[r,c] 5 cells in 4x4, asymmetric],"opts":[[angle 90|180|270, mirrored bool] x3],"right":i,"color":[r,g,b]}` exactly one opt not mirrored.
 - **count** `{"type":"count","target":e,"others":[2-3 emoji],"n":4-9,"m":8-12,"seed":k,"options":[3 strings],"right":i}` n+m ≤ 20, options[right] == n.
 - **order** `{"type":"order","prompt":"Remember the order!","prompt2":"Which one came SECOND?","seq":[4 emoji],"ask_pos":1-4,"options":[3 emoji incl. seq[ask_pos-1]],"right":i}`
-- **maze** `{"type":"maze","starters":[3 emoji],"prize":e,"seed":n,"goal_col":0-6 (optional, default 3)}` answer = check output (each animal has its own sealed area; one contains the prize).
-- **blocks** `{"type":"blocks","heights":[[3x3 column heights 0-4]],"options":[3 strings],"right":i}` options[right] == total; taller columns at the back-left so hidden blocks are implied; total 5-14.
-- **colortrap** `{"type":"colortrap","prompt":"Say the COLOUR, not the word!","word":colour name,"ink":one of red|blue|green|yellow|purple|orange|pink (≠ word),"options":[3 colour names incl. ink and word],"right":index of ink}`
-- **balance** `{"type":"balance","rule":[[emojiA,a],[emojiB,b]],"q_n":n,"options":[3 strings],"right":i}` means a×A = b×B; question: n×B = ? A. Answer n·a/b must be a whole number ≤ 9; options[right] equals it.
-- **dots** `{"type":"dots","prompt":"Connect the dots... what is it?","shape":one of star|house|fish|heart|boat|arrow|tree|rocket|crown|cat|kite|umbrella,"options":[3 names incl. the shape],"right":i}`
-- **hidden** `{"type":"hidden","base":e,"odd":very similar emoji (😀/😃, 🕐/🕑, 🐻/🐨, 🍎/🍅, 🌕/🌝),"pos":[row 0-5,col 0-11]}`
+- **spotdiff** `{"type":"spotdiff","prompt":"Spot the difference!","scene":[9 emoji],"diff":0-8,"alt":e (similar-looking, e.g. 🌼→🌻)}`
+- **oddcolor** `{"type":"oddcolor","prompt":"Find the different colour!","color":[r,g,b],"delta":14-26 (smaller = harder),"pos":[row 0-5,col 0-8]}`
+- **memgrid** `{"type":"memgrid","prompt":"Watch the squares!","prompt2":"Which square lit up LAST?","seq":[4-5 cell indexes 0-8, no repeats]}`
+- **missing** `{"type":"missing","prompt":"Remember these 6!","prompt2":"Which one is missing?","before":[6 emoji],"gone":i,"options":[3 emoji incl. before[gone]],"right":i}`
+- **flipped** `{"type":"flipped","prompt":"Find the upside-down one!","emoji":e (clearly not symmetric: 🐟🐌🦒🚗🐘),"pos":[row,col],"mode":"rot"}`
+- **numflash** `{"type":"numflash","prompt":"Remember the number!","prompt2":"Which number did you see?","number":"4-5 digits","options":[3 look-alike numbers incl. number],"right":i}`
+- **whereflash** `{"type":"whereflash","prompt":"Remember where they are!","prompt2":"Where was the X?","grid":[9 distinct emoji],"target_idx":0-8}`
+- **bug** `{"type":"bug","prompt":"Where does the bug stop?","start":[r,c],"moves":"4-6 of U/D/L/R"}` must stay on the 4x4 grid; answer = check output.
+- **rowdiff** `{"type":"rowdiff","prompt":"Which row is different?","seq":[5 look-alike emoji, e.g. 😀😃😄😁😆 or 🐶🐕🐩🐺🦊],"rows":5,"odd_row":0-4,"swap":[k,k+1]}`
+- **countdiff** `{"type":"countdiff","prompt":"How many differences?","scene":[9 emoji],"diffs":[[cell,alt],...] (1-3),"options":["1","2","3"],"right":len(diffs)-1}`
+- **arrowout** `{"type":"arrowout","prompt":"Find the odd arrow!","angle":0|90|180|270,"odd_angle":angle±90 or +180 (or ±30 to be hard),"pos":[row,col]}`
+- **cardflip** `{"type":"cardflip","prompt":"Remember the cards!","prompt2":"Find the matching pair!","cards":[9 emoji, exactly 2 == target],"target":e,"options":["a & b" strings, one is the true pair],"right":i}`
+- **diceflash** `{"type":"diceflash","prompt":"Remember the dice!","prompt2":"What was the total?","dice":[2 values 1-6],"options":[3 strings],"right":i}`
+- **zoom** `{"type":"zoom","prompt":"What is it? Guess early!","emoji":e,"focus":[0.3-0.7,0.3-0.7],"options":[3 names],"right":i}`
+- **lightorder** `{"type":"lightorder","prompt":"Watch the lights!","prompt2":"Which colour lit up THIRD?","seq":[4-5 of red|blue|green|yellow],"ask_pos":n,"options":[3 colour names],"right":i}`
+- **split** `{"type":"split","prompt":"Match the halves!","emojis":[3 animal faces],"order":[permutation of 0,1,2 ≠ identity],"ask":0-2}` answer = check output.
 
 ## 3. Voice (ElevenLabs connector)
 - `creative_create_flow` once (name "Wit Wonderland TARGET").
