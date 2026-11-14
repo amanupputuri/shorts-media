@@ -1330,3 +1330,270 @@ def draw_maze(c, im, item, phase, pt, t):
     return c.W / 2, (y0 + y1) / 2
 
 DRAW.update({"blocks": draw_blocks, "dots": draw_dots, "colortrap": draw_colortrap, "balance": draw_balance, "maze": draw_maze})
+
+# ================================================================ CANDIDATES (v3)
+def _opt_row(c, d, item, phase, pt, t, labels, y_v, start=1.4, h_x=None, emojis=None):
+    """generic 3-4 option boxes with text labels. returns rects"""
+    x0, y0, x1, y1 = area(c)
+    n = len(labels); rects = []
+    for q, o in enumerate(labels):
+        if c.v: ox_, oy_, ow, oh = x0 + (x1 - x0) * (q + 0.5) / n, y_v, (x1 - x0) / n - 40, 140
+        else: ox_, oy_, ow, oh = (h_x or x0 + 1300), y0 + 150 + q * 180, 360, 140
+        rects.append((ox_, oy_))
+        sc = eob((t - start - 0.2 * q) / 0.4) if phase == "ask" else 1
+        if sc < 0.05: continue
+        fill = (255, 255, 255)
+        if phase == "reveal" and pt > 0.6: fill = (40, 190, 90) if q == item["right"] else (150, 40, 55)
+        d.rounded_rectangle((ox_ - ow / 2, oy_ - oh / 2, ox_ + ow / 2, oy_ + oh / 2), radius=28, fill=fill, outline=c.accent, width=6)
+        sz = 70; f = font(F_BOLD, sz)
+        while d.textlength(o, font=f) > ow - 90 and sz > 30: sz -= 4; f = font(F_BOLD, sz)
+        tw = d.textlength(o, font=f)
+        d.text((ox_ - tw / 2 + 20, oy_ - sz * 0.68), o, font=f, fill=(30, 30, 60) if fill == (255, 255, 255) else (255, 255, 255))
+        _label(d, ox_ - ow / 2 + 38, oy_, "ABCD"[q], c, r=28, size=38)
+    return rects
+
+# ---------------------------------------------------------------- Spot the difference
+def draw_spotdiff(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c)
+    d = ImageDraw.Draw(im)
+    sc = item["scene"]; cell = 120 if c.v else 110
+    pw = cell * 3 + 40
+    panels = [(c.W / 2, y0 + 210), (c.W / 2, y0 + 640)] if c.v else [(c.W / 2 - 330, (y0 + y1) / 2 + 30), (c.W / 2 + 330, (y0 + y1) / 2 + 30)]
+    hit = None
+    for p, (px, py) in enumerate(panels):
+        a = eob((t - 0.2 - 0.3 * p) / 0.4) if phase == "ask" else 1
+        if a < 0.05: continue
+        d.rounded_rectangle((px - pw / 2, py - pw / 2, px + pw / 2, py + pw / 2), radius=30, fill=(255, 255, 255))
+        f = font(F_BOLD, 40); L = "AB"[p]; d.text((px - pw / 2 + 14, py - pw / 2 + 4), L, font=f, fill=c.accent)
+        for i, e in enumerate(sc):
+            r_, k = divmod(i, 3)
+            em = item["alt"] if (p == 1 and i == item["diff"]) else e
+            cx, cy = px - cell + k * cell, py - cell + r_ * cell
+            paste(im, emoji_img(em, cell * 0.72), cx, cy, a)
+            if phase == "reveal" and i == item["diff"]:
+                rr = cell * 0.55; d.ellipse((cx - rr, cy - rr, cx + rr, cy + rr), outline=(60, 255, 120), width=10); hit = (cx, cy)
+    return hit or (c.W / 2, (y0 + y1) / 2)
+
+# ---------------------------------------------------------------- Odd colour out
+def draw_oddcolor(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c)
+    d = ImageDraw.Draw(im)
+    cols, rows = (5, 6) if c.v else (9, 4)
+    cell = min((x1 - x0) / cols, (y1 - y0 - 40) / rows) * 0.92
+    ox = c.W / 2 - cols * cell / 2; oy = y0 + 20 if c.v else y0 + 70
+    base = tuple(item["color"]); dl = item.get("delta", 22)
+    odd = tuple(max(0, min(255, v + dl)) for v in base)
+    pr, pc = item["pos"]; pr %= rows; pc %= cols
+    a = eo((t - 0.3) / 0.5) if phase == "ask" else 1
+    for r_ in range(rows):
+        for k in range(cols):
+            col = odd if (r_, k) == (pr, pc) else base
+            g = 10
+            d.rounded_rectangle((ox + k * cell + g, oy + r_ * cell + g, ox + (k + 1) * cell - g, oy + (r_ + 1) * cell - g), radius=18, fill=col + (int(255 * a),))
+    cx, cy = ox + (pc + 0.5) * cell, oy + (pr + 0.5) * cell
+    if phase == "reveal":
+        rr = cell * (0.62 + 0.06 * math.sin(pt * 6))
+        d.ellipse((cx - rr, cy - rr, cx + rr, cy + rr), outline=(255, 255, 255), width=12)
+    return cx, cy
+
+# ---------------------------------------------------------------- Which clock is different
+def _clock(size, h, m, col=(255, 255, 255)):
+    im = Image.new("RGBA", (size, size), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    r = size / 2 - 6; cx = cy = size / 2
+    d.ellipse((6, 6, size - 6, size - 6), fill=col, outline=(30, 30, 60), width=8)
+    for i in range(12):
+        a = i * math.pi / 6; r1 = r * (0.8 if i % 3 else 0.72)
+        d.line((cx + r1 * math.sin(a), cy - r1 * math.cos(a), cx + r * 0.9 * math.sin(a), cy - r * 0.9 * math.cos(a)), fill=(30, 30, 60), width=5)
+    am = m * math.pi / 30; ah = (h % 12 + m / 60) * math.pi / 6
+    d.line((cx, cy, cx + r * 0.5 * math.sin(ah), cy - r * 0.5 * math.cos(ah)), fill=(30, 30, 60), width=12)
+    d.line((cx, cy, cx + r * 0.75 * math.sin(am), cy - r * 0.75 * math.cos(am)), fill=(230, 60, 80), width=8)
+    d.ellipse((cx - 10, cy - 10, cx + 10, cy + 10), fill=(30, 30, 60))
+    return im
+
+def draw_clocks(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c)
+    d = ImageDraw.Draw(im)
+    n = 4; size = 330 if c.v else 300
+    pos = [(c.W / 2 - 220, y0 + 200), (c.W / 2 + 220, y0 + 200), (c.W / 2 - 220, y0 + 600), (c.W / 2 + 220, y0 + 600)] if c.v else \
+          [(x0 + 220 + i * 420, (y0 + y1) / 2 + 40) for i in range(4)]
+    for i, (px, py) in enumerate(pos):
+        hh, mm = item["odd_time"] if i == item["odd"] else item["time"]
+        s = eob((t - 0.3 - 0.2 * i) / 0.4) if phase == "ask" else 1
+        a = 0.4 if (phase == "reveal" and i != item["odd"]) else 1
+        paste(im, _clock(size, hh, mm), px, py, s, a)
+        _label(d, px - size * 0.45, py - size * 0.45, "ABCD"[i], c, r=32, size=42)
+    if phase == "reveal":
+        px, py = pos[item["odd"]]; glow_box(im, (px - size / 2 - 10, py - size / 2 - 10, px + size / 2 + 10, py + size / 2 + 10), r=size // 2)
+        return px, py
+    return c.W / 2, (y0 + y1) / 2
+
+# ---------------------------------------------------------------- Missing number
+def draw_missingnum(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c)
+    d = ImageDraw.Draw(im)
+    rnd = _rnd.Random(item.get("seed", 1)); n = item["n"]
+    nums = [k for k in range(1, n + 1)]; rnd.shuffle(nums)
+    cols, rows = (4, 5) if c.v else (5, 4)
+    cell = 132 if c.v else 120
+    ox = c.W / 2 - cols * cell / 2 if c.v else x0 + 80; oy = y0 if c.v else y0 + 80
+    d.rounded_rectangle((ox - 20, oy - 20, ox + cols * cell + 20, oy + rows * cell + 20), radius=30, fill=(255, 255, 255, 235))
+    f = font(F_BOLD, 58 if c.v else 54)
+    a = eo((t - 0.3) / 0.5) if phase == "ask" else 1
+    for i, k in enumerate(nums):
+        r_, q = divmod(i, cols)
+        cx, cy = ox + (q + 0.5) * cell, oy + (r_ + 0.5) * cell
+        if k == item["missing"]:
+            if phase == "reveal":
+                d.ellipse((cx - 55, cy - 55, cx + 55, cy + 55), fill=(40, 190, 90))
+                tw = d.textlength(str(k), font=f); d.text((cx - tw / 2, cy - 44), str(k), font=f, fill=(255, 255, 255))
+            else:
+                tw = d.textlength("?", font=f); d.text((cx - tw / 2, cy - 44), "?", font=f, fill=c.accent)
+            continue
+        col = CANDY[k % 6]
+        tw = d.textlength(str(k), font=f); d.text((cx - tw / 2, cy - 44), str(k), font=f, fill=tuple(int(v * 0.75) for v in col) + (int(255 * a),))
+    _opt_row(c, d, item, phase, pt, t, item["options"], y1 - 20, 1.4)
+    return c.W / 2, (y0 + y1) / 2
+
+# ---------------------------------------------------------------- Memory grid
+def draw_memgrid(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c)
+    d = ImageDraw.Draw(im)
+    cell = 230 if c.v else 190
+    ox = c.W / 2 - 1.5 * cell if c.v else x0 + 120; oy = y0 + 20 if c.v else y0 + 70
+    seq = item["seq"]; step = 0.65
+    lit = None
+    if phase == "ask":
+        k = int((t - 0.6) / step)
+        if 0 <= k < len(seq) and ((t - 0.6) % step) < step * 0.75: lit = seq[k]
+    f = font(F_BOLD, 60)
+    for i in range(9):
+        r_, q = divmod(i, 3)
+        box = (ox + q * cell + 12, oy + r_ * cell + 12, ox + (q + 1) * cell - 12, oy + (r_ + 1) * cell - 12)
+        fill = (255, 255, 255, 220)
+        if lit == i: fill = c.accent + (255,)
+        if phase == "reveal" and i == seq[-1]: fill = (40, 190, 90, 255)
+        d.rounded_rectangle(box, radius=28, fill=fill)
+        L = str(i + 1); tw = d.textlength(L, font=f)
+        d.text(((box[0] + box[2]) / 2 - tw / 2, (box[1] + box[3]) / 2 - 44), L, font=f, fill=(30, 30, 60) if fill[:3] != (40, 190, 90) else (255, 255, 255))
+    if phase == "reveal":
+        r_, q = divmod(seq[-1], 3); return ox + (q + 0.5) * cell, oy + (r_ + 0.5) * cell
+    return c.W / 2, (y0 + y1) / 2
+
+# ---------------------------------------------------------------- Count the triangles
+def triangles_total(item): return (item.get("h", 0) + 1) * (item["k"] + 1) * (item["k"] + 2) // 2
+
+def draw_triangles(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c)
+    d = ImageDraw.Draw(im)
+    S = 560 if c.v else 520
+    ax, ay = (c.W / 2, y0 + 30) if c.v else (x0 + 400, y0 + 80)
+    bl, br = (ax - S / 2, ay + S * 0.87), (ax + S / 2, ay + S * 0.87)
+    a = eo((t - 0.3) / 0.6) if phase == "ask" else 1
+    col = (255, 255, 255, int(255 * a))
+    lc = (60, 255, 120) if phase == "reveal" and pt > 0.3 else col
+    d.polygon([(ax, ay), bl, br], outline=lc, width=10)
+    k = item["k"]
+    for i in range(1, k + 1):
+        fx = bl[0] + (br[0] - bl[0]) * i / (k + 1)
+        d.line((ax, ay, fx, bl[1]), fill=lc, width=8)
+    for j in range(1, item.get("h", 0) + 1):
+        fy = ay + (bl[1] - ay) * (0.45 + 0.25 * (j - 1))
+        lx = ax + (bl[0] - ax) * (fy - ay) / (bl[1] - ay); rx = ax + (br[0] - ax) * (fy - ay) / (bl[1] - ay)
+        d.line((lx, fy, rx, fy), fill=lc, width=8)
+    _opt_row(c, d, item, phase, pt, t, item["options"], y1 - 60, 1.4)
+    return ax, ay + S * 0.5
+
+# ---------------------------------------------------------------- Paper fold
+def _paper(size, holes, folded=None, fold="v"):
+    im = Image.new("RGBA", (size, size), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    if folded:
+        w = size / 2 if fold == "v" else size; h = size if fold == "v" else size / 2
+        d.rectangle((size / 2 - w / 2, size / 2 - h / 2, size / 2 + w / 2, size / 2 + h / 2), fill=(255, 250, 235), outline=(30, 30, 60), width=6)
+        ox, oy = size / 2 - w / 2, size / 2 - h / 2
+        for hx, hy in holes:
+            d.ellipse((ox + hx * w - 18, oy + hy * h - 18, ox + hx * w + 18, oy + hy * h + 18), fill=(40, 40, 60))
+        return im
+    d.rectangle((6, 6, size - 6, size - 6), fill=(255, 250, 235), outline=(30, 30, 60), width=6)
+    if fold == "v": d.line((size / 2, 10, size / 2, size - 10), fill=(180, 170, 150), width=3)
+    else: d.line((10, size / 2, size - 10, size / 2), fill=(180, 170, 150), width=3)
+    for hx, hy in holes:
+        d.ellipse((hx * size - 18, hy * size - 18, hx * size + 18, hy * size + 18), fill=(40, 40, 60))
+    return im
+
+def paper_options(item):
+    hx, hy = item["hole"]; fold = item.get("fold", "v")
+    if fold == "v":
+        right = [(hx / 2, hy), (1 - hx / 2, hy)]; single = [(hx / 2, hy)]; shift = [(hx / 2, hy), (1 - hx / 2, 1 - hy)]
+    else:
+        right = [(hx, hy / 2), (hx, 1 - hy / 2)]; single = [(hx, hy / 2)]; shift = [(hx, hy / 2), (1 - hx, 1 - hy / 2)]
+    return {"right": right, "single": single, "shift": shift}
+
+def draw_paperfold(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c)
+    d = ImageDraw.Draw(im)
+    fold = item.get("fold", "v")
+    big = 340 if c.v else 320
+    fx, fy = (c.W / 2, y0 + 180) if c.v else (x0 + 260, (y0 + y1) / 2 + 30)
+    paste(im, _paper(big, [tuple(item["hole"])], folded=True, fold=fold), fx, fy, eob((t - 0.2) / 0.4) if phase == "ask" else 1)
+    f = font(F_BOLD, 40); txt = "folded + punched"; tw = d.textlength(txt, font=f)
+    d.text((fx - tw / 2, fy + big / 2 + 4), txt, font=f, fill=(255, 255, 255))
+    opts = paper_options(item); order = item["options"]
+    sz = 280 if c.v else 260
+    for q, key in enumerate(order):
+        ox, oy = (x0 + (x1 - x0) * (q + 0.5) / 3, y0 + 640) if c.v else (x0 + 760 + q * 320, (y0 + y1) / 2 + 30)
+        s = eob((t - 1.2 - 0.25 * q) / 0.4) if phase == "ask" else 1
+        if s < 0.05: continue
+        p = _paper(sz, opts[key], fold=fold)
+        if phase == "reveal" and pt > 0.5:
+            fr = Image.new("RGBA", (sz + 20, sz + 20), ((40, 190, 90) if q == item["right"] else (150, 40, 55)) + (255,)); fr.alpha_composite(p, (10, 10)); p = fr
+        paste(im, p, ox, oy, s, 0.5 if (phase == "reveal" and pt > 0.5 and q != item["right"]) else 1)
+        _label(d, ox - sz / 2, oy - sz / 2, "ABC"[q], c, r=30, size=40)
+    if phase == "reveal":
+        q = item["right"]; return (x0 + (x1 - x0) * (q + 0.5) / 3, y0 + 640) if c.v else (x0 + 760 + q * 320, (y0 + y1) / 2 + 30)
+    return c.W / 2, (y0 + y1) / 2
+
+# ---------------------------------------------------------------- Tangled balloons
+BALLOON_COLS = {"red": (235, 60, 70), "blue": (60, 130, 240), "yellow": (250, 200, 40)}
+def balloons_answer(item):
+    names = ["red", "blue", "yellow"]
+    return item["map"].index(names.index(item["ask"]))
+
+def draw_balloons(c, im, item, phase, pt, t):
+    x0, y0, x1, y1 = area(c)
+    d = ImageDraw.Draw(im)
+    names = ["red", "blue", "yellow"]
+    top, bot = (y0 + 60, y0 + 760) if c.v else (y0 + 60, y1 - 60)
+    xs = [x0 + (x1 - x0) * (i + 0.5) / 3 for i in range(3)] if c.v else [x0 + 300 + i * 360 for i in range(3)]
+    rnd = _rnd.Random(item.get("seed", 2))
+    ans = balloons_answer(item)
+    for kid, b in enumerate(item["map"]):
+        bx, by = xs[b], top + 70
+        kx, ky = xs[kid], bot - 70
+        w1 = rnd.uniform(-260, 260); w2 = rnd.uniform(-260, 260)
+        pts = []
+        for s in range(41):
+            u = s / 40
+            x = (1 - u) ** 3 * kx + 3 * (1 - u) ** 2 * u * (kx + w1) + 3 * (1 - u) * u ** 2 * (bx + w2) + u ** 3 * bx
+            y = (1 - u) ** 3 * ky + 3 * (1 - u) ** 2 * u * (ky - 200) + 3 * (1 - u) * u ** 2 * (by + 200) + u ** 3 * (by + 70)
+            pts.append((x, y))
+        hl = phase == "reveal" and kid == ans
+        d.line(pts, fill=(60, 255, 120) if hl else (230, 230, 240), width=10 if hl else 6, joint="curve")
+    for i, nme in enumerate(names):
+        bx, by = xs[i], top + 70
+        a = eob((t - 0.2 - 0.15 * i) / 0.4) if phase == "ask" else 1
+        r = 62 * a
+        d.ellipse((bx - r, by - r * 1.15, bx + r, by + r * 1.15), fill=BALLOON_COLS[nme], outline=(30, 30, 60), width=4)
+        d.polygon([(bx - 10, by + r * 1.15), (bx + 10, by + r * 1.15), (bx, by + r * 1.15 + 14)], fill=BALLOON_COLS[nme])
+    for kid in range(3):
+        paste(im, emoji_img(item["kids"][kid], 130 if c.v else 110), xs[kid], bot - 40)
+        _label(d, xs[kid] - 90, bot - 90, "ABC"[kid], c, r=30, size=40)
+    if phase == "reveal":
+        return xs[ans], bot - 40
+    return c.W / 2, (y0 + y1) / 2
+
+DRAW.update({"spotdiff": draw_spotdiff, "oddcolor": draw_oddcolor, "clocks": draw_clocks, "missingnum": draw_missingnum,
+             "memgrid": draw_memgrid, "triangles": draw_triangles, "paperfold": draw_paperfold, "balloons": draw_balloons})
+_old_min_ask2 = min_ask
+def min_ask(item):
+    if item.get("type") == "memgrid": return 0.6 + 0.65 * len(item["seq"]) + 1.0
+    return _old_min_ask2(item)
