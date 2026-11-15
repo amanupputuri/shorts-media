@@ -21,7 +21,7 @@ Read `pipeline/used.json` (list of short keys of puzzles already used). Never re
 N = 4 Shorts. Write N+1 spec files in `work/TARGET/`:
 - `s01.json … sNN.json` — Shorts. Each: **3 puzzles, all of the day's format**, orientation `"v"`, count_secs 3,
   label `"PUZZLE"`. Vary difficulty: easy, medium, tricky.
-- `long.json` — orientation `"h"`, count_secs 5, label `"PUZZLE"`, **20 puzzles = one each of 20 different formats (of the 28)**,
+- `long.json` — orientation `"h"`, count_secs 5, label `"PUZZLE"`, **20 puzzles = one each of 20 different formats (of the 25)**,
   shuffled order, easy → harder.
 - Every spec gets: `style` and `music_seed` from step 1 (long video: music_seed + 1), a `title_card`
   {emoji, line1, line2, tag} and `outro` exactly {"line1": "LIKE &", "line2": "SUBSCRIBE!", "line3": "", "cta": "SUBSCRIBE", "cta_sub": ""},
@@ -35,21 +35,18 @@ N = 4 Shorts. Write N+1 spec files in `work/TARGET/`:
   puzzle (computed from the drawing data). Make every `a` line and the `fact` lines agree with it. Fix and re-check
   until it prints OK. Never ship a spec whose voice disagrees with `check`.
 
-### Puzzle schemas — the 28 formats (all items also have `prompt` (on-screen question, ≤ 32 characters) and `fact` [line1 ≤ 26 chars, line2 ≤ 34 chars])
+### Puzzle schemas — the 25 formats (all items also have `prompt` (on-screen question, ≤ 32 characters) and `fact` [line1 ≤ 26 chars, line2 ≤ 34 chars])
 Emoji must be single standard emoji (no flags, no skin tones, no ZWJ sequences). Shorts use only the format of the day;
-the long video uses 20 different formats (one puzzle each), picked at random from the 28.
+the long video uses 20 different formats (one puzzle each), picked at random from the 25.
 - **odd4** `{"type":"odd4","options":[[label,emoji]x4],"right":i}` — 4 things, one doesn't belong (reason in fact).
 - **changed** `{"type":"changed","prompt":"Remember these 6!","prompt2":"Which one changed?","before":[6 emoji],"changed":i,"after_emoji":e}`
 - **twins** `{"type":"twins","seed":n}` any int; answer = check output.
-- **count** `{"type":"count","target":e,"others":[2-3 emoji],"n":4-9,"m":8-12,"seed":k,"options":[3 strings],"right":i}` n+m ≤ 20, options[right] == n.
-- **order** `{"type":"order","prompt":"Remember the order!","prompt2":"Which one came SECOND?","seq":[4 emoji],"ask_pos":1-4,"options":[3 emoji incl. seq[ask_pos-1]],"right":i}`
 - **spotdiff** `{"type":"spotdiff","prompt":"Spot the difference!","scene":[9 emoji],"diff":0-8,"alt":e (similar-looking, e.g. 🌼→🌻)}`
 - **oddcolor** `{"type":"oddcolor","prompt":"Find the different colour!","color":[r,g,b],"delta":14-26 (smaller = harder),"pos":[row 0-5,col 0-8]}`
 - **memgrid** `{"type":"memgrid","prompt":"Watch the squares!","prompt2":"Which square lit up LAST?","seq":[4-5 cell indexes 0-8, no repeats]}`
 - **missing** `{"type":"missing","prompt":"Remember these 6!","prompt2":"Which one is missing?","before":[6 emoji],"gone":i,"options":[3 emoji incl. before[gone]],"right":i}`
 - **flipped** `{"type":"flipped","prompt":"Find the upside-down one!","emoji":e (clearly not symmetric: 🐟🐌🦒🚗🐘),"pos":[row,col],"mode":"rot"}`
 - **numflash** `{"type":"numflash","prompt":"Remember the number!","prompt2":"Which number did you see?","number":"4-5 digits","options":[3 look-alike numbers incl. number],"right":i}`
-- **whereflash** `{"type":"whereflash","prompt":"Remember where they are!","prompt2":"Where was the X?","grid":[9 distinct emoji],"target_idx":0-8}`
 - **bug** `{"type":"bug","prompt":"Where does the bug stop?","start":[r,c],"moves":"4-6 of U/D/L/R"}` must stay on the 4x4 grid; answer = check output.
 - **rowdiff** `{"type":"rowdiff","prompt":"Which row is different?","seq":[5 look-alike emoji, e.g. 😀😃😄😁😆 or 🐶🐕🐩🐺🦊],"rows":5,"odd_row":0-4,"swap":[k,k+1]}`
 - **countdiff** `{"type":"countdiff","prompt":"How many differences?","scene":[9 emoji],"diffs":[[cell,alt],...] (1-3),"options":["1","2","3"],"right":len(diffs)-1}`

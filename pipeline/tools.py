@@ -8,8 +8,8 @@
 import sys, json, datetime, os
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 
-FORMATS = ["odd4", "changed", "twins", "count", "order", "spotdiff", "oddcolor", "memgrid", "missing", "flipped", "numflash",
-           "whereflash", "bug", "rowdiff", "countdiff", "arrowout", "cardflip", "diceflash", "zoom", "lightorder", "split",
+FORMATS = ["odd4", "changed", "twins", "spotdiff", "oddcolor", "memgrid", "missing", "flipped", "numflash",
+           "bug", "rowdiff", "countdiff", "arrowout", "cardflip", "diceflash", "zoom", "lightorder", "split",
            "shapemiss", "spotlight", "pixel", "crowd", "colorcount", "moved", "dupnum"]
 NAMES = {"odd4": "Find the Odd One Out", "changed": "What Changed?", "cups": "Follow the Ball", "keys": "Which Key Fits?",
          "glasses": "Which Glass Fills First?", "path": "Which Path Gets the Prize?", "shadow": "Shadow Match",
