@@ -410,7 +410,7 @@ def draw_item(c, idx, t, phase, pt):
         lv = levels[idx]; lcol = {"EASY": (40, 185, 100), "MEDIUM": (250, 150, 30), "HARD": (235, 50, 80)}.get(lv, (230, 60, 90))
         p = pill(f"LEVEL {idx + 1}  ·  {lv}", lcol, 46 if c.v else 40)
     else:
-        p = pill(f"{lab} {idx + 1} / {n_total}", tuple(c.spec.get("style", {}).get("pill", [230, 60, 90])), 46 if c.v else 40)
+        p = pill(c.spec.get("pill_text") or f"{lab} {idx + 1} / {n_total}", tuple(c.spec.get("style", {}).get("pill", [230, 60, 90])), 46 if c.v else 40)
     paste(im, p, W / 2, L["head"], eob(t / 0.4) if phase == "ask" else 1)
     if n_total > 1:  # progress dots
         gap = 26 if c.v else 22; r0 = 7 if c.v else 6
