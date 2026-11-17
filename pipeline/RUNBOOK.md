@@ -27,17 +27,28 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
 - `s01.json … sNN.json` — Shorts. Each: **exactly 6 puzzles, all of the day's format: 2 EASY, 2 MEDIUM, 2 HARD, in that
   order** (badges are added automatically), orientation `"v"`, count_secs **3** (Shorts land ~55–65 s).
   HOOKS (most important — make viewers wait for the last puzzle):
+  **HOOK STYLE — attractive + encouraging (Aman, 17 Nov; Shorts AND long videos).** Every hook must make the viewer
+  WANT to keep watching and feel they CAN do it. Each hook does two things in a few words:
+    1. *pull forward* — promise something good just ahead (a sneakier puzzle, a twist, a big finish, bragging rights), and
+    2. *cheer them on* — warm, positive, second person ("you", "your"), like a friendly coach.
+  Good: "You're on fire — the next one's sneaky!", "Halfway there, and you're crushing it!", "Ready for a twist?
+  You've got this!", "Save your best for the last one!", "Only sharp eyes get all 6 — show me yours!",
+  "Nice streak! Can you keep it going?", "The best puzzle is saved for last — stay with me!".
+  Bad: anything that discourages or mocks ("Most people give up here", "You'll fail this", "Too hard for you"),
+  flat labels ("Puzzle 5", "Next one"), or long sentences. Fear-of-failure stats ("99% fail") only when turned
+  into a dare the viewer can win ("Only 1% get this — be the 1%!"). Simple words, ages 5–80, ≤ 7 words on screen.
   · `"hook"` (≤ 7 words) shown over puzzle 1 at second 0 and spoken by Hoot as say.intro. It must promise a payoff at
-    the END: "Puzzle 6 fools 99% of people", "Wait for the last one…", "Only geniuses get all 6", "Level 6 broke my brain".
+    the END and invite them in: "Can you beat all 6? Let's go!", "Stay for puzzle 6 — it's a beauty!",
+    "Only sharp eyes get all 6 — you in?", "The last one is my favourite!".
     Read `pipeline/hooks_used.json` (list of {"date","hook","teasers"}). Do NOT reuse a hook from the last 30 days, and
     avoid the same opening words twice in a row. Rotate styles so it feels natural, not templated:
-    dare ("Bet you can't get puzzle 6"), curiosity ("The last one is impossible... or is it?"), stat ("Only 3% get 6/6"),
-    personal ("My mom failed puzzle 4 😅" — no emoji on screen), speed ("You have 5 seconds. Go!"), story ("I made the
-    last one extra sneaky"), question ("Are your eyes sharper than an owl's?"). Fit the day's format (memory, colours,
+    dare ("Think you can get puzzle 6? Show me!"), curiosity ("Wait till you see the last one!"), stat ("Only 3% get
+    6/6 — be one!"), personal ("Puzzle 4 got me — can you?"), speed ("5 seconds each. Ready? Go!"), story ("I saved a
+    fun twist for last"), question ("Are your eyes sharper than an owl's?") — always in the HOOK STYLE. Fit the day's format (memory, colours,
     numbers…). A favourite may come back after 30 days, slightly reworded.
-  · Cliff-hanger cards appear automatically (before puzzle 3: "Warm-up done. Now it gets tricky!", before puzzle 5:
-    "HARD MODE! Only 1% get these", before puzzle 6: "FINAL PUZZLE! Don't blink..."). Write your own instead by giving
-    items 2, 4 and 5 a `"teaser"` (≤ 7 words) — make them build tension toward puzzle 6 and differ across the day's
+  · Cliff-hanger cards appear automatically (before puzzle 3: "Great start! Now it gets tricky!", before puzzle 5:
+    "Hard mode! You've got this!", before puzzle 6: "Final one! Go get all six!"). Write your own instead by giving
+    items 2, 4 and 5 a `"teaser"` (≤ 7 words) — make them cheer the viewer on and build excitement toward puzzle 6 (HOOK STYLE), and differ across the day's
     Shorts (if you leave them out, varied defaults are picked automatically).
   · Puzzle 6 must be the hardest of the day (genuinely tricky) so the payoff is real and people rewatch.
   RETENTION RULES: no slow start, q lines ≤ 4 words,
@@ -45,8 +56,8 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
 - `long.json` — orientation `"h"`, count_secs 5, label `"PUZZLE"`, **20 puzzles = one each of the 20 formats in step 1's `long_formats` (in that order)**,
   shuffled order, easy → harder. **Long-video hooks are SPOKEN, never text (Aman, 17 Nov)** — see rule 6 below:
   `title_card` = {"emoji": "🦉", "line1": "20 PUZZLES", "line2": "", "tag": "Eye & Brain Workout"} (no hook question on the title card),
-  `say.intro` = a natural, engaging spoken hook (≤ 14 words) that ends with a warm-up line, e.g.
-  "Hoo-hoo! Only true puzzle masters get all twenty. Ready? Let's warm up!" — reword it every day.
+  `say.intro` = a natural, attractive spoken hook (≤ 14 words, HOOK STYLE) that ends with a warm-up line, e.g.
+  "Hoo-hoo! Twenty puzzles, and the best one's at the end. Ready? Let's warm up!" — reword it every day.
 - Every spec gets: `style` and `music_seed` from step 1 (long video: music_seed + 1), a `title_card`
   {emoji, line1, line2, tag} and `outro` exactly {"line1": "LIKE &", "line2": "SUBSCRIBE!", "line3": "", "cta": "SUBSCRIBE", "cta_sub": "Comment your score below!"},
   and a `say` block: `{"intro": "...", "items": [{"q": "...", "a": "..."}, ...], "outro": "..."}`.
@@ -74,8 +85,8 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
 6. **Long videos — pop-up, spoken hooks, corner badge (Aman, 17 Nov)**:
    - spec `"midcta": {"idx": 4}` shows a LIKE + SUBSCRIBE pop-up (with bell) over the reveal of puzzle 5.
    - **Hooks are voice-over only — NO text banners**: never put `"teaser"` on long-video items (`check` fails; the engine ignores
-     them for long videos). Instead give `say.items[10]`, `say.items[15]` and `say.items[19]` a `"hook"` (≤ 5 words, natural, e.g.
-     "Halfway there!", "Tough ones now!", "Last one!") — Hoot says it at the end of the previous puzzle's answer screen, which
+     them for long videos). Instead give `say.items[10]`, `say.items[15]` and `say.items[19]` a `"hook"` (≤ 7 words, attractive + encouraging — see HOOK STYLE — e.g.
+     "Halfway there — you're doing great!", "Tough ones now. You've got this!", "Last one! Finish strong!") — Hoot says it at the end of the previous puzzle's answer screen, which
      is held a little longer for it. The hook before puzzle 1 is the last part of `say.intro` ("…Ready? Let's warm up!").
      Reword the hooks every day; never the same set two days running.
    - **LIKE + SUBSCRIBE corner badge**: build.py adds it automatically to every long video — top-left, 10 times, 4 s each,

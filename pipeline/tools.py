@@ -198,7 +198,7 @@ if __name__ == "__main__":
                 if it.get("prompt2") and not it.get("stack"): e.append(f"item {i}: two-part question needs \"stack\": true (both lines on screen)")
             for i, si in enumerate(spec.get("say", {}).get("items", [])):
                 if si.get("hook") and i == 0: e.append("say.items[0].hook: puzzle 1 has no hook slot - end say.intro with the warm-up line")
-                if si.get("hook") and len(si["hook"].split()) > 5: e.append(f"say.items[{i}].hook must be <= 5 words")
+                if si.get("hook") and len(si["hook"].split()) > 7: e.append(f"say.items[{i}].hook must be <= 7 words")
         print("ERRORS:" if e else "OK", *e, sep="\n  ")
         sys.exit(1 if e else 0)
     elif cmd == "prompt":

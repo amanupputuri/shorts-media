@@ -591,12 +591,12 @@ def draw_item(c, idx, t, phase, pt):
         im = transition_in(c, im, t / 0.55, idx)
     return im.convert("RGB")
 
-TEASE_MED = ["Warm-up done. Now it gets tricky!", "Too easy? Let's turn it up!", "Okay, now focus...",
-             "Level up! Eyes open.", "Halfway there. Getting harder!", "Nice! But can you do this?"]
-TEASE_HARD = ["HARD MODE! Only 1% get these", "Brain check: this is where most fail", "Now the real test begins...",
-              "Hard level unlocked!", "Still with me? This one's sneaky", "Most people give up here"]
-TEASE_FINAL = ["FINAL PUZZLE! Don't blink...", "Last one. The hardest of all!", "Boss level! Can you beat it?",
-               "This one fools almost everyone", "Final round. Show me your eyes!", "Get this and you're a genius"]
+TEASE_MED = ["Great start! Now it gets tricky!", "Nice! Ready for a twist?", "You're on a roll — keep going!",
+             "Level up! You've got this!", "Sharp eyes! Try this one!", "Love it! Next one's sneakier!"]
+TEASE_HARD = ["Hard mode! You've got this!", "You're doing great — stay sharp!", "Big brain time! Let's go!",
+              "Hard level unlocked — show me!", "Almost there! Keep it up!", "Sharp eyes only — you in?"]
+TEASE_FINAL = ["Final one! Go get all six!", "Last one — save your best!", "Boss level! You can beat it!",
+               "The best one is last — go!", "Final round! Finish strong!", "One more! Can you get them all?"]
 
 TRANSITIONS = ["bands", "zoom", "slide", "split", "iris"]
 
