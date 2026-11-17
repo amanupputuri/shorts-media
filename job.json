@@ -1,166 +1,19 @@
 {
- "id": "job-6d6f36d6e5",
+ "id": "job-084980b64e",
  "steps": [
   {
-   "name": "Sharper Eyes Than an Owl? 🦉 Spot the Difference Challenge #shorts",
-   "query": "mutation($input: CreatePostInput!) { createPost(input: $input) { __typename\n  ... on PostActionSuccess { post { id dueAt status } } ... on MutationError { message } } }",
+   "name": "posts",
+   "query": "query($i: PostsInput!) { posts(first: 50, input: $i) { edges { node { id dueAt status text } } } }",
    "variables": {
-    "input": {
-     "channelId": "6afbdbb4ece6dfde5ff1432b",
-     "schedulingType": "automatic",
-     "mode": "customScheduled",
-     "dueAt": "2026-11-17T08:13:00.000Z",
-     "needsApproval": false,
-     "text": "Owls have amazing eyes. Do you?\nCan you spot all 6 differences before the timer runs out?\n\n6 Spot the Difference puzzles: balls, toys, prizes, music, sports gear and clocks. 2 easy, 2 medium, 2 hard.\n\nComment your score out of 6 below!\nSubscribe for a new puzzle every day: https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1\n\nANSWERS (no peeking!)\n1. (Easy) Square three! The football became a burger.\n2. (Easy) Square one! The teddy bear became a dinosaur.\n3. (Medium) Square four! The trophy turned into a vase.\n4. (Medium) Square seven! The bell went silent.\n5. (Hard) Square one! The paddle became a frying pan.\n6. (Hard) Square five! That clock now says two o'clock.\n\nSearch: spot the difference, find the difference, eye test, brain teaser, puzzle game, iq test, can you solve this, visual puzzle, emoji puzzle, picture puzzle, wit wonderland, professor hoot\n\n#shorts #spotthedifference #puzzle #braingames #eyetest #brainteaser #witwonderland #quiz",
-     "assets": [
-      {
-       "video": {
-        "url": "https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/2026-11-17-s04.mp4"
-       }
-      }
-     ],
-     "metadata": {
-      "youtube": {
-       "title": "Sharper Eyes Than an Owl? 🦉 Spot the Difference Challenge #shorts",
-       "privacy": "public",
-       "categoryId": "27",
-       "madeForKids": false,
-       "notifySubscribers": true,
-       "license": "youtube",
-       "embeddable": true,
-       "isAiGenerated": false
-      }
-     }
-    }
-   }
-  },
-  {
-   "name": "Level 6 Broke My Brain 🌙 Nature Spot the Difference #shorts",
-   "query": "mutation($input: CreatePostInput!) { createPost(input: $input) { __typename\n  ... on PostActionSuccess { post { id dueAt status } } ... on MutationError { message } } }",
-   "variables": {
-    "input": {
-     "channelId": "6afbdbb4ece6dfde5ff1432b",
-     "schedulingType": "automatic",
-     "mode": "customScheduled",
-     "dueAt": "2026-11-17T09:44:00.000Z",
-     "needsApproval": false,
-     "text": "Easy, medium, hard... and then level 6.\nCan you spot all 6 differences before the timer runs out?\n\n6 Spot the Difference puzzles: trees, sky, flowers, weather, leaves and moon phases. 2 easy, 2 medium, 2 hard.\n\nComment your score out of 6 below!\nSubscribe for a new puzzle every day: https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1\n\nANSWERS (no peeking!)\n1. (Easy) Square two! The tree became a giraffe.\n2. (Easy) Square nine! The rainbow became a mushroom.\n3. (Medium) Square nine! The sprout grew into a herb.\n4. (Medium) Square seven! The umbrella closed up.\n5. (Hard) Square five! The clover became a herb.\n6. (Hard) Square three! The half moon flipped sides.\n\nSearch: spot the difference, find the difference, eye test, brain teaser, puzzle game, iq test, can you solve this, visual puzzle, emoji puzzle, picture puzzle, wit wonderland, professor hoot\n\n#shorts #spotthedifference #puzzle #braingames #eyetest #brainteaser #witwonderland #quiz",
-     "assets": [
-      {
-       "video": {
-        "url": "https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/2026-11-17-s05.mp4"
-       }
-      }
-     ],
-     "metadata": {
-      "youtube": {
-       "title": "Level 6 Broke My Brain 🌙 Nature Spot the Difference #shorts",
-       "privacy": "public",
-       "categoryId": "27",
-       "madeForKids": false,
-       "notifySubscribers": true,
-       "license": "youtube",
-       "embeddable": true,
-       "isAiGenerated": false
-      }
-     }
-    }
-   }
-  },
-  {
-   "name": "Only 2% Spot the Last One 🍔 Food Spot the Difference #shorts",
-   "query": "mutation($input: CreatePostInput!) { createPost(input: $input) { __typename\n  ... on PostActionSuccess { post { id dueAt status } } ... on MutationError { message } } }",
-   "variables": {
-    "input": {
-     "channelId": "6afbdbb4ece6dfde5ff1432b",
-     "schedulingType": "automatic",
-     "mode": "customScheduled",
-     "dueAt": "2026-11-17T11:38:00.000Z",
-     "needsApproval": false,
-     "text": "A tasty spot-the-difference challenge that gets harder every level.\nCan you spot all 6 differences before the timer runs out?\n\n6 Spot the Difference puzzles: snacks, fruit, veggies, drinks, bowls and a meaty plate. 2 easy, 2 medium, 2 hard.\n\nComment your score out of 6 below!\nSubscribe for a new puzzle every day: https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1\n\nANSWERS (no peeking!)\n1. (Easy) Square four! The hot dog became a guitar.\n2. (Easy) Square nine! The mango swam off as a whale.\n3. (Medium) Square two! The corn became a banana.\n4. (Medium) Square six! The milk glass became a jar.\n5. (Hard) Square four! The noodle bowl became stew.\n6. (Hard) Square seven! The bone became a second drumstick.\n\nSearch: spot the difference, find the difference, eye test, brain teaser, puzzle game, iq test, can you solve this, visual puzzle, emoji puzzle, picture puzzle, wit wonderland, professor hoot\n\n#shorts #spotthedifference #puzzle #braingames #eyetest #brainteaser #witwonderland #quiz",
-     "assets": [
-      {
-       "video": {
-        "url": "https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/2026-11-17-s02.mp4"
-       }
-      }
-     ],
-     "metadata": {
-      "youtube": {
-       "title": "Only 2% Spot the Last One 🍔 Food Spot the Difference #shorts",
-       "privacy": "public",
-       "categoryId": "27",
-       "madeForKids": false,
-       "notifySubscribers": true,
-       "license": "youtube",
-       "embeddable": true,
-       "isAiGenerated": false
-      }
-     }
-    }
-   }
-  },
-  {
-   "name": "My Sneakiest Spot the Difference Yet 🦁 Animal Eye Test #shorts",
-   "query": "mutation($input: CreatePostInput!) { createPost(input: $input) { __typename\n  ... on PostActionSuccess { post { id dueAt status } } ... on MutationError { message } } }",
-   "variables": {
-    "input": {
-     "channelId": "6afbdbb4ece6dfde5ff1432b",
-     "schedulingType": "automatic",
-     "mode": "customScheduled",
-     "dueAt": "2026-11-17T13:22:00.000Z",
-     "needsApproval": false,
-     "text": "Professor Hoot hid a really sneaky change in puzzle 6!\nCan you spot all 6 differences before the timer runs out?\n\n6 Spot the Difference puzzles: pets, birds, sea creatures, furry friends, farm animals and monkeys. 2 easy, 2 medium, 2 hard.\n\nComment your score out of 6 below!\nSubscribe for a new puzzle every day: https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1\n\nANSWERS (no peeking!)\n1. (Easy) Square eight! The horse became a bicycle.\n2. (Easy) Square five! The penguin melted into ice cream.\n3. (Medium) Square nine! The octopus became a squid.\n4. (Medium) Square four! The bunny face became a full rabbit.\n5. (Hard) Square seven! The camel grew a second hump.\n6. (Hard) Square five! The monkey now covers its ears.\n\nSearch: spot the difference, find the difference, eye test, brain teaser, puzzle game, iq test, can you solve this, visual puzzle, emoji puzzle, picture puzzle, wit wonderland, professor hoot\n\n#shorts #spotthedifference #puzzle #braingames #eyetest #brainteaser #witwonderland #quiz",
-     "assets": [
-      {
-       "video": {
-        "url": "https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/2026-11-17-s03.mp4"
-       }
-      }
-     ],
-     "metadata": {
-      "youtube": {
-       "title": "My Sneakiest Spot the Difference Yet 🦁 Animal Eye Test #shorts",
-       "privacy": "public",
-       "categoryId": "27",
-       "madeForKids": false,
-       "notifySubscribers": true,
-       "license": "youtube",
-       "embeddable": true,
-       "isAiGenerated": false
-      }
-     }
-    }
-   }
-  },
-  {
-   "name": "Bet You Can't Spot Puzzle 6 👀 Spot the Difference Eye Test #shorts",
-   "query": "mutation($input: CreatePostInput!) { createPost(input: $input) { __typename\n  ... on PostActionSuccess { post { id dueAt status } } ... on MutationError { message } } }",
-   "variables": {
-    "input": {
-     "channelId": "6afbdbb4ece6dfde5ff1432b",
-     "schedulingType": "automatic",
-     "mode": "customScheduled",
-     "dueAt": "2026-11-17T14:53:00.000Z",
-     "needsApproval": false,
-     "text": "Six spot-the-difference puzzles, and the last one is the sneakiest!\nCan you spot all 6 differences before the timer runs out?\n\n6 Spot the Difference puzzles: bugs, veggies, space, animal faces, sweets and smiley faces. 2 easy, 2 medium, 2 hard.\n\nComment your score out of 6 below!\nSubscribe for a new puzzle every day: https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1\n\nANSWERS (no peeking!)\n1. (Easy) Square five! The ant turned into an octopus.\n2. (Easy) Square seven! The broccoli became a balloon.\n3. (Medium) Square six! The sun turned into the moon.\n4. (Medium) Square three! The panda became a raccoon.\n5. (Hard) Square eight! The lollipop turned into a fish cake.\n6. (Hard) Square seven! That smile flipped upside down.\n\nSearch: spot the difference, find the difference, eye test, brain teaser, puzzle game, iq test, can you solve this, visual puzzle, emoji puzzle, picture puzzle, wit wonderland, professor hoot\n\n#shorts #spotthedifference #puzzle #braingames #eyetest #brainteaser #witwonderland #quiz",
-     "assets": [
-      {
-       "video": {
-        "url": "https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/2026-11-17-s01.mp4"
-       }
-      }
-     ],
-     "metadata": {
-      "youtube": {
-       "title": "Bet You Can't Spot Puzzle 6 👀 Spot the Difference Eye Test #shorts",
-       "privacy": "public",
-       "categoryId": "27",
-       "madeForKids": false,
-       "notifySubscribers": true,
-       "license": "youtube",
-       "embeddable": true,
-       "isAiGenerated": false
+    "i": {
+     "organizationId": "6afbdb5edb9ae616ed8a7467",
+     "filter": {
+      "channelIds": [
+       "6afbdbb4ece6dfde5ff1432b"
+      ],
+      "dueAt": {
+       "start": "2026-11-16T18:30:00.000Z",
+       "end": "2026-11-17T18:29:00.000Z"
       }
      }
     }
