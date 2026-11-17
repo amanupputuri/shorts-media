@@ -1,9 +1,1 @@
-{
- "id": "probe-2",
- "steps": [
-  {
-   "name": "channels",
-   "query": "query { channels(input:{organizationId:\"6afbdb5edb9ae616ed8a7467\"}) { id name service displayName isDisconnected } }"
-  }
- ]
-}
+{"id": "probe-3", "steps": [{"name": "ops", "query": "{ __schema { mutationType { fields { name args { name } } } queryType { fields { name args { name } } } } }"}]}
