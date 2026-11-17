@@ -113,27 +113,27 @@ def main():
         return e
     def lp(x, k=8): return np.convolve(x, np.ones(k) / k, "same")
     tt = np.arange(int(0.09 * SR)) / SR
-    pop = np.sin(2 * np.pi * (420 * tt + 2600 * tt * tt)) * np.exp(-38 * tt) * env(len(tt), 0.004)          # soft bubble
+    pop = np.sin(2 * np.pi * (380 * tt + 1800 * tt * tt)) * np.exp(-30 * tt) * env(len(tt), 0.012)          # soft bubble
     tt = np.arange(int(0.12 * SR)) / SR
-    tick = (np.sin(2 * np.pi * 760 * tt) + 0.35 * np.sin(2 * np.pi * 1140 * tt)) * np.exp(-45 * tt) * env(len(tt), 0.002)  # woodblock tock
+    tick = (np.sin(2 * np.pi * 620 * tt) + 0.2 * np.sin(2 * np.pi * 930 * tt)) * np.exp(-34 * tt) * env(len(tt), 0.008)  # woodblock tock
     tt = np.arange(int(1.6 * SR)) / SR
     ding = sum(a_ * np.sin(2 * np.pi * f_ * tt) * np.exp(-d_ * tt) for f_, a_, d_ in
-               [(1046.5, 1.0, 3.2), (1568, 0.45, 4.5), (2093, 0.22, 6), (2637, 0.12, 8)]) * env(len(tt), 0.006)  # glassy chime
+               [(784, 1.0, 2.6), (1175, 0.4, 3.6), (1568, 0.15, 5)]) * env(len(tt), 0.02)  # glassy chime
     rng = np.random.default_rng(1); wh = lp(rng.normal(0, 1, int(0.45 * SR)), 40)
     whoosh = lp(wh, 12) * np.sin(np.linspace(0, np.pi, len(wh))) ** 2 * 3                                    # airy swoosh
     t0 = 0.0
     for g in order:
-        add(sfx, whoosh, t0, 0.13)
+        add(sfx, whoosh, t0, 0.08)
         if g == "intro": add(voice, load(segs[0]), t0 + 0.15)
         elif g == "outro": add(voice, load(segs[-1]), t0 + 0.15)
         else:
             tm = timing[g]; item = spec["items"][int(g[1:])]
             if tm.get("qoff"): add(voice, load(segs[0]), t0 + 0.1)
             add(voice, load(tm["q"]), t0 + 0.15 + tm.get("qoff", 0))
-            for k in range(len(item.get("options", []))): add(sfx, pop, t0 + 0.8 + 0.35 * k + (0.2 if item.get("display") else 0), 0.22)
-            for k in range(cs): add(sfx, tick, t0 + tm["ask"] + k, 0.28)
+            for k in range(len(item.get("options", []))): add(sfx, pop, t0 + 0.8 + 0.35 * k + (0.2 if item.get("display") else 0), 0.14)
+            for k in range(cs): add(sfx, tick, t0 + tm["ask"] + k, 0.18)
             r = t0 + tm["ask"] + cs
-            add(sfx, ding, r, 0.3); add(voice, load(tm["a"]), r + 0.25)
+            add(sfx, ding, r, 0.22); add(voice, load(tm["a"]), r + 0.25)
         t0 += timing[g]["dur"]
     # music bed (key/tempo vary by day via spec["music_seed"])
     ms = spec.get("music_seed", 0)
@@ -153,18 +153,25 @@ def main():
             e = np.minimum(1, tt / 0.8) * np.minimum(1, np.maximum(0, (bar * 2.3 - tt) / 0.9))
             add(mus, pad * e * 0.16, t0b)
             Lb = int(bar * 2 * SR); tb = np.arange(Lb) / SR   # sub bass
-            add(mus, np.sin(2 * np.pi * ch[0] / 2 * tb) * np.minimum(1, tb / 0.05) * np.exp(-0.5 * tb) * 0.55, t0b)
+            add(mus, np.sin(2 * np.pi * ch[0] / 2 * tb) * np.minimum(1, tb / 0.12) * np.exp(-0.5 * tb) * 0.4, t0b)
         for k in range(8):  # keys: 8ths, rising arpeggio with soft velocity
             f = ch[[0, 1, 2, 1, 0, 2, 1, 2][k]] * 2; Lk = int(0.6 * SR); tk = np.arange(Lk) / SR
             v = 0.5 + 0.25 * ((k + b) % 3 == 0)
-            key = (np.sin(2 * np.pi * f * tk) + 0.25 * np.sin(4 * np.pi * f * tk)) * np.exp(-5 * tk) * np.minimum(1, tk / 0.004)
-            add(mus, key * v * 0.35, t0b + k * beat / 2 + 0.006 * ((k * 7) % 3))
-    mus = lp(mus, 6)
+            key = (np.sin(2 * np.pi * f * tk) + 0.12 * np.sin(4 * np.pi * f * tk)) * np.exp(-4 * tk) * np.minimum(1, tk / 0.018)
+            add(mus, key * v * 0.24, t0b + k * beat / 2 + 0.006 * ((k * 7) % 3))
+    mus = lp(mus, 14)
+    # soft room reverb (decaying noise impulse) for a smooth, dreamy bed
+    ir_n = int(1.4 * SR); ir = np.random.default_rng(5).normal(0, 1, ir_n) * np.exp(-np.arange(ir_n) / SR * 3.2); ir = lp(ir, 20); ir /= np.abs(ir).sum() / 6
+    from numpy.fft import rfft, irfft
+    L_ = len(mus) + ir_n; nf = 1 << (L_ - 1).bit_length()
+    wet = irfft(rfft(mus, nf) * rfft(ir, nf), nf)[:len(mus)]
+    mus = 0.65 * mus + 0.35 * wet / (np.max(np.abs(wet)) + 1e-9) * np.max(np.abs(mus))
     venv = lp(np.abs(voice), int(0.25 * SR)); venv = venv / (venv.max() + 1e-9)
     mus = mus * (1 - 0.55 * np.clip(venv * 4, 0, 1))  # sidechain duck under Professor Hoot
     fade = int(0.8 * SR); mus[int(total * SR) - fade:int(total * SR)] *= np.linspace(1, 0, fade)
     mus = mus / (np.max(np.abs(mus)) + 1e-9)
-    mix = (voice * 0.95 + sfx * 0.9 + mus * 0.16)[:int(total * SR)]
+    sfx = lp(sfx, 4)
+    mix = (voice * 0.95 + sfx * 0.9 + mus * 0.15)[:int(total * SR)]
     mix = mix / max(1, np.max(np.abs(mix)) / 0.95)
     wav = os.path.join(work, "mix.wav")
     with wave.open(wav, "wb") as w:
