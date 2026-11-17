@@ -84,3 +84,14 @@ thumbnail and a pinned score comment. Do sections 8/9 for anything not done. Nev
 If the browser/computer is unreachable, stop and say so (the next run catches up).
 
 - 2026-11-17: Cz6U2tdEm6A (17 Nov s04) fully done with the checklist above; new playlist "Spot the Difference Challenges 🔍" created.
+- 2026-11-17 (auto-check 15:38): ykbrvOcy-PQ (17 Nov s05) — full checklist: thumbs/2026-11-17-s05.jpg, related → 16 Nov long VEQQq8HeMoo (17 Nov long not uploaded yet), 15 tags, English ×2, playlist Spot the Difference, pinned score comment.
+- 2026-11-17 (auto-check): uwxQXJoo4X0 (16 Nov) — custom thumbnail (thumbs/2026-11-16-uwxQXJoo4X0.jpg) + English languages.
+- 2026-11-17 (auto-check): E2qM9D5hePo (16 Nov) — custom thumbnail + English languages.
+- 2026-11-17 (auto-check): nWAZdGW0XWE (16 Nov) — custom thumbnail + English languages.
+- 2026-11-17 (auto-check): lbxkNwup954 (16 Nov) — custom thumbnail + English languages.
+- 2026-11-17 (auto-check): qW8--lvbzQg (15 Nov) — custom thumbnail + English languages.
+- 2026-11-17 (auto-check): ocdkD64Rxs4 (15 Nov) — custom thumbnail + English languages.
+- 2026-11-17 (auto-check): zL6DCQVwDDg (15 Nov) — custom thumbnail + English languages.
+- 2026-11-17 (auto-check): BbnrciUKNoY (15 Nov) — custom thumbnail + English languages.
+- 2026-11-17 (auto-check): VEQQq8HeMoo (16 Nov long) and E70jagKMdfc (15 Nov long) — English languages (tags/playlist/thumbnail/end screen/pin already done).
+- Method note: 15/16 Nov mp4s are no longer on `media`, so panel frames were grabbed from the youtube.com watch page (canvas drawImage of the MSE <video> at puzzle 3, shown full-window, screenshot) and composed with pipeline/thumb_short.py. Language dropdowns: open with a real click on the field, then JS-click the visible tp-yt-paper-item "English" (clicking refs after scroll_to picks the wrong language). Playlist checkbox refs can also land on the wrong row — verify with a screenshot.
