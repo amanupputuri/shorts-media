@@ -2665,3 +2665,4 @@ def min_ask(item):
     if t_ == "speedread": return 2.6
     if t_ == "colormem": return 3.6
     return _old_min_ask5(item)
+import eyebrain3  # noqa: E402,F401  (candidate formats 78-97)
