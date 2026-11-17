@@ -404,6 +404,14 @@ def draw_item(c, idx, t, phase, pt):
     lab = c.spec.get("label", "QUESTION")
     p = pill(f"{lab} {idx + 1} / {n_total}", tuple(c.spec.get("style", {}).get("pill", [230, 60, 90])), 46 if c.v else 40)
     paste(im, p, W / 2, L["head"], eob(t / 0.4) if phase == "ask" else 1)
+    if n_total > 1:  # progress dots
+        gap = 26 if c.v else 22; r0 = 7 if c.v else 6
+        if n_total > 8: gap, r0 = gap * 0.7, r0 * 0.8
+        dx0 = W / 2 - (n_total - 1) * gap / 2; dy = L["head"] + (46 if c.v else 40)
+        for k in range(n_total):
+            rr = r0 * (1.5 if k == idx else 1)
+            col = c.accent + (255,) if k == idx else ((255, 255, 255, 230) if k < idx else (255, 255, 255, 90))
+            d.ellipse((dx0 + k * gap - rr, dy - rr, dx0 + k * gap + rr, dy + rr), fill=col)
     # prompt
     qa = eo(t / 0.4) if phase == "ask" else 1
     size = L["prompt_size"]
@@ -445,19 +453,19 @@ def draw_item(c, idx, t, phase, pt):
             cx += 18 * math.sin(pt * 40) * (1 - pt / 0.8)
         paste(im, card(int(w), int(h), letters[k] if item.get("letters", True) else None, label, emo, st, c.card_fill, c.accent), cx, cy, s, a)
     # bottom area
+    fact_y = None
     if phase == "count":
         cs = c.spec["count_secs"]
         nleft = max(1, cs - int(pt)); frac = pt - int(pt)
-        sz = 1.25 - 0.25 * eo(frac / 0.3)
-        f = font(F_BOLD, 200 if c.v else 120)
-        num = Image.new("RGBA", (400, 280), (0, 0, 0, 0)); nd = ImageDraw.Draw(num)
-        tw = nd.textlength(str(nleft), font=f)
-        if not c.v:
-            nd.ellipse((60, 20, 340, 260), fill=(0, 0, 0, 90), outline=c.accent, width=10)
-            nd.text(((400 - tw) / 2, 50), str(nleft), font=f, fill=c.accent)
-        else:
-            nd.text(((400 - tw) / 2, 0), str(nleft), font=f, fill=c.accent, stroke_width=4, stroke_fill=(30, 10, 50))
-        paste(im, num, L["count"][0], L["count"][1], sz * (0.7 if not c.v else 1))
+        R = 120 if c.v else 80; S = int(R * 2 + 60)
+        ring = Image.new("RGBA", (S, S), (0, 0, 0, 0)); rd = ImageDraw.Draw(ring)
+        rd.ellipse((30, 30, S - 30, S - 30), fill=(255, 255, 255, 235))
+        rd.ellipse((14, 14, S - 14, S - 14), outline=(255, 255, 255, 90), width=14)
+        rd.arc((14, 14, S - 14, S - 14), -90, -90 + 360 * (1 - pt / cs), fill=c.accent, width=14)
+        f = font(F_BOLD, int(R * 1.15)); txt = str(nleft); tw = rd.textlength(txt, font=f)
+        rd.text(((S - tw) / 2, S / 2 - R * 0.78), txt, font=f, fill=(40, 30, 90))
+        sz = 1.12 - 0.12 * eo(frac / 0.25)
+        paste(im, ring, L["count"][0], L["count"][1], sz)
         x0, y0, x1, y1 = L["bar"]
         bw = (x1 - x0) * (1 - pt / cs)
         d.rounded_rectangle((x0, y0, x1, y1), radius=(y1 - y0) // 2, fill=(255, 255, 255, 60))
@@ -470,6 +478,7 @@ def draw_item(c, idx, t, phase, pt):
             lay.putalpha(lay.split()[-1].point(lambda v: int(v * a_)))
             im.alpha_composite(lay, (0, L["bottom"]))
     elif phase == "reveal":
+        fact_y = L["bottom"] + 10 if item.get("fact") else None
         for i, ln in enumerate(item.get("fact", [])):
             a_ = eo((pt - 0.6 - i * 0.9) / 0.4)
             if a_ <= 0: continue
@@ -489,8 +498,25 @@ def draw_item(c, idx, t, phase, pt):
                 ang = i * 2.399; sp = 500 + (i * 53) % 400
                 x = ox + math.cos(ang) * sp * pt; y = oy + math.sin(ang) * sp * pt + 600 * pt * pt
                 d.rectangle((x - 12, y - 6, x + 12, y + 6), fill=cols[i % 4])
+    if phase == "reveal" and fact_y is not None and pt > 0.35:
+        a_ = eob((pt - 0.35) / 0.35)
+        chip = pill("ANSWER", (40, 190, 90), 38 if c.v else 32)
+        paste(im, chip, W / 2, fact_y - (36 if c.v else 30), a_)
     draw_hoot_corner(c, im, phase, t, pt)
+    if phase == "reveal" and pt < 0.18:
+        im.alpha_composite(Image.new("RGBA", im.size, (255, 255, 255, int(150 * (1 - pt / 0.18)))))
+    if phase == "ask" and t < 0.5:
+        iris(c, im, t / 0.5)
     return im.convert("RGB")
+
+def iris(c, im, u):
+    """Professional circle-wipe transition: a brand-coloured screen opens from the centre."""
+    W, H = im.size; R = math.hypot(W, H) / 2 * eo(u)
+    m = Image.new("L", (W, H), 255); ImageDraw.Draw(m).ellipse((W / 2 - R, H / 2 - R, W / 2 + R, H / 2 + R), fill=0)
+    col = tuple(int(v * 0.75) for v in c.pal[1]) + (255,)
+    im.paste(Image.new("RGBA", (W, H), col), (0, 0), m)
+    if 0 < R:
+        ImageDraw.Draw(im).ellipse((W / 2 - R, H / 2 - R, W / 2 + R, H / 2 + R), outline=c.accent, width=14)
 
 def draw_intro(c, t):
     im = c.background(t); d = ImageDraw.Draw(im); W, H = c.W, c.H
@@ -501,6 +527,7 @@ def draw_intro(c, t):
     else:
         pose = "cheer" if t < 1.0 else "idle"
         hs = 520 if c.v else 380
+        gl = _glow(900 if c.v else 700, (255, 240, 190)); paste(im, gl, W / 2, 520 if c.v else 250, eob(t / 0.6))
         paste(im, hoot_img(hs, pose, blink_at(t)), W / 2, (520 if c.v else 250) - abs(math.sin(t * 3)) * 18, eob(t / 0.5))
     ys = (860, 1030) if c.v else (470, 610)
     for i, (txt, col) in enumerate([(tc["line1"], (255, 255, 255)), (tc["line2"], c.accent)]):
@@ -508,6 +535,9 @@ def draw_intro(c, t):
         lay = Image.new("RGBA", (W, 200), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
         text_center(ld, txt, W / 2, 10, 140 if c.v else 120, fill=col, stroke=8, maxw=W - 100)
         paste(im, lay, W / 2, ys[i] + 90, s)
+    wl = Image.new("RGBA", (W, 80), (0, 0, 0, 0)); wd = ImageDraw.Draw(wl)
+    text_center(wd, "W I T   W O N D E R L A N D", W / 2, 10, 34 if c.v else 30, fill=(255, 255, 255, 200), maxw=W - 100)
+    paste(im, wl, W / 2, 130 if c.v else 70, eo(t / 0.6))
     if tc.get("tag"):
         s = eob((t - 1.4) / 0.5)
         p = pill(tc["tag"], tuple(c.spec.get("style", {}).get("pill", [230, 60, 90])), 72 if c.v else 60)
