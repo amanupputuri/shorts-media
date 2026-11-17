@@ -4,6 +4,8 @@
   python3 tools.py check SPEC            -> validate spec, print the true answer of every item
   python3 tools.py prompt SPEC [N]       -> print TTS prompt(s); long videos are split in N parts (default 1)
   python3 tools.py fill SPEC VOICE...    -> write voice paths + voice_counts into SPEC
+  python3 tools.py hooks SPEC            -> TTS prompt for the long video's spoken hooks (say.items[i].hook)
+  python3 tools.py fillhooks SPEC VOICE  -> write that hook voice file into SPEC ("hook_voice")
 """
 import sys, json, datetime, os, re
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
@@ -190,12 +192,25 @@ if __name__ == "__main__":
         for i, it in enumerate(spec["items"]): print(i, it.get("type"), "->", answer(it))
         e = check(spec)
         if len(spec.get("say", {}).get("items", [])) != len(spec["items"]): e.append("say.items count != items count")
+        if spec.get("orientation") == "h":
+            for i, it in enumerate(spec["items"]):
+                if it.get("teaser"): e.append(f"item {i}: long videos have NO text teasers - put the line in say.items[{i}].hook (spoken)")
+                if it.get("prompt2") and not it.get("stack"): e.append(f"item {i}: two-part question needs \"stack\": true (both lines on screen)")
+            for i, si in enumerate(spec.get("say", {}).get("items", [])):
+                if si.get("hook") and i == 0: e.append("say.items[0].hook: puzzle 1 has no hook slot - end say.intro with the warm-up line")
+                if si.get("hook") and len(si["hook"].split()) > 5: e.append(f"say.items[{i}].hook must be <= 5 words")
         print("ERRORS:" if e else "OK", *e, sep="\n  ")
         sys.exit(1 if e else 0)
     elif cmd == "prompt":
         spec = json.load(open(sys.argv[2])); n = int(sys.argv[3]) if len(sys.argv) > 3 else 1
         for k, p in enumerate(prompt_parts(spec, n)):
             print(f"--- part {k + 1} ({len(p)} segments)"); print(" [long pause] ".join(p))
+    elif cmd == "hooks":  # TTS prompt for the spoken hooks of a long video (one generate call)
+        spec = json.load(open(sys.argv[2])); hs = [it["hook"] for it in spec["say"]["items"] if it.get("hook")]
+        print(" [long pause] ".join("[excited] " + h for h in hs) if hs else "(no hooks)")
+    elif cmd == "fillhooks":
+        sp = sys.argv[2]; spec = json.load(open(sp)); spec["hook_voice"] = os.path.abspath(sys.argv[3])
+        json.dump(spec, open(sp, "w"), indent=1, ensure_ascii=False); print("hook_voice", spec["hook_voice"])
     elif cmd == "fill":
         sp = sys.argv[2]; spec = json.load(open(sp)); voices = sys.argv[3:]
         parts = prompt_parts(spec, len(voices))

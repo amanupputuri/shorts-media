@@ -43,12 +43,15 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
   RETENTION RULES: no slow start, q lines ≤ 4 words,
   label `"PUZZLE"`. Vary difficulty: easy, medium, tricky.
 - `long.json` — orientation `"h"`, count_secs 5, label `"PUZZLE"`, **20 puzzles = one each of the 20 formats in step 1's `long_formats` (in that order)**,
-  shuffled order, easy → harder.
+  shuffled order, easy → harder. **Long-video hooks are SPOKEN, never text (Aman, 17 Nov)** — see rule 6 below:
+  `title_card` = {"emoji": "🦉", "line1": "20 PUZZLES", "line2": "", "tag": "Eye & Brain Workout"} (no hook question on the title card),
+  `say.intro` = a natural, engaging spoken hook (≤ 14 words) that ends with a warm-up line, e.g.
+  "Hoo-hoo! Only true puzzle masters get all twenty. Ready? Let's warm up!" — reword it every day.
 - Every spec gets: `style` and `music_seed` from step 1 (long video: music_seed + 1), a `title_card`
   {emoji, line1, line2, tag} and `outro` exactly {"line1": "LIKE &", "line2": "SUBSCRIBE!", "line3": "", "cta": "SUBSCRIBE", "cta_sub": "Comment your score below!"},
   and a `say` block: `{"intro": "...", "items": [{"q": "...", "a": "..."}, ...], "outro": "..."}`.
   The voice is **Professor Hoot** (a wise, playful owl professor) and he only says SHORT catchphrases — the puzzle
-  itself is carried by on-screen text, music and sound effects. intro ≤ 10 words (often starting "Hoo-hoo!"),
+  itself is carried by on-screen text, music and sound effects. intro ≤ 10 words (often starting "Hoo-hoo!"; long video: ≤ 14 words, ending with the warm-up line),
   q lines ≤ 6 words (e.g. "Which key fits? Think fast!"; **exception: the Bug puzzle's q reads out the moves**), a lines ≤ 10 words and state the answer first
   (e.g. "Key B! Every tooth matches."), outro is ALWAYS exactly "Like and subscribe! Comment your score below!" (Aman's wording — short, never change it). Vary the wording of all other lines every video;
   never the same line twice in a day. Simple words, fun tone, for ages 5–80.
@@ -68,8 +71,15 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
    ("The trumpet became a horn."). Memory Grid: "Number twelve flashed last."
 4. **Bug**: `show_arrows: true`; q = "Where does the bug stop? Listen to Hoot! <moves spoken>".
 5. **Fruit Math (long)**: EASY — two fruits only: two equations (A+A=n, A+B=m), ask B+B.
-6. **Pop-up + hooks only from puzzle 5 on (long videos)**: spec `"midcta": {"idx": 4}` shows a LIKE + SUBSCRIBE pop-up (with bell) over the reveal of puzzle 5; nothing before puzzle 5. Plus `"teaser"` hook banners on puzzles 5, 10, 15 and 20 (none before 5) ("Warm-up over. Now it gets tricky!", "Halfway there! Keep going!",
-   "Hard mode! Only 1% get these", "FINAL PUZZLE! Don't blink...") — vary the wording each day, never repeat the same set two days running.
+6. **Long videos — pop-up, spoken hooks, corner badge (Aman, 17 Nov)**:
+   - spec `"midcta": {"idx": 4}` shows a LIKE + SUBSCRIBE pop-up (with bell) over the reveal of puzzle 5.
+   - **Hooks are voice-over only — NO text banners**: never put `"teaser"` on long-video items (`check` fails; the engine ignores
+     them for long videos). Instead give `say.items[10]`, `say.items[15]` and `say.items[19]` a `"hook"` (≤ 5 words, natural, e.g.
+     "Halfway there!", "Tough ones now!", "Last one!") — Hoot says it at the end of the previous puzzle's answer screen, which
+     is held a little longer for it. The hook before puzzle 1 is the last part of `say.intro` ("…Ready? Let's warm up!").
+     Reword the hooks every day; never the same set two days running.
+   - **LIKE + SUBSCRIBE corner badge**: build.py adds it automatically to every long video — top-left, 10 times, 4 s each,
+     spread from 0:08 to just before the outro (skips the title card and the ending screen). Nothing to write in the spec.
 7. Voice reuse: when only some lines change, regenerate just those lines (generations_count 1, voice cPmGMZvsZ24aRiDy6Vc2) and splice them with
    spec `"voice_override": {"<segment index>": "path.mp3"}` (segment index: intro 0, puzzle i q = 2i-1, a = 2i, 1-based).
 
@@ -92,7 +102,7 @@ the long video uses the 20 formats listed in `long_formats` for the day (one puz
 - **diceflash** `{"type":"diceflash","prompt":"Remember the dice!","prompt2":"What was the total?","dice":[2 values 1-6],"options":[3 strings],"right":i}`
 - **zoom** `{"type":"zoom","prompt":"What is it? Guess early!","emoji":e,"focus":[0.3-0.7,0.3-0.7],"options":[3 names],"right":i}` — starts zoomed in 4.5x and zooms out to 2.4x while you guess (a little wider than before); optional `"zoom":[start,end]`.
 
-- **shapemiss** `{"type":"shapemiss","prompt":"Watch closely!","prompt2":"Which one did NOT appear?","seq":[5 emoji],"options":[3 emoji: exactly one NOT in seq],"right":i}`
+- **shapemiss** `{"type":"shapemiss","prompt":"Watch closely!","prompt2":"Which one never appeared?","stack":true,"seq":[5 emoji],"options":[3 emoji: exactly one NOT in seq],"right":i}`
 - **spotlight** `{"type":"spotlight","prompt":"What's in the dark?","emoji":e (big clear animal/object),"options":[3 names],"right":i}`
 - **pixel** `{"type":"pixel","prompt":"Guess before it clears!","emoji":e,"options":[3 names],"right":i}`
 - **colorcount** `{"type":"colorcount","prompt":"How many GREEN shapes?","counts":{"green":n,"red":n,"blue":n,"yellow":n} (total ≤ 30),"ask":colour,"seed":n,"options":[3 strings],"right":i}`
@@ -114,7 +124,9 @@ the long video uses the 20 formats listed in `long_formats` for the day (one puz
 - `creative_create_flow` once (name "Wit Wonderland TARGET").
 - For each Short: `python3 pipeline/tools.py prompt sNN.json` → one `creative_generate_speech` call
   (model `eleven_v4`, voice_id `cPmGMZvsZ24aRiDy6Vc2` (**Professor Hoot**, the channel's owl mascot), generations_count 1, same flow_id).
-- Long video: `python3 pipeline/tools.py prompt long.json 2` → 2 calls (part 1 and part 2).
+- Long video: `python3 pipeline/tools.py prompt long.json 2` → 2 calls (part 1 and part 2), plus
+  `python3 pipeline/tools.py hooks long.json` → 1 more call for the spoken hooks (download it to `work/TARGET/voice/hooks.mp3`,
+  then `python3 pipeline/tools.py fillhooks long.json work/TARGET/voice/hooks.mp3`).
 - Never call generate twice for the same text. Collect generation_ids; read URLs with `creative_get_generations`
   (wait ~20 s first; up to 4 ids per call) and download each with curl to `work/TARGET/voice/`.
 - `python3 pipeline/tools.py fill sNN.json work/TARGET/voice/sNN.mp3` (long: two files in order).

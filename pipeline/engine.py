@@ -576,7 +576,7 @@ def draw_item(c, idx, t, phase, pt):
     tm_i = c.spec.get("timing", {}).get(f"i{idx}", {})
     if idx == 0 and phase == "ask" and tm_i.get("hook") and c.spec.get("hook") and t < tm_i["hook"] + 0.3:
         hook_banner(c, im, c.spec["hook"], t, tm_i["hook"])
-    elif idx > 0 and phase == "ask" and (c.v or item.get("teaser")) and t < 1.9:
+    elif idx > 0 and phase == "ask" and c.v and t < 1.9:  # long videos: hooks are SPOKEN (say.items[i].hook), never text banners
         tz = item.get("teaser")
         if tz is None:  # default cliff-hangers (varied) that keep people watching to the last puzzle
             rnd = random.Random(c.spec.get("hook", "") + str(idx))

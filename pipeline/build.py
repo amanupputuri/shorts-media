@@ -84,6 +84,17 @@ def main():
         t0_["ask"] = round(max(t0_["ask"], hd + dur(t0_["q"]) + 0.6), 3)
         t0_["dur"] = round(t0_["ask"] + cs + dur(t0_["a"]) + 0.8, 3)
     timing["outro"] = {"dur": round(max(dur(segs[-1]) + 0.5, 1.8) if hook_mode else max(dur(segs[-1]) + 0.8, 2.2), 3)}
+    # spoken hooks (long videos): say.items[i].hook is said by Hoot at the end of puzzle i-1's reveal (no text banner);
+    # all hook lines come from ONE extra voice file, spec "hook_voice", segments in item order.
+    hook_idx = [i for i, it in enumerate(spec.get("say", {}).get("items", [])) if it.get("hook")]
+    if hook_idx:
+        assert spec.get("hook_voice"), "say.items have hooks but spec has no hook_voice (run tools.py hooks / fillhooks)"
+        assert hook_idx[0] >= 1, "puzzle 1 has no hook slot: put the warm-up line into say.intro"
+        hsegs = split(spec["hook_voice"], len(hook_idx), work, 900)
+        for i, hf in zip(hook_idx, hsegs):
+            pv = timing[f"i{i - 1}"]
+            pv["hook_at"] = round(pv["dur"] - 0.2, 3); pv["hook_seg"] = hf
+            pv["dur"] = round(pv["dur"] + dur(hf) + 0.55, 3)
     spec["timing"] = timing
     sp = os.path.join(work, "spec_timed.json"); json.dump(spec, open(sp, "w"), indent=1)
 
@@ -143,6 +154,7 @@ def main():
             for k in range(cs): add(sfx, tick, t0 + tm["ask"] + k, 0.18)
             r = t0 + tm["ask"] + cs
             add(sfx, ding, r, 0.2); add(voice, load(tm["a"]), r + 0.25)
+            if tm.get("hook_seg"): add(voice, load(tm["hook_seg"]), t0 + tm["hook_at"])
         t0 += timing[g]["dur"]
     # music bed: playful "puzzle / quiz" style (pizzicato bass, marimba riff, soft shaker + clap); key & tempo vary by day
     ms = spec.get("music_seed", 0)
@@ -195,6 +207,12 @@ def main():
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", lst, "-i", wav, "-map", "0:v", "-map", "1:a",
                     "-c:v", "copy", "-af", "loudnorm=I=-14:TP=-1.5", "-c:a", "aac", "-b:a", "160k", "-ar", "44100", "-shortest",
                     "-movflags", "+faststart", out], check=True, stdin=subprocess.DEVNULL)
+    if spec["orientation"] == "h" and spec.get("badge", True):
+        # LIKE + SUBSCRIBE badge in the top-left corner, 10 times x 4 s (Aman, 17 Nov)
+        raw = out[:-4] + ".nobadge.mp4"; os.replace(out, raw)
+        subprocess.run([sys.executable, os.path.join(HERE, "subscribe_overlay.py"), raw, out,
+                        str(spec.get("badge_times", 10)), str(spec.get("badge_secs", 4))], check=True, stdin=subprocess.DEVNULL)
+        os.remove(raw)
     print(out, round(dur(out), 2), "s", round(os.path.getsize(out) / 1e6, 1), "MB")
 
 if __name__ == "__main__":
