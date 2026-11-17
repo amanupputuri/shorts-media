@@ -52,6 +52,11 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
     "Ooh, you're good! This one's sneaky.", "Two left. You've totally got this!", "Last one — the best for last!").
     Hoot says it at the end of the previous answer screen. Make the voice for them with `tools.py hooks sNN.json` (one extra
     generate call per Short, voice cPmGMZvsZ24aRiDy6Vc2) and `tools.py fillhooks sNN.json work/TARGET/voice/sNN-hooks.mp3`.
+    **MID-VIDEO LIKE ASK (Aman, 18 Nov; every Short and every long video, once):** Hoot asks viewers to like the video so he can
+    keep making amazing puzzles. Shorts: `say.items[3].hook` (said after puzzle 3's answer, the middle of the Short).
+    Long video: `say.items[10].hook` (the halfway point; set spec `"midcta": {"idx": 9}` so the LIKE + SUBSCRIBE pop-up shows at
+    the same moment). ≤ 12 words, warm, reword it every video, e.g. "Enjoying these? Tap like so I can make more puzzles!",
+    "If you're having fun, hit like — it helps me make more!", "Smash that like to keep the puzzles coming!".
     Do NOT write `"teaser"` (check fails) — with spoken hooks the old text cliff-hanger cards are switched off.
     The opening `"hook"` banner at second 0 stays (it is also said as say.intro). Reword hooks every Short, never the same twice in a day.
   · **PUZZLE STYLE = the latest long video's style (Aman, 18 Nov):** follow "Question first — FINAL FORMAT" below in every Short
@@ -95,9 +100,9 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
 4. **Bug**: `show_arrows: true`; q = "Where does the bug stop? Listen to Hoot! <moves spoken>".
 5. **Fruit Math (long)**: EASY — two fruits only: two equations (A+A=n, A+B=m), ask B+B.
 6. **Long videos — pop-up, spoken hooks, corner badge (Aman, 17 Nov)**:
-   - spec `"midcta": {"idx": 4}` shows a LIKE + SUBSCRIBE pop-up (with bell) over the reveal of puzzle 5.
+   - spec `"midcta": {"idx": 9}` shows a LIKE + SUBSCRIBE pop-up (with bell) over the reveal of puzzle 10, together with the spoken like ask.
    - **Hooks are voice-over only — NO text banners**: never put `"teaser"` on long-video items (`check` fails; the engine ignores
-     them for long videos). Instead give `say.items[10]`, `say.items[15]` and `say.items[19]` a `"hook"` (≤ 7 words, attractive + encouraging — see HOOK STYLE — e.g.
+     them for long videos). Instead give `say.items[15]` and `say.items[19]` a `"hook"` (say.items[10] is the LIKE ask) (≤ 7 words, attractive + encouraging — see HOOK STYLE — e.g.
      "Halfway there — you're doing great!", "Tough ones now. You've got this!", "Last one! Finish strong!") — Hoot says it at the end of the previous puzzle's answer screen, which
      is held a little longer for it. The hook before puzzle 1 is the last part of `say.intro` ("…Ready? Let's warm up!").
      Reword the hooks every day; never the same set two days running.

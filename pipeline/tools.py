@@ -198,14 +198,19 @@ if __name__ == "__main__":
         if len(spec.get("say", {}).get("items", [])) != len(spec["items"]): e.append("say.items count != items count")
         if True:  # Aman, 18 Nov: Shorts AND long videos use spoken (voice) hooks, no text teasers
             if spec.get("orientation") == "v" and spec.get("count_secs") != 4: e.append("Shorts use count_secs 4 (Aman, 18 Nov)")
-            if spec.get("orientation") == "v" and len([1 for si in spec.get("say", {}).get("items", []) if si.get("hook")]) < 3:
-                e.append("Shorts need 3 spoken hooks: say.items[2], [4] and [5] get a \"hook\" (<= 7 words)")
+            if spec.get("orientation") == "v" and len([1 for si in spec.get("say", {}).get("items", []) if si.get("hook")]) < 4:
+                e.append("Shorts need 4 spoken hooks: say.items[2], [4], [5] (<= 7 words) + the LIKE ask on say.items[3]")
+            # Aman, 18 Nov: once in the middle of EVERY video Hoot asks for a like so he can keep making puzzles
+            mid = 3 if spec.get("orientation") == "v" else 10
+            sit = spec.get("say", {}).get("items", [])
+            if len(sit) > mid and "like" not in sit[mid].get("hook", "").lower():
+                e.append(f"say.items[{mid}].hook must be the mid-video LIKE ask (<= 12 words), e.g. \"Enjoying this? Tap like so I can make more puzzles!\"")
             for i, it in enumerate(spec["items"]):
                 if it.get("teaser"): e.append(f"item {i}: NO text teasers any more - put the line in say.items[{i}].hook (spoken)")
                 if it.get("prompt2") and not it.get("stack"): e.append(f"item {i}: two-part question needs \"stack\": true (both lines on screen)")
             for i, si in enumerate(spec.get("say", {}).get("items", [])):
                 if si.get("hook") and i == 0: e.append("say.items[0].hook: puzzle 1 has no hook slot - end say.intro with the warm-up line")
-                if si.get("hook") and len(si["hook"].split()) > 7: e.append(f"say.items[{i}].hook must be <= 7 words")
+                if si.get("hook") and len(si["hook"].split()) > (12 if "like" in si["hook"].lower() else 7): e.append(f"say.items[{i}].hook must be <= 7 words")
         print("ERRORS:" if e else "OK", *e, sep="\n  ")
         sys.exit(1 if e else 0)
     elif cmd == "prompt":
