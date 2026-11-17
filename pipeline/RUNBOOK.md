@@ -116,8 +116,9 @@ Name files `TARGET-s01.mp4 … TARGET-sNN.mp4`, `TARGET-long.mp4`. URL:
 `https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/FILE` — curl -sI each, must be 200.
 
 ## 6. Schedule in Buffer (`pipeline/buffer_post.py`)
-Pick N **random** times on TARGET between **13:00 and 21:00 IST** for the Shorts (random minutes, not round numbers,
-at least 90 minutes apart, never earlier than 30 minutes after now). Generate them with Python `random` seeded by TARGET.
+Use the **fixed Shorts slots 13:00, 15:00, 17:00, 19:00, 21:00 IST** (in that order; skip any slot earlier than 30 minutes
+after now). They are fixed because the scheduled task "Wit Wonderland – new upload checklist" runs at :12 past each slot
+to give every Short its thumbnail, tags, playlist, related video and pinned comment right after it goes live.
 The long video is for **11:00 IST** (Aman's schedule: day runs 11 AM – 9 PM).
 **Long-video thumbnail:** `python3 pipeline/thumb_long.py thumbs/TARGET-long.jpg "LINE1" "LINE2" <palette 0-6> "e1,e2,e3,e4"`
 (2 short punchy lines ≤ 12 chars each, e.g. "CAN YOU" / "GET 20/20?", "ONLY 1%" / "GET ALL 20!"; 4 emoji from the day's theme; vary

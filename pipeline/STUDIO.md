@@ -78,7 +78,7 @@ DataTransfer + "change" → Save (wait until Save greys out).
 5. Re-point that day's live Shorts' related video to this long video.
 
 ## 10. Auto-check (scheduled task "Wit Wonderland – new upload checklist")
-Runs daily ~15:41, 19:41 and 21:41 IST on Aman's computer (built-in browser). Each run: list Studio Shorts + Videos published in the last 3 days;
+Runs daily at 13:12, 15:12, 17:12, 19:12 and 21:12 IST (12 min after each fixed Shorts slot) on Aman's computer (built-in browser). Each run: list Studio Shorts + Videos published in the last 3 days;
 a video counts as DONE when it has tags (not 0/500), a playlist, language English, a related video (Shorts) / end screen (long), a custom
 thumbnail and a pinned score comment. Do sections 8/9 for anything not done. Never change titles/descriptions, never delete anything.
 If the browser/computer is unreachable, stop and say so (the next run catches up).
