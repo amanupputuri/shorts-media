@@ -62,3 +62,12 @@ DataTransfer + "change" → Save (wait until Save greys out).
 - 2026-11-17: end screens (template "1 video, 1 subscribe": Best for viewer + Subscribe) on VEQQq8HeMoo and E70jagKMdfc. New long videos: End screen → "Import from latest video" → Save.
 - 2026-11-17: "What was your score?" comment pinned on both long videos and the 8 Shorts of 15–16 Nov (youtube.com/watch → comment ⋮ → Pin → Pin).
 - 2026-11-17: 6 image posts scheduled: 18 Nov 14:15 Christmas math, 18:45 find the owl; 19 Nov 13:45 odd pair, 19:15 finger count; 20 Nov 14:45 leg count, 18:15 board copy. Images posts/2026-11-18..20-a/b.jpg (crop now keeps the pill: frame crop y110..1450 (1540 for grid/board) on the frame background). Time list items use a narrow no-break space ("2:15 PM"); date: type into input#textbox in the calendar, Enter, click the selected day to close.
+
+## 8. New-Short checklist (do once each Short is live — Buffer can't set these)
+1. Custom thumbnail 1080x1920 (hard-level frame from the mp4 panels + "SPOT THE DIFFERENCE!" style title + pink badge + Hoot) → thumbs/DATE-sNN.jpg → upload via the file input on /video/ID/edit.
+2. Related video → that day's long video (or latest long video until it's up; switch later).
+3. Tags (Show more → Tags input: insertText "a, b, c," then Enter + blur; ~15 tags, <500 chars, format words + "wit wonderland, professor hoot").
+4. Video language + Title/description language → "English".
+5. Playlist → matching format playlist (Spot the Difference Challenges 🔍 / What Changed? / Odd One Out / Quick Brain Quiz / 20 Eye & Brain Puzzles).
+6. Save (wait until Save greys out), then post + pin "What was your score? 👇" on youtube.com/watch?v=ID.
+- 2026-11-17: Cz6U2tdEm6A (17 Nov s04) fully done with the checklist above; new playlist "Spot the Difference Challenges 🔍" created.
