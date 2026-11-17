@@ -116,9 +116,17 @@ def main():
     pop = np.sin(2 * np.pi * (380 * tt + 1800 * tt * tt)) * np.exp(-30 * tt) * env(len(tt), 0.012)          # soft bubble
     tt = np.arange(int(0.12 * SR)) / SR
     tick = (np.sin(2 * np.pi * 620 * tt) + 0.2 * np.sin(2 * np.pi * 930 * tt)) * np.exp(-34 * tt) * env(len(tt), 0.008)  # woodblock tock
-    tt = np.arange(int(1.6 * SR)) / SR
-    ding = sum(a_ * np.sin(2 * np.pi * f_ * tt) * np.exp(-d_ * tt) for f_, a_, d_ in
-               [(784, 1.0, 2.6), (1175, 0.4, 3.6), (1568, 0.15, 5)]) * env(len(tt), 0.02)  # glassy chime
+    # modern "success" sound: soft marimba two-note rise (G5 → C6) + airy sparkle tail
+    def mallet(f, d=0.7):
+        t_ = np.arange(int(d * SR)) / SR
+        return (np.sin(2 * np.pi * f * t_) + 0.18 * np.sin(2 * np.pi * f * 3.98 * t_) * np.exp(-30 * t_)) * np.exp(-7 * t_) * np.minimum(1, t_ / 0.012)
+    ding = np.zeros(int(1.4 * SR))
+    for off, f_, a_ in [(0.0, 783.99, 0.8), (0.09, 1046.5, 1.0), (0.18, 1567.98, 0.35)]:
+        m = mallet(f_); o = int(off * SR); ding[o:o + len(m)] += m[:len(ding) - o] * a_
+    tsp = np.arange(len(ding)) / SR
+    sparkle = lp(np.random.default_rng(9).normal(0, 1, len(ding)), 3) - lp(np.random.default_rng(9).normal(0, 1, len(ding)), 30)
+    ding += sparkle * np.exp(-4 * np.maximum(0, tsp - 0.15)) * (tsp > 0.12) * 0.05
+    ding = lp(ding, 3)
     rng = np.random.default_rng(1); wh = lp(rng.normal(0, 1, int(0.45 * SR)), 40)
     whoosh = lp(wh, 12) * np.sin(np.linspace(0, np.pi, len(wh))) ** 2 * 3                                    # airy swoosh
     t0 = 0.0
@@ -133,7 +141,7 @@ def main():
             for k in range(len(item.get("options", []))): add(sfx, pop, t0 + 0.8 + 0.35 * k + (0.2 if item.get("display") else 0), 0.14)
             for k in range(cs): add(sfx, tick, t0 + tm["ask"] + k, 0.18)
             r = t0 + tm["ask"] + cs
-            add(sfx, ding, r, 0.22); add(voice, load(tm["a"]), r + 0.25)
+            add(sfx, ding, r, 0.2); add(voice, load(tm["a"]), r + 0.25)
         t0 += timing[g]["dur"]
     # music bed (key/tempo vary by day via spec["music_seed"])
     ms = spec.get("music_seed", 0)
