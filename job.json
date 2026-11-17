@@ -1,9 +1,9 @@
 {
- "id": "job-e52038bfaf",
+ "id": "job-b2791f7fc4",
  "steps": [
   {
-   "name": "introspect",
-   "query": "{ a: __type(name:\"CreatePostInput\"){ inputFields{ name type{ name kind ofType{name}} } } }",
+   "name": "i",
+   "query": "{ a: __type(name:\"PostInputMetaData\"){ inputFields{ name type{ name } } } y: __type(name:\"YoutubePostMetadataInput\"){ inputFields{ name type{ name kind ofType{name}} } } }",
    "variables": {}
   }
  ]
