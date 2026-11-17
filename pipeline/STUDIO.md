@@ -70,4 +70,17 @@ DataTransfer + "change" → Save (wait until Save greys out).
 4. Video language + Title/description language → "English".
 5. Playlist → matching format playlist (Spot the Difference Challenges 🔍 / What Changed? / Odd One Out / Quick Brain Quiz / 20 Eye & Brain Puzzles).
 6. Save (wait until Save greys out), then post + pin "What was your score? 👇" on youtube.com/watch?v=ID.
+## 9. New-long-video checklist (Aman uploads it himself)
+1. Thumbnail: thumbs/DATE-long.jpg if it exists (else make one with thumb_long.py) → upload on /video/ID/edit.
+2. Tags (~15, puzzle words), Video language + Title/description language "English", playlist "20 Eye & Brain Puzzles – Full Brain Workouts 🦉", Save.
+3. End screen: End screen → "Import from latest video" (or template "1 video, 1 subscribe": Best for viewer + Subscribe) → Save.
+4. Post + pin "What was your score out of 20? 👇".
+5. Re-point that day's live Shorts' related video to this long video.
+
+## 10. Auto-check (scheduled task "Wit Wonderland – new upload checklist")
+Runs daily ~15:41, 19:41 and 21:41 IST on Aman's computer (built-in browser). Each run: list Studio Shorts + Videos published in the last 3 days;
+a video counts as DONE when it has tags (not 0/500), a playlist, language English, a related video (Shorts) / end screen (long), a custom
+thumbnail and a pinned score comment. Do sections 8/9 for anything not done. Never change titles/descriptions, never delete anything.
+If the browser/computer is unreachable, stop and say so (the next run catches up).
+
 - 2026-11-17: Cz6U2tdEm6A (17 Nov s04) fully done with the checklist above; new playlist "Spot the Difference Challenges 🔍" created.
