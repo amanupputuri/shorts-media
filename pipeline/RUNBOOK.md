@@ -1,7 +1,7 @@
 # Wit Wonderland — daily puzzle run
 
 Every day this run makes **4 vertical Shorts + 1 horizontal 20-puzzle video** for the YouTube channel
-Wit Wonderland and schedules them in Metricool. Work unattended: never stop to ask questions; if a step fails,
+Wit Wonderland and schedules them in **Buffer** (through `pipeline/buffer_post.py`; Metricool is no longer used). Work unattended: never stop to ask questions; if a step fails,
 retry once, skip that video, and carry on. Report at the end.
 
 ## 0. Setup
@@ -12,9 +12,8 @@ retry once, skip that video, and carry on. Report at the end.
 ## 1. Pick the target date
 - If TARGET is listed in `pipeline/skip_dates.txt` → it is PAUSED: do nothing else, report "paused for TARGET".
 - If IST time now is before 11:00 → TARGET = today, else TARGET = tomorrow.
-- Metricool: `getBrandSettings` → blogId **8098288**. `getScheduledPosts` for TARGET 00:00–23:59 IST
-  (timezone `Asia/Calcutta`). If **3 or more** YouTube posts already exist that day → it is already done:
-  stop and report "already scheduled".
+- Already done? `python3 pipeline/buffer_post.py list <TARGET 00:00 IST in UTC> <TARGET 23:59 IST in UTC>`
+  (e.g. TARGET 2026-11-18 → `2026-11-17T18:30:00.000Z 2026-11-18T18:29:00.000Z`). If **3 or more** posts exist → stop, report "already scheduled".
 - `python3 pipeline/tools.py day TARGET` → gives `format` (the Shorts format of the day), `style`, `music_seed`.
 
 ## 2. Write the content (the creative part — take care)
@@ -84,30 +83,35 @@ Check each output exists, Shorts 40–80 s, long 5–12 min. Grab 3 frames of 2 
 If a split fails ("split failed"), regenerate that one voice once.
 
 ## 5. Host the files
-Commit the mp4s to the orphan branch **media** (it only ever holds the current day — force push):
+Commit the mp4s to the orphan branch **media**. Buffer downloads each video only when it publishes, so the branch keeps
+**yesterday's and today's** files (force push; drop anything older):
 ```
-cd /home/claude/shorts-media && git checkout --orphan media-tmp && git rm -rf --cached . -q
-mkdir -p media && cp out/*.mp4 media/ && git add media && git commit -qm "media TARGET"
-git branch -D media 2>/dev/null; git branch -m media && git push -f origin media && git checkout -f main
+cd /home/claude/shorts-media && git fetch -q origin media && mkdir -p /tmp/keep && git archive FETCH_HEAD media | tar -x -C /tmp/keep
+git checkout --orphan media-tmp && git rm -rf --cached . -q && rm -rf media && mkdir -p media
+cp /tmp/keep/media/YESTERDAY-* media/ 2>/dev/null; cp out/*.mp4 media/ && git add media && git commit -qm "media TARGET"
+git branch -D media 2>/dev/null; git branch -m media && env -u GH_TOKEN git -c push.negotiate=true push -f origin media && git checkout -f main
 ```
 Name files `TARGET-s01.mp4 … TARGET-sNN.mp4`, `TARGET-long.mp4`. URL:
 `https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/FILE` — curl -sI each, must be 200.
-(Metricool copies the file when the post is created, so replacing the branch next day is safe.)
 
-## 6. Schedule in Metricool (createScheduledPost, blogId 8098288, timezone Asia/Calcutta)
+## 6. Schedule in Buffer (`pipeline/buffer_post.py`)
 Pick N+1 **random** times on TARGET between 13:00 and 23:00 IST (random minutes, not round numbers, at least 90 minutes apart,
 and never earlier than 30 minutes after now). Generate them with Python `random` seeded by TARGET. N go to the Shorts in random
 order; the long video gets one of the times between 16:00 and 21:00.
-info: autoPublish true, draft false, providers [{"network":"youtube"}], media [URL], firstCommentText
-"What was your score? 👇", youtubeData {title, type "short" (long: "video"), privacy "public", tags,
-category "EDUCATION", madeForKids false, isAiGeneratedContent false}.
+Write `work/TARGET/posts.json` = list of {"url", "title", "text", "due_ist": "TARGET HH:MM"} and run
+`python3 pipeline/buffer_post.py schedule work/TARGET/posts.json`. Every step must come back `PostActionSuccess`;
+if one fails, fix it and schedule only that one again (never re-send ones that succeeded — that would post twice).
+Buffer sets: public, category Education (27), not made for kids, notify subscribers. Buffer can't set tags or a
+first comment — the evening Studio task pins the comment and sets the related video.
 - Title ≤ 90 chars, catchy, different every video, ends with "#shorts" for Shorts. Mention the puzzle type.
 - Description (text): 1 hook line; "Can you solve all 3?" style challenge; the 3 puzzles in plain words (no answers in
   the first lines; answers after "ANSWERS (no peeking!)"); comment-your-score line; subscribe line with
-  https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1 ; 6–10 hashtags.
-  Long video: list "0:00 Intro" style is NOT needed; list the 20 puzzle types.
-- Tags: 12–18 search phrases (puzzle type names, "brain teaser", "eye test", "puzzle game", "iq test",
-  "can you solve this", "wit wonderland", …). No single-word tags only.
+  https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1 ; a "Search: …" line with 10–14 search
+  phrases separated by commas (brain teaser, eye test, puzzle game, iq test, can you solve this, wit wonderland, the
+  puzzle type names…) in place of tags; then 6–10 hashtags.
+  Long video: list the 20 puzzle types.
+- Save the Buffer post ids + titles + times to `work/TARGET/scheduled.json` and also commit a copy to **main** as
+  `pipeline/schedule/TARGET.json` (the evening Studio task reads it).
 
 ## 7. Wrap up
 - Append the new puzzle keys (e.g. "cups:1:0-1,1-2,0-2", "odd4:penguin") to `pipeline/used.json` on **main**, commit,
