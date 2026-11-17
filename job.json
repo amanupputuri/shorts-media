@@ -1,10 +1,203 @@
 {
- "id": "job-187b7e8e45",
+ "id": "job-742f78d198",
  "steps": [
   {
-   "name": "intro",
-   "query": "{ a: __type(name:\"CreatePostInput\") { inputFields { name type { name kind ofType { name } } } } b: __type(name:\"PostTypeId\") { enumValues { name } } }",
-   "variables": {}
+   "name": "99% Forget the Last Square ⚡ Expert Memory Test #shorts",
+   "query": "mutation($input: CreatePostInput!) { createPost(input: $input) { __typename\n  ... on PostActionSuccess { post { id dueAt status } } ... on MutationError { message } } }",
+   "variables": {
+    "input": {
+     "channelId": "6afbdbb4ece6dfde5ff1432b",
+     "schedulingType": "automatic",
+     "mode": "customScheduled",
+     "dueAt": "2026-11-18T05:31:00.000Z",
+     "needsApproval": false,
+     "text": "Five fast flashes. One last square. Will you remember it?\nCan you solve all 3? Easy, medium, then a tricky 5-flash round!\n\n🧩 Puzzle 1: Watch 4 squares light up — which was last?\n🧩 Puzzle 2: A new 4-flash pattern — keep up!\n🧩 Puzzle 3: 5 flashes — the tricky one!\n\nComment your score below: 1/3, 2/3 or 3/3? 👇\nSubscribe for a new puzzle every day 👉 https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1\n\nANSWERS (no peeking!)\n1) Square 5 | 2) Square 2 | 3) Square 1\n\nSearch: memory grid, memory test, brain teaser, eye test, puzzle game, iq test, can you solve this, memory game, brain games for kids, focus test, wit wonderland, which square lit up last, visual memory challenge\n\n#shorts #memorytest #brainteaser #puzzle #iqtest #memorygame #brainchallenge #witwonderland",
+     "assets": [
+      {
+       "video": {
+        "url": "https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/2026-11-18-s05.mp4"
+       }
+      }
+     ],
+     "metadata": {
+      "youtube": {
+       "title": "99% Forget the Last Square ⚡ Expert Memory Test #shorts",
+       "privacy": "public",
+       "categoryId": "27",
+       "madeForKids": false,
+       "notifySubscribers": true,
+       "license": "youtube",
+       "embeddable": true,
+       "isAiGenerated": false
+      }
+     }
+    }
+   }
+  },
+  {
+   "name": "Professor Hoot's Memory Grid 🦉 Can You Track Every Flash? #shorts",
+   "query": "mutation($input: CreatePostInput!) { createPost(input: $input) { __typename\n  ... on PostActionSuccess { post { id dueAt status } } ... on MutationError { message } } }",
+   "variables": {
+    "input": {
+     "channelId": "6afbdbb4ece6dfde5ff1432b",
+     "schedulingType": "automatic",
+     "mode": "customScheduled",
+     "dueAt": "2026-11-18T08:19:00.000Z",
+     "needsApproval": false,
+     "text": "Follow the glowing squares and remember which one lit up last.\nCan you solve all 3? Easy, medium, then a tricky 5-flash round!\n\n🧩 Puzzle 1: Watch 4 squares light up — which was last?\n🧩 Puzzle 2: A new 4-flash pattern — keep up!\n🧩 Puzzle 3: 5 flashes — the tricky one!\n\nComment your score below: 1/3, 2/3 or 3/3? 👇\nSubscribe for a new puzzle every day 👉 https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1\n\nANSWERS (no peeking!)\n1) Square 1 | 2) Square 6 | 3) Square 7\n\nSearch: memory grid, memory test, brain teaser, eye test, puzzle game, iq test, can you solve this, memory game, brain games for kids, focus test, wit wonderland, which square lit up last, visual memory challenge\n\n#shorts #memorytest #brainteaser #puzzle #iqtest #memorygame #brainchallenge #witwonderland",
+     "assets": [
+      {
+       "video": {
+        "url": "https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/2026-11-18-s04.mp4"
+       }
+      }
+     ],
+     "metadata": {
+      "youtube": {
+       "title": "Professor Hoot's Memory Grid 🦉 Can You Track Every Flash? #shorts",
+       "privacy": "public",
+       "categoryId": "27",
+       "madeForKids": false,
+       "notifySubscribers": true,
+       "license": "youtube",
+       "embeddable": true,
+       "isAiGenerated": false
+      }
+     }
+    }
+   }
+  },
+  {
+   "name": "Which Square Lit Up LAST? 🧠 Memory Grid Test #shorts",
+   "query": "mutation($input: CreatePostInput!) { createPost(input: $input) { __typename\n  ... on PostActionSuccess { post { id dueAt status } } ... on MutationError { message } } }",
+   "variables": {
+    "input": {
+     "channelId": "6afbdbb4ece6dfde5ff1432b",
+     "schedulingType": "automatic",
+     "mode": "customScheduled",
+     "dueAt": "2026-11-18T10:57:00.000Z",
+     "needsApproval": false,
+     "text": "Hoo-hoo! Professor Hoot flashes the squares — can you remember the last one?\nCan you solve all 3? Easy, medium, then a tricky 5-flash round!\n\n🧩 Puzzle 1: Watch 4 squares light up — which was last?\n🧩 Puzzle 2: A new 4-flash pattern — keep up!\n🧩 Puzzle 3: 5 flashes — the tricky one!\n\nComment your score below: 1/3, 2/3 or 3/3? 👇\nSubscribe for a new puzzle every day 👉 https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1\n\nANSWERS (no peeking!)\n1) Square 3 | 2) Square 4 | 3) Square 9\n\nSearch: memory grid, memory test, brain teaser, eye test, puzzle game, iq test, can you solve this, memory game, brain games for kids, focus test, wit wonderland, which square lit up last, visual memory challenge\n\n#shorts #memorytest #brainteaser #puzzle #iqtest #memorygame #brainchallenge #witwonderland",
+     "assets": [
+      {
+       "video": {
+        "url": "https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/2026-11-18-s01.mp4"
+       }
+      }
+     ],
+     "metadata": {
+      "youtube": {
+       "title": "Which Square Lit Up LAST? 🧠 Memory Grid Test #shorts",
+       "privacy": "public",
+       "categoryId": "27",
+       "madeForKids": false,
+       "notifySubscribers": true,
+       "license": "youtube",
+       "embeddable": true,
+       "isAiGenerated": false
+      }
+     }
+    }
+   }
+  },
+  {
+   "name": "20 Eye & Brain Puzzles 🦉 Memory Grid, Fruit Math & More | Can You Get 20/20?",
+   "query": "mutation($input: CreatePostInput!) { createPost(input: $input) { __typename\n  ... on PostActionSuccess { post { id dueAt status } } ... on MutationError { message } } }",
+   "variables": {
+    "input": {
+     "channelId": "6afbdbb4ece6dfde5ff1432b",
+     "schedulingType": "automatic",
+     "mode": "customScheduled",
+     "dueAt": "2026-11-18T12:48:00.000Z",
+     "needsApproval": false,
+     "text": "Hoo-hoo! 20 eye and brain puzzles with Professor Hoot — from easy to tricky!\nCan you solve all 20? Memory, sharp eyes and quick thinking all in one test.\n\nThe 20 puzzles:\n1. Memory Grid\n2. What's Missing?\n3. Upside-Down One\n4. Number Flash\n5. Bug Arrows\n6. Which Row Is Different?\n7. How Many Differences?\n8. Odd Letter Out\n9. Card Flip Memory\n10. Dice Flash\n11. Zoom Out\n12. Which One Didn't Appear?\n13. Spotlight\n14. Pixel Guess\n15. Find It in the Crowd\n16. Colour Count\n17. Number Twice\n18. Fruit Math\n19. Grid Finder\n20. Board Copy\n\nComment your score out of 20 below! 👇\nSubscribe for a new puzzle every day 👉 https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1\n\nANSWERS (no peeking!)\n1) Square 5 | 2) Strawberry | 3) Row 2, column 6 | 4) 47392 | 5) Square 16 | 6) Row B | 7) 2 | 8) Row 5, column 10 (N) | 9) Cards 2 & 7 | 10) 7 | 11) Penguin | 12) Volleyball | 13) Lion | 14) Burger | 15) Row 6, column 12 | 16) 7 | 17) 58 | 18) 14 | 19) D3 | 20) Board C\n\nSearch: brain teaser, eye test, puzzle game, iq test, can you solve this, memory test, spot the difference, fruit math, find the odd one out, brain games, 20 puzzles, wit wonderland, visual puzzles for kids\n\n#brainteaser #puzzle #iqtest #memorytest #eyetest #brainchallenge #witwonderland",
+     "assets": [
+      {
+       "video": {
+        "url": "https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/2026-11-18-long.mp4"
+       }
+      }
+     ],
+     "metadata": {
+      "youtube": {
+       "title": "20 Eye & Brain Puzzles 🦉 Memory Grid, Fruit Math & More | Can You Get 20/20?",
+       "privacy": "public",
+       "categoryId": "27",
+       "madeForKids": false,
+       "notifySubscribers": true,
+       "license": "youtube",
+       "embeddable": true,
+       "isAiGenerated": false
+      }
+     }
+    }
+   }
+  },
+  {
+   "name": "Memory Grid Challenge 💡 Only Sharp Minds Get Level 3 #shorts",
+   "query": "mutation($input: CreatePostInput!) { createPost(input: $input) { __typename\n  ... on PostActionSuccess { post { id dueAt status } } ... on MutationError { message } } }",
+   "variables": {
+    "input": {
+     "channelId": "6afbdbb4ece6dfde5ff1432b",
+     "schedulingType": "automatic",
+     "mode": "customScheduled",
+     "dueAt": "2026-11-18T15:08:00.000Z",
+     "needsApproval": false,
+     "text": "A quick brain game that looks easy… until puzzle 3.\nCan you solve all 3? Easy, medium, then a tricky 5-flash round!\n\n🧩 Puzzle 1: Watch 4 squares light up — which was last?\n🧩 Puzzle 2: A new 4-flash pattern — keep up!\n🧩 Puzzle 3: 5 flashes — the tricky one!\n\nComment your score below: 1/3, 2/3 or 3/3? 👇\nSubscribe for a new puzzle every day 👉 https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1\n\nANSWERS (no peeking!)\n1) Square 8 | 2) Square 3 | 3) Square 2\n\nSearch: memory grid, memory test, brain teaser, eye test, puzzle game, iq test, can you solve this, memory game, brain games for kids, focus test, wit wonderland, which square lit up last, visual memory challenge\n\n#shorts #memorytest #brainteaser #puzzle #iqtest #memorygame #brainchallenge #witwonderland",
+     "assets": [
+      {
+       "video": {
+        "url": "https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/2026-11-18-s03.mp4"
+       }
+      }
+     ],
+     "metadata": {
+      "youtube": {
+       "title": "Memory Grid Challenge 💡 Only Sharp Minds Get Level 3 #shorts",
+       "privacy": "public",
+       "categoryId": "27",
+       "madeForKids": false,
+       "notifySubscribers": true,
+       "license": "youtube",
+       "embeddable": true,
+       "isAiGenerated": false
+      }
+     }
+    }
+   }
+  },
+  {
+   "name": "Watch the Squares! 👀 Can Your Memory Keep Up? #shorts",
+   "query": "mutation($input: CreatePostInput!) { createPost(input: $input) { __typename\n  ... on PostActionSuccess { post { id dueAt status } } ... on MutationError { message } } }",
+   "variables": {
+    "input": {
+     "channelId": "6afbdbb4ece6dfde5ff1432b",
+     "schedulingType": "automatic",
+     "mode": "customScheduled",
+     "dueAt": "2026-11-18T17:18:00.000Z",
+     "needsApproval": false,
+     "text": "The lights flash fast. Your memory has to be faster!\nCan you solve all 3? Easy, medium, then a tricky 5-flash round!\n\n🧩 Puzzle 1: Watch 4 squares light up — which was last?\n🧩 Puzzle 2: A new 4-flash pattern — keep up!\n🧩 Puzzle 3: 5 flashes — the tricky one!\n\nComment your score below: 1/3, 2/3 or 3/3? 👇\nSubscribe for a new puzzle every day 👉 https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1\n\nANSWERS (no peeking!)\n1) Square 2 | 2) Square 7 | 3) Square 5\n\nSearch: memory grid, memory test, brain teaser, eye test, puzzle game, iq test, can you solve this, memory game, brain games for kids, focus test, wit wonderland, which square lit up last, visual memory challenge\n\n#shorts #memorytest #brainteaser #puzzle #iqtest #memorygame #brainchallenge #witwonderland",
+     "assets": [
+      {
+       "video": {
+        "url": "https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/2026-11-18-s02.mp4"
+       }
+      }
+     ],
+     "metadata": {
+      "youtube": {
+       "title": "Watch the Squares! 👀 Can Your Memory Keep Up? #shorts",
+       "privacy": "public",
+       "categoryId": "27",
+       "madeForKids": false,
+       "notifySubscribers": true,
+       "license": "youtube",
+       "embeddable": true,
+       "isAiGenerated": false
+      }
+     }
+    }
+   }
   }
  ]
 }
