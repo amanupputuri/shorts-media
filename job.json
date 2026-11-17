@@ -1,1 +1,23 @@
-{"id": "probe-5", "steps": [{"name": "delete", "query": "mutation { deletePost(input:{id:\"6afbde1df83aaca8f3ad5765\"}) { __typename ... on MutationError { message } } }"}, {"name": "limits", "query": "query($i: DailyPostingLimitsInput!) { dailyPostingLimits(input:$i) { __typename ... on DailyPostingLimitStatus { channelId sent scheduled limit isAtLimit } } }", "variables": {"i": {"channelIds": ["6afbdbb4ece6dfde5ff1432b"], "date": "2026-11-18T12:00:00.000Z"}}}]}
+{
+ "id": "job-763c774a63",
+ "steps": [
+  {
+   "name": "posts",
+   "query": "query($i: PostsInput!) { posts(first: 50, input: $i) { edges { node { id dueAt status text } } } }",
+   "variables": {
+    "i": {
+     "organizationId": "6afbdb5edb9ae616ed8a7467",
+     "filter": {
+      "channelIds": [
+       "6afbdbb4ece6dfde5ff1432b"
+      ],
+      "dueAt": {
+       "start": "2026-11-17T00:00:00.000Z",
+       "end": "2026-11-30T00:00:00.000Z"
+      }
+     }
+    }
+   }
+  }
+ ]
+}
