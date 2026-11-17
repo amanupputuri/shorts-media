@@ -1,6 +1,6 @@
 # Wit Wonderland — daily puzzle run
 
-Every day this run makes **4 vertical Shorts + 1 horizontal 20-puzzle video** for the YouTube channel
+Every day this run makes **5 vertical Shorts + 1 horizontal 20-puzzle video** for the YouTube channel
 Wit Wonderland and schedules them in **Buffer** (through `pipeline/buffer_post.py`; Metricool is no longer used). Work unattended: never stop to ask questions; if a step fails,
 retry once, skip that video, and carry on. Report at the end.
 
@@ -18,7 +18,7 @@ retry once, skip that video, and carry on. Report at the end.
 
 ## 2. Write the content (the creative part — take care)
 Read `pipeline/used.json` (list of short keys of puzzles already used). Never repeat one.
-N = 4 Shorts. Write N+1 spec files in `work/TARGET/`:
+N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
 - `s01.json … sNN.json` — Shorts. Each: **3 puzzles, all of the day's format**, orientation `"v"`, count_secs 3,
   label `"PUZZLE"`. Vary difficulty: easy, medium, tricky.
 - `long.json` — orientation `"h"`, count_secs 5, label `"PUZZLE"`, **20 puzzles = one each of the 20 formats in step 1's `long_formats` (in that order)**,
@@ -95,7 +95,7 @@ Name files `TARGET-s01.mp4 … TARGET-sNN.mp4`, `TARGET-long.mp4`. URL:
 `https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/FILE` — curl -sI each, must be 200.
 
 ## 6. Schedule in Buffer (`pipeline/buffer_post.py`)
-Pick N+1 **random** times on TARGET between 13:00 and 23:00 IST (random minutes, not round numbers, at least 90 minutes apart,
+Pick N+1 **random** times on TARGET between 11:00 and 23:00 IST — the last one no later than 23:00 (random minutes, not round numbers, at least 90 minutes apart,
 and never earlier than 30 minutes after now). Generate them with Python `random` seeded by TARGET. N go to the Shorts in random
 order; the long video gets one of the times between 16:00 and 21:00.
 Write `work/TARGET/posts.json` = list of {"url", "title", "text", "due_ist": "TARGET HH:MM"} and run
