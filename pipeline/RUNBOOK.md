@@ -26,7 +26,7 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
   theme (e.g. Christmas: 🎄🎅🎁⛄🔔🦌🍪🧦⭐), and the title names it ("Christmas Spot the Difference 🎄👀 #shorts").
   Formats built on numbers/letters/shapes have no theme (empty string) — keep them as they are.
 - `s01.json … sNN.json` — Shorts. Each: **exactly 6 puzzles, all of that Short's own format (`short_formats[k]`): 2 EASY, 2 MEDIUM, 2 HARD, in that
-  order** (badges are added automatically), orientation `"v"`, count_secs **3** (Shorts land ~55–65 s).
+  order** (badges are added automatically), orientation `"v"`, count_secs **4** (Aman, 18 Nov: 4-second timer; Shorts land ~60–75 s).
   HOOKS (most important — make viewers wait for the last puzzle):
   **HOOK STYLE — attractive + encouraging (Aman, 17 Nov; Shorts AND long videos).** Every hook must make the viewer
   WANT to keep watching and feel they CAN do it. Each hook does two things in a few words:

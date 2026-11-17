@@ -197,6 +197,7 @@ if __name__ == "__main__":
         e = check(spec)
         if len(spec.get("say", {}).get("items", [])) != len(spec["items"]): e.append("say.items count != items count")
         if True:  # Aman, 18 Nov: Shorts AND long videos use spoken (voice) hooks, no text teasers
+            if spec.get("orientation") == "v" and spec.get("count_secs") != 4: e.append("Shorts use count_secs 4 (Aman, 18 Nov)")
             if spec.get("orientation") == "v" and len([1 for si in spec.get("say", {}).get("items", []) if si.get("hook")]) < 3:
                 e.append("Shorts need 3 spoken hooks: say.items[2], [4] and [5] get a \"hook\" (<= 7 words)")
             for i, it in enumerate(spec["items"]):
