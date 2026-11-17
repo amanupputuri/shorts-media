@@ -1650,10 +1650,10 @@ def draw_missing(c, im, item, phase, pt, t):
 # 35 Find the letter
 def draw_letterhunt(c, im, item, phase, pt, t):
     d = ImageDraw.Draw(im)
-    cols, rows = (6, 7) if c.v else (12, 5)
-    cell, ox, oy = _grid_geom(c, cols, rows, 40 if c.v else 80, 140)
+    cols, rows = (8, 10) if c.v else (16, 6)
+    cell, ox, oy = _grid_geom(c, cols, rows, 40 if c.v else 80, 120)
     _panel(d, ox, oy, cols * cell, rows * cell)
-    f = font(F_BOLD, cell * 0.72)
+    f = font(F_BOLD, cell * 0.66)
     pr, pc = item["pos"]; pr %= rows; pc %= cols
     a = eo((t - 0.3) / 0.5) if phase == "ask" else 1
     for r_ in range(rows):

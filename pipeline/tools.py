@@ -9,7 +9,7 @@ import sys, json, datetime, os
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 
 FORMATS = ["odd4", "twins", "spotdiff", "memgrid", "missing", "flipped", "numflash",
-           "bug", "rowdiff", "countdiff", "arrowout", "cardflip", "diceflash", "zoom",
+           "bug", "rowdiff", "countdiff", "letterhunt", "cardflip", "diceflash", "zoom",
            "shapemiss", "spotlight", "pixel", "crowd", "colorcount", "dupnum"]
 NAMES = {"odd4": "Find the Odd One Out", "changed": "What Changed?", "cups": "Follow the Ball", "keys": "Which Key Fits?",
          "glasses": "Which Glass Fills First?", "path": "Which Path Gets the Prize?", "shadow": "Shadow Match",
@@ -20,7 +20,7 @@ NAMES = {"odd4": "Find the Odd One Out", "changed": "What Changed?", "cups": "Fo
          "colortrap": "Colour Trap", "balance": "Balance the Scale", "dots": "Connect the Dots",
          "spotdiff": "Spot the Difference", "oddcolor": "Odd Colour Out", "memgrid": "Memory Grid", "missing": "What's Missing?",
          "flipped": "Upside-Down One", "numflash": "Number Flash", "whereflash": "Where Was It?", "bug": "Bug Arrows",
-         "rowdiff": "Which Row Is Different?", "countdiff": "How Many Differences?", "arrowout": "Arrow Out",
+         "rowdiff": "Which Row Is Different?", "countdiff": "How Many Differences?", "arrowout": "Arrow Out", "letterhunt": "Odd Letter Out",
          "cardflip": "Card Flip Memory", "diceflash": "Dice Flash", "zoom": "Zoom Out", "lightorder": "Light Order", "split": "Split Picture",
          "shapemiss": "Which One Didn't Appear?", "spotlight": "Spotlight", "pixel": "Pixel Guess", "crowd": "Find It in the Crowd",
          "colorcount": "Colour Count", "moved": "What Moved?", "dupnum": "Number Twice"}
@@ -113,7 +113,8 @@ def check(spec):
         if t == "missing" and it["options"][it["right"]] != it["before"][it["gone"]]: errs.append(f"item {i}: missing right option wrong")
         if t == "numflash" and it["options"][it["right"]] != it["number"]: errs.append(f"item {i}: numflash right option wrong")
         if t == "numflash" and (len(it["options"]) != 5 or len(set(it["options"])) != 5): errs.append(f"item {i}: numflash needs 5 different options")
-        if t == "rowdiff" and len(it["seq"]) != 7: errs.append(f"item {i}: rowdiff needs 7 items per row")
+        if t == "rowdiff" and (len(it["seq"]) != 7 or len(set(it["seq"])) != 7 or it.get("rows", 4) != 4): errs.append(f"item {i}: rowdiff needs 7 different items per row and 4 rows")
+        if t == "letterhunt" and (len(it["base"]) != 1 or len(it["odd"]) != 1 or it["base"] == it["odd"]): errs.append(f"item {i}: letterhunt needs two different single characters")
         if t == "crowd" and len(it["pool"]) < 8: errs.append(f"item {i}: crowd pool needs 8+ look-alikes")
         if t == "arrowout" and not (10 <= abs((it["odd_angle"] - it["angle"] + 180) % 360 - 180) <= 25): errs.append(f"item {i}: arrowout odd angle must differ by 10-25 degrees")
         if t == "dupnum" and len(it["nums"]) != 30: errs.append(f"item {i}: dupnum needs 30 numbers")

@@ -57,8 +57,8 @@ the long video uses 20 different formats (one puzzle each), one puzzle from each
 - **colorcount** `{"type":"colorcount","prompt":"How many GREEN shapes?","counts":{"green":n,"red":n,"blue":n,"yellow":n} (total ≤ 30),"ask":colour,"seed":n,"options":[3 strings],"right":i}`
 
 - **numflash** `{"type":"numflash","prompt":"Remember the number!","prompt2":"Which number did you see?","number":"5 digits","options":[5 different look-alike numbers incl. number (swap 2 digits, change 1 digit…)],"right":i}`
-- **rowdiff** `{"type":"rowdiff","prompt":"Which row is different?","seq":[7 very look-alike emoji, e.g. 😀😃😄😁😆😊🙂 or 🐶🐕🐩🐺🦊🐱🦝],"rows":5,"odd_row":0-4,"swap":[k,k+1] (swap the two that look MOST alike)}` HARD.
-- **arrowout** `{"type":"arrowout","prompt":"Find the odd arrow!","angle":any of 0|45|90|…,"odd_angle":angle ± 12-20 (a tiny tilt),"pos":[row 0-8,col 0-13]}` HARD.
+- **rowdiff** `{"type":"rowdiff","prompt":"Which row is different?","seq":[7 DIFFERENT, easy-to-tell-apart emoji of one theme, e.g. 🍎🍌🍇🍓🍊🍉🍍 or 🐶🐱🐭🐰🦊🐻🐼],"rows":4,"odd_row":0-3,"swap":[k,k+1]}` MEDIUM (two neighbours swapped; never use look-alike faces).
+- **letterhunt** `{"type":"letterhunt","prompt":"Find the odd letter!","base":"O","odd":"Q","pos":[row 0-9,col 0-15]}` — dense grid; use look-alike pairs and vary daily: O/Q, M/N, E/F, P/R, C/G, 8/B, 5/S, 0/O, V/Y, I/T, 3/8, U/V.
 - **crowd** `{"type":"crowd","prompt":"Find it in the crowd!","target":e,"pool":[8+ emoji that look very similar to the target — same colour/shape family, e.g. 🐧 among 🐦🕊️🦅🦆🦉🐓🦜🐤],"pos":[row 0-8,col 0-15],"seed":n}` HARD (dense grid).
 - **dupnum** `{"type":"dupnum","prompt":"Which number appears twice?","nums":[30 two-digit numbers, exactly one repeated once, include near-twins like 47/74/41/17]}` HARD.
 
