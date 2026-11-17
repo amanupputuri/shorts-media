@@ -26,11 +26,15 @@ NAMES = {"odd4": "Find the Odd One Out", "changed": "What Changed?", "cups": "Fo
          "shapemiss": "Which One Didn't Appear?", "spotlight": "Spotlight", "pixel": "Pixel Guess", "crowd": "Find It in the Crowd",
          "colorcount": "Colour Count", "moved": "What Moved?", "dupnum": "Number Twice"}
 START = datetime.date(2026, 11, 15)
-PALETTES = [([20, 40, 110], [70, 20, 120], [230, 60, 90]), ([20, 90, 80], [10, 40, 90], [240, 120, 40]),
-            ([60, 20, 100], [20, 30, 90], [230, 60, 120]), ([90, 30, 30], [40, 20, 80], [40, 160, 220]),
-            ([20, 60, 100], [30, 20, 70], [250, 120, 40]), ([15, 70, 60], [20, 30, 70], [255, 90, 90]),
-            ([80, 20, 70], [30, 20, 90], [60, 180, 120])]
-BGS = ["bubbles", "stars", "grid", "waves", "confetti"]
+# modern, bright, kid-friendly flat colours: (top, bottom, pill)
+PALETTES = [([66, 133, 244], [44, 104, 222], [255, 92, 120]),    # sky blue
+            ([124, 92, 255], [100, 66, 230], [255, 176, 32]),    # violet
+            ([20, 184, 166], [13, 148, 136], [255, 92, 120]),    # teal
+            ([240, 91, 166], [214, 64, 140], [70, 110, 255]),    # bubblegum pink
+            ([34, 170, 95], [22, 140, 78], [255, 92, 120]),      # leaf green
+            ([255, 107, 107], [235, 80, 90], [60, 100, 240]),    # coral
+            ([56, 189, 248], [14, 150, 220], [255, 92, 120])]    # aqua
+BGS = ["blobs", "dots"]
 
 def day_info(date):
     d = datetime.date.fromisoformat(date); n = (d - START).days

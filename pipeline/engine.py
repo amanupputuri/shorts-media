@@ -70,7 +70,19 @@ class Ctx:
         im = self._bg.copy().convert("RGBA")
         ov = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(ov)
         k = self.bgkind
-        if k == "bubbles":
+        if k == "blobs":  # modern minimal: 3 big soft shapes drifting slowly
+            spots = [(0.15, 0.12, 0.42), (0.92, 0.48, 0.36), (0.25, 0.9, 0.5)]
+            for i, (fx, fy, fr) in enumerate(spots):
+                x = W * fx + 30 * math.sin(t * 0.4 + i * 2); y = H * fy + 30 * math.cos(t * 0.35 + i)
+                r = min(W, H) * fr
+                d.ellipse((x - r, y - r, x + r, y + r), fill=(255, 255, 255, 20))
+        elif k == "dots":  # soft polka dots
+            step = 120; off = (t * 12) % step
+            for yy in range(-step, H + step, step):
+                for xx in range(-step, W + step, step):
+                    sx = xx + (step / 2 if (yy // step) % 2 else 0) + off
+                    d.ellipse((sx - 9, yy + off - 9, sx + 9, yy + off + 9), fill=(255, 255, 255, 30))
+        elif k == "bubbles":
             for i in range(10):
                 x = (i * 263 + 140 * math.sin(t * 0.5 + i)) % W
                 y = (H - ((t * (40 + i * 9) + i * 311) % (H + 300))) + 150
@@ -113,7 +125,10 @@ def text_center(d, txt, cx, y, size, fill=(255, 255, 255), fnt=F_BOLD, stroke=0,
     while d.textlength(txt, font=f) > maxw and size > 24:
         size -= 3; f = font(fnt, size)
     w = d.textlength(txt, font=f)
-    d.text((cx - w / 2, y), txt, font=f, fill=fill, stroke_width=stroke, stroke_fill=sfill)
+    if stroke:  # modern look: soft drop shadow instead of a thick dark outline
+        off = max(3, int(size * 0.05))
+        d.text((cx - w / 2, y + off), txt, font=f, fill=(20, 10, 50, 80))
+    d.text((cx - w / 2, y), txt, font=f, fill=fill)
     return size
 
 def wrap(txt, size, maxw, fnt=F_BOLD):
@@ -418,7 +433,7 @@ def draw_item(c, idx, t, phase, pt):
             nd.ellipse((60, 20, 340, 260), fill=(0, 0, 0, 90), outline=c.accent, width=10)
             nd.text(((400 - tw) / 2, 50), str(nleft), font=f, fill=c.accent)
         else:
-            nd.text(((400 - tw) / 2, 0), str(nleft), font=f, fill=c.accent, stroke_width=10, stroke_fill=(30, 10, 50))
+            nd.text(((400 - tw) / 2, 0), str(nleft), font=f, fill=c.accent, stroke_width=4, stroke_fill=(30, 10, 50))
         paste(im, num, L["count"][0], L["count"][1], sz * (0.7 if not c.v else 1))
         x0, y0, x1, y1 = L["bar"]
         bw = (x1 - x0) * (1 - pt / cs)
@@ -498,7 +513,7 @@ def _icon_btn(emo, label, col, size):
     hl = Image.new("RGBA", im.size, (0, 0, 0, 0)); ImageDraw.Draw(hl).ellipse((cx - r * 0.62, 18 + size * 0.1, cx + r * 0.1, 18 + size * 0.36), fill=(255, 255, 255, 70))
     im.alpha_composite(hl)
     e = emoji_img(emo, size * 0.5); im.alpha_composite(e, (int(cx - e.width / 2), int(18 + size / 2 - e.height / 2)))
-    d.text((cx - lw / 2, size + 34), label, font=f, fill=(255, 255, 255), stroke_width=5, stroke_fill=(20, 10, 40))
+    d.text((cx - lw / 2, size + 34), label, font=f, fill=(255, 255, 255), stroke_width=2, stroke_fill=(20, 10, 40))
     return im
 
 def _bubble(text, w, size, tail="left"):
