@@ -208,7 +208,8 @@ def draw_gridfind(c, im, item, phase, pt, t):
     if c.v:
         _t(d, b[0] + 120, b[3] + 20, "Find:", 46, (255, 255, 255)); paste(im, emoji_img(item["target"], 70), b[0] + 240, b[3] + 22)
     else:
-        _t(d, b[2] + 120, b[1] + 20, "Find:", 46, (255, 255, 255)); paste(im, emoji_img(item["target"], 70), b[2] + 230, b[1] + 22)
+        fx = ox - 230; fy = oy + n * cell / 2
+        _t(d, fx, fy - 70, "Find:", 50, (255, 255, 255)); paste(im, emoji_img(item["target"], 110), fx, fy + 30)
     _opt_row(c, d, item, phase, pt, t, item["options"], b[3] + 150 if c.v else 0, 1.6)
     return ox + (item["pos"][1] + 0.5) * cell, oy + (item["pos"][0] + 0.5) * cell
 
