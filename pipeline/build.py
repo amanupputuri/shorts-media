@@ -68,6 +68,7 @@ def main():
     segs = []
     for f, n in zip(spec["voice"], counts):
         segs += split(f, n, work, len(segs))
+    for k, f in (spec.get("voice_override") or {}).items(): segs[int(k)] = f
     cs = spec["count_secs"]
     timing = {"intro": {"dur": round(dur(segs[0]) + 0.4, 3)}}
     for i in range(n_items):

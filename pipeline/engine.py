@@ -396,25 +396,23 @@ def draw_hoot_corner(c, im, phase, t, pt):
     paste(im, hoot_img(size, pose, blink_at(t + 0.7)), x, y - bob, s)
 
 ANSWER_HINTS = {
-    "memgrid": "Watch the flashes. Answer: a square number",
-    "spotdiff": "Look at A and B. Answer: the square that changed",
-    "missing": "Remember all 9. Answer: A, B or C",
-    "flipped": "Answer: the row and column",
-    "numflash": "Remember all 6 digits. Answer: A to E",
-    "bug": "Listen to Hoot! Answer: the square number",
-    "cardflip": "Remember the cards. Answer: A, B or C",
-    "zoom": "Guess early! Answer: A, B or C",
-    "diceflash": "Remember the dice. Answer: A, B or C",
-    "rowdiff": "Answer: the row letter",
-    "letterhunt": "Answer: the row and column",
-    "crowd": "Answer: the row and column",
+    "memgrid": "Watch the flashes",
+    "spotdiff": "Look at A and B",
+    "missing": "Remember all 9 images",
+    "flipped": "",
+    "numflash": "Remember all 6 digits",
+    "bug": "Listen to Hoot!",
+    "cardflip": "Remember the cards",
+    "zoom": "Guess early!",
+    "diceflash": "Remember the dice",
+    "rowdiff": "",
+    "letterhunt": "",
+    "crowd": "",
 }
 def answer_hint(item):
     """one short line under the question that says HOW to answer (shown from the first frame)"""
     t = item.get("type")
     if t in ANSWER_HINTS: return ANSWER_HINTS[t]
-    n = len(item.get("options") or [])
-    if n: return "Answer: pick " + ", ".join("ABCDE"[:n - 1]) + " or " + "ABCDE"[n - 1]
     return ""
 
 def draw_item(c, idx, t, phase, pt):
