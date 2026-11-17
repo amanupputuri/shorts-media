@@ -1,13 +1,9 @@
 {
- "id": "probe-1",
+ "id": "probe-2",
  "steps": [
   {
-   "name": "orgs",
-   "query": "query { account { organizations { id name } } }"
-  },
-  {
-   "name": "schema",
-   "query": "{ __schema { types { name kind inputFields { name type { name kind ofType { name kind ofType { name kind } } } } enumValues { name } } } }"
+   "name": "channels",
+   "query": "query { channels(input:{organizationId:\"6afbdb5edb9ae616ed8a7467\"}) { id name service displayName isDisconnected } }"
   }
  ]
 }
