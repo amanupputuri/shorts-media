@@ -275,12 +275,12 @@ def layout(c, item):
     has_disp = bool(item.get("display"))
     nopt = len(item.get("options", []))
     if c.v:
-        L = dict(head=190, prompt=330, prompt_size=88, prompt_w=W - 120,
+        L = dict(head=190, prompt=320, prompt_size=112, prompt_w=W - 100,
                  disp=(W / 2, 880), disp_h=260, disp_w=W - 120,
                  opt_box=(60, 1060 if has_disp else 760, W - 60, 1480),
                  bottom=1520, count=(W / 2, 1600), bar=(160, 1750, W - 160, 1786))
     else:
-        L = dict(head=80, prompt=140, prompt_size=78, prompt_w=W - 300,
+        L = dict(head=80, prompt=140, prompt_size=86, prompt_w=W - 300,
                  disp=(W / 2, 540), disp_h=200, disp_w=W - 300,
                  opt_box=(160, 690 if has_disp else 400, W - 160, 900 if has_disp else 880),
                  bottom=930, count=(W - 140, 140), bar=(560, 1040, W - 560, 1062))
@@ -426,7 +426,7 @@ def draw_item(c, idx, t, phase, pt):
     ptxt = item["prompt"]
     if item.get("prompt2") and (phase != "ask" or t >= 3.0): ptxt = item["prompt2"]
     lines = wrap(ptxt, size, L["prompt_w"])
-    while len(lines) > (3 if c.v else 2) and size > 40:
+    while len(lines) > 2 and size > 56:
         size -= 6; lines = wrap(ptxt, size, L["prompt_w"])
     lay = Image.new("RGBA", (W, int(size * 1.25 * len(lines) + 40)), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
     for i, ln in enumerate(lines):
@@ -434,9 +434,36 @@ def draw_item(c, idx, t, phase, pt):
     if qa < 1: lay.putalpha(lay.split()[-1].point(lambda v: int(v * qa)))
     im.alpha_composite(lay, (0, int(L["prompt"] - (1 - qa) * 40)))
     custom_origin = None
+    prompt_bottom = L["prompt"] + len(lines) * size * 1.22 + 20
     if item.get("type") in __import__("eyebrain").DRAW:
         import eyebrain
-        custom_origin = eyebrain.DRAW[item["type"]](c, im, item, phase, pt, t)
+        lay = Image.new("RGBA", im.size, (0, 0, 0, 0))
+        custom_origin = eyebrain.DRAW[item["type"]](c, lay, item, phase, pt, t)
+        bb = lay.getbbox()
+        # fill the empty space: scale the whole puzzle up to the free area (same scale every frame of the scene)
+        if bb and item.get("autofit", True):
+            ref = getattr(c, "_fit", {}).get(idx)
+            if ref is None:
+                lay0 = Image.new("RGBA", im.size, (0, 0, 0, 0))
+                tm0 = c.spec.get("timing", {}).get(f"i{idx}", {})
+                eyebrain.DRAW[item["type"]](c, lay0, item, "reveal", 1.5, tm0.get("ask", 6) + c.spec["count_secs"] + 1.5)
+                b0 = lay0.getbbox() or bb
+                fx0, fy0, fx1, fy1 = (40, prompt_bottom + 30, W - 40, L["bottom"] - 75) if c.v else (60, prompt_bottom + 20, W - 60, L["bottom"] - 45)
+                sc = min((fx1 - fx0) / (b0[2] - b0[0]), (fy1 - fy0) / (b0[3] - b0[1]), 1.45)
+                ref = (b0, max(0.75, sc), ((fx0 + fx1) / 2, (fy0 + fy1) / 2))
+                if not hasattr(c, "_fit"): c._fit = {}
+                c._fit[idx] = ref
+            b0, sc, (tcx, tcy) = ref
+            if True:  # always fit & centre in the free area (scale up to fill, down if it would overlap text)
+                crop = lay.crop(b0); crop = crop.resize((int(crop.width * sc), int(crop.height * sc)), Image.LANCZOS)
+                ox_ = int(tcx - crop.width / 2); oy_ = int(tcy - crop.height / 2)
+                im.alpha_composite(crop, (max(0, ox_), max(0, oy_))) if ox_ >= 0 and oy_ >= 0 else im.paste(crop, (ox_, oy_), crop)
+                if custom_origin:
+                    custom_origin = (tcx + (custom_origin[0] - (b0[0] + b0[2]) / 2) * sc, tcy + (custom_origin[1] - (b0[1] + b0[3]) / 2) * sc)
+            else:
+                im.alpha_composite(lay)
+        else:
+            im.alpha_composite(lay)
         d = ImageDraw.Draw(im)
     if item.get("display"):
         draw_display(c, im, L, item, phase, pt, t)
@@ -482,7 +509,7 @@ def draw_item(c, idx, t, phase, pt):
         if t > 2.2:
             a_ = eo((t - 2.2) / 0.4)
             lay = Image.new("RGBA", (W, 140), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
-            text_center(ld, item.get("nudge", "Comment your answer below!"), W / 2, 30, 62, maxw=W - 120)
+            text_center(ld, item.get("nudge", "Comment your answer below!"), W / 2, 30, 76, maxw=W - 80)
             lay.putalpha(lay.split()[-1].point(lambda v: int(v * a_)))
             im.alpha_composite(lay, (0, L["bottom"]))
     elif phase == "reveal":
@@ -490,11 +517,11 @@ def draw_item(c, idx, t, phase, pt):
         for i, ln in enumerate(item.get("fact", [])):
             a_ = eo((pt - 0.6 - i * 0.9) / 0.4)
             if a_ <= 0: continue
-            sz = (64 if i == 0 else 52) if c.v else (56 if i == 0 else 46)
-            lay = Image.new("RGBA", (W, 110), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
+            sz = (84 if i == 0 else 62) if c.v else (60 if i == 0 else 48)
+            lay = Image.new("RGBA", (W, 135), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
             text_center(ld, ln, W / 2, 10, sz, fill=c.accent if i == 0 else (255, 255, 255), stroke=5, maxw=W - 120)
             lay.putalpha(lay.split()[-1].point(lambda v: int(v * a_)))
-            im.alpha_composite(lay, (0, int(L["bottom"] + i * (95 if c.v else 70) + (1 - a_) * 20)))
+            im.alpha_composite(lay, (0, int(L["bottom"] + i * (115 if c.v else 72) + (1 - a_) * 20)))
         if pt < 2.4:
             cols = [(255, 210, 60), (60, 255, 120), (255, 90, 140), (90, 200, 255)]
             ox = W / 2; oy = c.H * 0.55
