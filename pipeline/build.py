@@ -143,43 +143,48 @@ def main():
             r = t0 + tm["ask"] + cs
             add(sfx, ding, r, 0.2); add(voice, load(tm["a"]), r + 0.25)
         t0 += timing[g]["dur"]
-    # music bed (key/tempo vary by day via spec["music_seed"])
+    # music bed: playful "puzzle / quiz" style (pizzicato bass, marimba riff, soft shaker + clap); key & tempo vary by day
     ms = spec.get("music_seed", 0)
-    bpm = [104, 112, 120, 96, 116][ms % 5]; beat = 60 / bpm
-    progs = [[[261.6, 329.6, 392], [220, 261.6, 329.6], [174.6, 220, 261.6], [196, 246.9, 293.7]],
-             [[293.7, 370, 440], [246.9, 293.7, 370], [196, 246.9, 293.7], [220, 277.2, 329.6]],
-             [[220, 261.6, 329.6], [174.6, 220, 261.6], [261.6, 329.6, 392], [196, 246.9, 293.7]]]
+    bpm = [116, 120, 112, 124, 118][ms % 5]; beat = 60 / bpm
+    progs = [[[261.6, 329.6, 392], [220, 261.6, 329.6], [174.6, 220, 261.6], [196, 246.9, 293.7]],      # C Am F G
+             [[293.7, 370, 440], [246.9, 293.7, 370], [196, 246.9, 293.7], [220, 277.2, 329.6]],      # D Bm G A
+             [[196, 246.9, 293.7], [164.8, 196, 246.9], [130.8, 164.8, 196], [146.8, 185, 220]]]      # G Em C D
     chords = progs[ms % 3]
-    # warm lo-fi bed: soft pad + gentle electric-piano arpeggio + sub bass, ducked under the voice
-    mus = np.zeros(N); bar = beat * 4
-    nb = int(total / bar) + 2
+    mus = np.zeros(N); bar = beat * 4; nb = int(total / bar) + 2
+    def pluck(f, d=0.35, dec=9, att=0.006):
+        t_ = np.arange(int(d * SR)) / SR
+        return (np.sin(2 * np.pi * f * t_) + 0.3 * np.sin(4 * np.pi * f * t_) * np.exp(-14 * t_)) * np.exp(-dec * t_) * np.minimum(1, t_ / att)
+    def marimba(f, d=0.45):
+        t_ = np.arange(int(d * SR)) / SR
+        return (np.sin(2 * np.pi * f * t_) + 0.12 * np.sin(2 * np.pi * f * 3.98 * t_) * np.exp(-25 * t_)) * np.exp(-8 * t_) * np.minimum(1, t_ / 0.008)
+    nrng = np.random.default_rng(3)
+    shk = np.diff(np.concatenate([[0], nrng.normal(0, 1, int(0.06 * SR))])) * np.exp(-np.arange(int(0.06 * SR)) / SR * 60)
+    clap = lp(nrng.normal(0, 1, int(0.12 * SR)), 2) * np.exp(-np.arange(int(0.12 * SR)) / SR * 30)
+    riffs = [[0, 2, 1, 2, 0, 2, 1, None], [0, None, 2, 1, None, 2, 0, 1], [2, 1, 0, None, 2, None, 1, 0]]
     for b in range(nb):
-        ch = chords[(b // 2) % 4]; t0b = b * bar
-        if b % 2 == 0:  # pad: 2 bars per chord, slow attack, long release
-            L = int(bar * 2.3 * SR); tt = np.arange(L) / SR
-            pad = sum(np.sin(2 * np.pi * f * tt) + 0.6 * np.sin(2 * np.pi * f * 1.004 * tt) + 0.15 * np.sin(4 * np.pi * f * tt) for f in ch)
-            e = np.minimum(1, tt / 0.8) * np.minimum(1, np.maximum(0, (bar * 2.3 - tt) / 0.9))
-            add(mus, pad * e * 0.16, t0b)
-            Lb = int(bar * 2 * SR); tb = np.arange(Lb) / SR   # sub bass
-            add(mus, np.sin(2 * np.pi * ch[0] / 2 * tb) * np.minimum(1, tb / 0.12) * np.exp(-0.5 * tb) * 0.4, t0b)
-        for k in range(8):  # keys: 8ths, rising arpeggio with soft velocity
-            f = ch[[0, 1, 2, 1, 0, 2, 1, 2][k]] * 2; Lk = int(0.6 * SR); tk = np.arange(Lk) / SR
-            v = 0.5 + 0.25 * ((k + b) % 3 == 0)
-            key = (np.sin(2 * np.pi * f * tk) + 0.12 * np.sin(4 * np.pi * f * tk)) * np.exp(-4 * tk) * np.minimum(1, tk / 0.018)
-            add(mus, key * v * 0.24, t0b + k * beat / 2 + 0.006 * ((k * 7) % 3))
-    mus = lp(mus, 14)
+        ch = chords[b % 4]; t0b = b * bar; riff = riffs[(b // 4 + ms) % 3]
+        for q in range(4):  # pizzicato bass: root / fifth bounce
+            add(mus, pluck(ch[0] / 2 * (1.5 if q % 2 else 1), 0.3, 11) * 0.55, t0b + q * beat)
+        for k, n in enumerate(riff):  # marimba riff on 8ths, octave up
+            if n is None: continue
+            add(mus, marimba(ch[n] * 2) * (0.32 if k % 2 == 0 else 0.24), t0b + k * beat / 2)
+        for k in range(8):  # soft shaker on 8ths, accent off-beats
+            add(mus, shk * (0.05 if k % 2 else 0.025), t0b + k * beat / 2)
+        for q in (1, 3):  # gentle clap on 2 and 4
+            add(mus, clap * 0.08, t0b + q * beat)
+    mus = lp(mus, 5)
     # soft room reverb (decaying noise impulse) for a smooth, dreamy bed
     ir_n = int(1.4 * SR); ir = np.random.default_rng(5).normal(0, 1, ir_n) * np.exp(-np.arange(ir_n) / SR * 3.2); ir = lp(ir, 20); ir /= np.abs(ir).sum() / 6
     from numpy.fft import rfft, irfft
     L_ = len(mus) + ir_n; nf = 1 << (L_ - 1).bit_length()
     wet = irfft(rfft(mus, nf) * rfft(ir, nf), nf)[:len(mus)]
-    mus = 0.65 * mus + 0.35 * wet / (np.max(np.abs(wet)) + 1e-9) * np.max(np.abs(mus))
+    mus = 0.85 * mus + 0.15 * wet / (np.max(np.abs(wet)) + 1e-9) * np.max(np.abs(mus))
     venv = lp(np.abs(voice), int(0.25 * SR)); venv = venv / (venv.max() + 1e-9)
     mus = mus * (1 - 0.55 * np.clip(venv * 4, 0, 1))  # sidechain duck under Professor Hoot
     fade = int(0.8 * SR); mus[int(total * SR) - fade:int(total * SR)] *= np.linspace(1, 0, fade)
     mus = mus / (np.max(np.abs(mus)) + 1e-9)
     sfx = lp(sfx, 4)
-    mix = (voice * 0.95 + sfx * 0.9 + mus * 0.15)[:int(total * SR)]
+    mix = (voice * 0.95 + sfx * 0.9 + mus * 0.17)[:int(total * SR)]
     mix = mix / max(1, np.max(np.abs(mix)) / 0.95)
     wav = os.path.join(work, "mix.wav")
     with wave.open(wav, "wb") as w:
