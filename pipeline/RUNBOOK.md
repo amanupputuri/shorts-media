@@ -10,6 +10,7 @@ retry once, skip that video, and carry on. Report at the end.
 - All times are **Asia/Kolkata (IST)**.
 
 ## 1. Pick the target date
+- If TARGET is listed in `pipeline/skip_dates.txt` → it is PAUSED: do nothing else, report "paused for TARGET".
 - If IST time now is before 11:00 → TARGET = today, else TARGET = tomorrow.
 - Metricool: `getBrandSettings` → blogId **8098288**. `getScheduledPosts` for TARGET 00:00–23:59 IST
   (timezone `Asia/Calcutta`). If **3 or more** YouTube posts already exist that day → it is already done:
@@ -21,7 +22,7 @@ Read `pipeline/used.json` (list of short keys of puzzles already used). Never re
 N = 4 Shorts. Write N+1 spec files in `work/TARGET/`:
 - `s01.json … sNN.json` — Shorts. Each: **3 puzzles, all of the day's format**, orientation `"v"`, count_secs 3,
   label `"PUZZLE"`. Vary difficulty: easy, medium, tricky.
-- `long.json` — orientation `"h"`, count_secs 5, label `"PUZZLE"`, **20 puzzles = one each of 20 different formats (of the 25)**,
+- `long.json` — orientation `"h"`, count_secs 5, label `"PUZZLE"`, **20 puzzles = one each of 20 different formats (all 20)**,
   shuffled order, easy → harder.
 - Every spec gets: `style` and `music_seed` from step 1 (long video: music_seed + 1), a `title_card`
   {emoji, line1, line2, tag} and `outro` exactly {"line1": "LIKE &", "line2": "SUBSCRIBE!", "line3": "", "cta": "SUBSCRIBE", "cta_sub": ""},
@@ -35,35 +36,31 @@ N = 4 Shorts. Write N+1 spec files in `work/TARGET/`:
   puzzle (computed from the drawing data). Make every `a` line and the `fact` lines agree with it. Fix and re-check
   until it prints OK. Never ship a spec whose voice disagrees with `check`.
 
-### Puzzle schemas — the 25 formats (all items also have `prompt` (on-screen question, ≤ 32 characters) and `fact` [line1 ≤ 26 chars, line2 ≤ 34 chars])
+### Puzzle schemas — the 20 formats (all items also have `prompt` (on-screen question, ≤ 32 characters) and `fact` [line1 ≤ 26 chars, line2 ≤ 34 chars])
 Emoji must be single standard emoji (no flags, no skin tones, no ZWJ sequences). Shorts use only the format of the day;
-the long video uses 20 different formats (one puzzle each), picked at random from the 25.
+the long video uses 20 different formats (one puzzle each), one puzzle from each of the 20.
 - **odd4** `{"type":"odd4","options":[[label,emoji]x4],"right":i}` — 4 things, one doesn't belong (reason in fact).
-- **changed** `{"type":"changed","prompt":"Remember these 6!","prompt2":"Which one changed?","before":[6 emoji],"changed":i,"after_emoji":e}`
 - **twins** `{"type":"twins","seed":n}` any int; answer = check output.
 - **spotdiff** `{"type":"spotdiff","prompt":"Spot the difference!","scene":[9 emoji],"diff":0-8,"alt":e (similar-looking, e.g. 🌼→🌻)}`
-- **oddcolor** `{"type":"oddcolor","prompt":"Find the different colour!","color":[r,g,b],"delta":14-26 (smaller = harder),"pos":[row 0-5,col 0-8]}`
 - **memgrid** `{"type":"memgrid","prompt":"Watch the squares!","prompt2":"Which square lit up LAST?","seq":[4-5 cell indexes 0-8, no repeats]}`
 - **missing** `{"type":"missing","prompt":"Remember these 6!","prompt2":"Which one is missing?","before":[6 emoji],"gone":i,"options":[3 emoji incl. before[gone]],"right":i}`
 - **flipped** `{"type":"flipped","prompt":"Find the upside-down one!","emoji":e (clearly not symmetric: 🐟🐌🦒🚗🐘),"pos":[row,col],"mode":"rot"}`
-- **numflash** `{"type":"numflash","prompt":"Remember the number!","prompt2":"Which number did you see?","number":"4-5 digits","options":[3 look-alike numbers incl. number],"right":i}`
 - **bug** `{"type":"bug","prompt":"Where does the bug stop?","start":[r,c],"moves":"4-6 of U/D/L/R"}` must stay on the 4x4 grid; answer = check output.
-- **rowdiff** `{"type":"rowdiff","prompt":"Which row is different?","seq":[5 look-alike emoji, e.g. 😀😃😄😁😆 or 🐶🐕🐩🐺🦊],"rows":5,"odd_row":0-4,"swap":[k,k+1]}`
 - **countdiff** `{"type":"countdiff","prompt":"How many differences?","scene":[9 emoji],"diffs":[[cell,alt],...] (1-3),"options":["1","2","3"],"right":len(diffs)-1}`
-- **arrowout** `{"type":"arrowout","prompt":"Find the odd arrow!","angle":0|90|180|270,"odd_angle":angle±90 or +180 (or ±30 to be hard),"pos":[row,col]}`
 - **cardflip** `{"type":"cardflip","prompt":"Remember the cards!","prompt2":"Find the matching pair!","cards":[9 emoji, exactly 2 == target],"target":e,"options":["a & b" strings, one is the true pair],"right":i}`
 - **diceflash** `{"type":"diceflash","prompt":"Remember the dice!","prompt2":"What was the total?","dice":[2 values 1-6],"options":[3 strings],"right":i}`
 - **zoom** `{"type":"zoom","prompt":"What is it? Guess early!","emoji":e,"focus":[0.3-0.7,0.3-0.7],"options":[3 names],"right":i}`
-- **lightorder** `{"type":"lightorder","prompt":"Watch the lights!","prompt2":"Which colour lit up THIRD?","seq":[4-5 of red|blue|green|yellow],"ask_pos":n,"options":[3 colour names],"right":i}`
-- **split** `{"type":"split","prompt":"Match the halves!","emojis":[3 animal faces],"order":[permutation of 0,1,2 ≠ identity],"ask":0-2}` answer = check output.
 
 - **shapemiss** `{"type":"shapemiss","prompt":"Watch closely!","prompt2":"Which one did NOT appear?","seq":[5 emoji],"options":[3 emoji: exactly one NOT in seq],"right":i}`
 - **spotlight** `{"type":"spotlight","prompt":"What's in the dark?","emoji":e (big clear animal/object),"options":[3 names],"right":i}`
 - **pixel** `{"type":"pixel","prompt":"Guess before it clears!","emoji":e,"options":[3 names],"right":i}`
-- **crowd** `{"type":"crowd","prompt":"Find it in the crowd!","target":e,"pool":[8 other emoji of the same kind],"pos":[row 0-5,col 0-11],"seed":n}`
 - **colorcount** `{"type":"colorcount","prompt":"How many GREEN shapes?","counts":{"green":n,"red":n,"blue":n,"yellow":n} (total ≤ 30),"ask":colour,"seed":n,"options":[3 strings],"right":i}`
-- **moved** `{"type":"moved","prompt":"Remember the spots!","prompt2":"Which one moved?","slots":[8 entries: 6 emoji + 2 ""],"move":[from,to (an empty slot)],"options":[3 emoji incl. the mover],"right":i}`
-- **dupnum** `{"type":"dupnum","prompt":"Which number appears twice?","nums":[16 two-digit numbers, exactly one repeated once]}`
+
+- **numflash** `{"type":"numflash","prompt":"Remember the number!","prompt2":"Which number did you see?","number":"5 digits","options":[5 different look-alike numbers incl. number (swap 2 digits, change 1 digit…)],"right":i}`
+- **rowdiff** `{"type":"rowdiff","prompt":"Which row is different?","seq":[7 very look-alike emoji, e.g. 😀😃😄😁😆😊🙂 or 🐶🐕🐩🐺🦊🐱🦝],"rows":5,"odd_row":0-4,"swap":[k,k+1] (swap the two that look MOST alike)}` HARD.
+- **arrowout** `{"type":"arrowout","prompt":"Find the odd arrow!","angle":any of 0|45|90|…,"odd_angle":angle ± 12-20 (a tiny tilt),"pos":[row 0-8,col 0-13]}` HARD.
+- **crowd** `{"type":"crowd","prompt":"Find it in the crowd!","target":e,"pool":[8+ emoji that look very similar to the target — same colour/shape family, e.g. 🐧 among 🐦🕊️🦅🦆🦉🐓🦜🐤],"pos":[row 0-8,col 0-15],"seed":n}` HARD (dense grid).
+- **dupnum** `{"type":"dupnum","prompt":"Which number appears twice?","nums":[30 two-digit numbers, exactly one repeated once, include near-twins like 47/74/41/17]}` HARD.
 
 ## 3. Voice (ElevenLabs connector)
 - `creative_create_flow` once (name "Wit Wonderland TARGET").

@@ -1704,20 +1704,30 @@ def draw_blinks(c, im, item, phase, pt, t):
     _opt_row(c, d, item, phase, pt, t, item["options"], y1 - 60, max(flash_times(item)) + 0.4)
     return cx, cy
 
-# 38 Number flash
+# 38 Number flash (5 look-alike options)
 def draw_numflash(c, im, item, phase, pt, t):
     x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
-    cx, cy = (c.W / 2, y0 + 250) if c.v else (x0 + 480, (y0 + y1) / 2 + 30)
-    box = (cx - 380, cy - 140, cx + 380, cy + 140)
+    cx, cy = (c.W / 2, y0 + 110) if c.v else (x0 + 480, (y0 + y1) / 2 + 30)
+    box = (cx - 380, cy - 120, cx + 380, cy + 120)
     d.rounded_rectangle(box, radius=40, fill=(255, 255, 255))
-    f = font(F_BOLD, 190)
     show = (phase == "ask" and 0.6 <= t < 2.2) or phase == "reveal"
     txt = item["number"] if show else ("READY?" if phase == "ask" and t < 0.6 else "? ? ? ?")
-    ff = f if show else font(F_BOLD, 110)
-    tw = d.textlength(txt, font=ff); d.text((cx - tw / 2, cy - (130 if show else 75)), txt, font=ff, fill=(40, 40, 70))
-    labels = item["options"]
+    ff = font(F_BOLD, 170 if show else 100)
+    while d.textlength(txt, font=ff) > 700: ff = font(F_BOLD, ff.size - 8)
+    tw = d.textlength(txt, font=ff); d.text((cx - tw / 2, cy - ff.size * 0.72), txt, font=ff, fill=(40, 40, 70))
     if phase != "ask" or t > 2.3:
-        _opt_row(c, d, item, phase, pt, t, labels, y0 + 640 if c.v else 0, 2.4, h_x=x0 + 1300)
+        opts = item["options"]; n = len(opts)
+        for q, o in enumerate(opts):
+            if c.v: ox, oy, ow, oh = c.W / 2, y0 + 330 + q * 116, 540, 98
+            else: ox, oy, ow, oh = x0 + 1300, y0 + 90 + q * 125, 400, 108
+            sc = eob((t - 2.4 - 0.12 * q) / 0.35) if phase == "ask" else 1
+            if sc < 0.05: continue
+            fill = (255, 255, 255)
+            if phase == "reveal" and pt > 0.5: fill = (40, 190, 90) if q == item["right"] else (150, 40, 55)
+            d.rounded_rectangle((ox - ow / 2, oy - oh / 2, ox + ow / 2, oy + oh / 2), radius=26, fill=fill, outline=c.accent, width=5)
+            f = font(F_BOLD, 64); tw = d.textlength(o, font=f)
+            d.text((ox - tw / 2 + 25, oy - 44), o, font=f, fill=(30, 30, 60) if fill == (255, 255, 255) else (255, 255, 255))
+            _label(d, ox - ow / 2 + 42, oy, "ABCDE"[q], c, r=28, size=38)
     if phase == "reveal": glow_box(im, box, r=40)
     return cx, cy
 
@@ -1966,7 +1976,7 @@ def _arrow(size, angle, col=(255, 120, 60)):
 # 48 Arrow out
 def draw_arrowout(c, im, item, phase, pt, t):
     d = ImageDraw.Draw(im)
-    cols, rows = (5, 6) if c.v else (10, 4)
+    cols, rows = (7, 9) if c.v else (14, 6)
     cell, ox, oy = _grid_geom(c, cols, rows, 40 if c.v else 80, 160)
     _panel(d, ox, oy, cols * cell, rows * cell)
     pr, pc = item["pos"]; pr %= rows; pc %= cols
@@ -2286,8 +2296,8 @@ def draw_pixel(c, im, item, phase, pt, t):
 # 61 Find it in the crowd
 def draw_crowd(c, im, item, phase, pt, t):
     x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
-    cols, rows = (6, 6) if c.v else (12, 4)
-    cell, ox, oy = _grid_geom(c, cols, rows, 160 if c.v else 120, 150)
+    cols, rows = (8, 9) if c.v else (16, 6)
+    cell, ox, oy = _grid_geom(c, cols, rows, 150 if c.v else 110, 150)
     rnd = _rnd.Random(item.get("seed", 1))
     _panel(d, ox, oy, cols * cell, rows * cell)
     pr, pc = item["pos"]; pr %= rows; pc %= cols
@@ -2296,7 +2306,7 @@ def draw_crowd(c, im, item, phase, pt, t):
         for k in range(cols):
             e = item["target"] if (r_, k) == (pr, pc) else rnd.choice(item["pool"])
             sc = 0.3 if (phase == "reveal" and (r_, k) != (pr, pc) and pt > 0.3) else 1
-            paste(im, emoji_img(e, cell * 0.7), ox + (k + 0.5) * cell, oy + (r_ + 0.5) * cell, 1, a * sc)
+            paste(im, emoji_img(e, cell * 0.78), ox + (k + 0.5) * cell, oy + (r_ + 0.5) * cell, 1, a * sc)
     hx = c.W / 2
     f = font(F_BOLD, 56); txt = "Find:"; tw = d.textlength(txt, font=f)
     d.text((hx - tw - 10, oy - 130), txt, font=f, fill=(255, 255, 255)); paste(im, emoji_img(item["target"], 100), hx + 60, oy - 95)
@@ -2459,7 +2469,7 @@ def dupnum_answer(item):
 
 def draw_dupnum(c, im, item, phase, pt, t):
     x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
-    nums = item["nums"]; cols = 4 if c.v else 8; rows = math.ceil(len(nums) / cols)
+    nums = item["nums"]; cols = (5 if len(nums) > 16 else 4) if c.v else (10 if len(nums) > 16 else 8); rows = math.ceil(len(nums) / cols)
     cell, ox, oy = _grid_geom(c, cols, rows, 30 if c.v else 80, 170)
     _panel(d, ox, oy, cols * cell, rows * cell)
     ans = dupnum_answer(item); f = font(F_BOLD, cell * 0.42)
