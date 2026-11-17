@@ -402,12 +402,17 @@ def draw_item(c, idx, t, phase, pt):
     W = c.W
     n_total = len(c.spec["items"])
     lab = c.spec.get("label", "QUESTION")
-    p = pill(f"{lab} {idx + 1} / {n_total}", tuple(c.spec.get("style", {}).get("pill", [230, 60, 90])), 46 if c.v else 40)
+    levels = c.spec.get("levels") or (["EASY", "MEDIUM", "HARD"] if c.v and n_total == 3 else None)
+    if levels:
+        lv = levels[idx]; lcol = {"EASY": (40, 185, 100), "MEDIUM": (250, 150, 30), "HARD": (235, 50, 80)}.get(lv, (230, 60, 90))
+        p = pill(f"LEVEL {idx + 1}  ·  {lv}", lcol, 46 if c.v else 40)
+    else:
+        p = pill(f"{lab} {idx + 1} / {n_total}", tuple(c.spec.get("style", {}).get("pill", [230, 60, 90])), 46 if c.v else 40)
     paste(im, p, W / 2, L["head"], eob(t / 0.4) if phase == "ask" else 1)
     if n_total > 1:  # progress dots
         gap = 26 if c.v else 22; r0 = 7 if c.v else 6
         if n_total > 8: gap, r0 = gap * 0.7, r0 * 0.8
-        dx0 = W / 2 - (n_total - 1) * gap / 2; dy = L["head"] + (46 if c.v else 40)
+        dx0 = W / 2 - (n_total - 1) * gap / 2; dy = L["head"] + (66 if c.v else 56)
         for k in range(n_total):
             rr = r0 * (1.5 if k == idx else 1)
             col = c.accent + (255,) if k == idx else ((255, 255, 255, 230) if k < idx else (255, 255, 255, 90))
@@ -503,11 +508,43 @@ def draw_item(c, idx, t, phase, pt):
         chip = pill("ANSWER", (40, 190, 90), 38 if c.v else 32)
         paste(im, chip, W / 2, fact_y - (36 if c.v else 30), a_)
     draw_hoot_corner(c, im, phase, t, pt)
+    tm_i = c.spec.get("timing", {}).get(f"i{idx}", {})
+    if idx == 0 and phase == "ask" and tm_i.get("hook") and c.spec.get("hook") and t < tm_i["hook"] + 0.3:
+        hook_banner(c, im, c.spec["hook"], t, tm_i["hook"])
+    progress_bar(c, im, f"i{idx}", {"ask": t, "count": tm_i.get("ask", 0) + pt, "reveal": tm_i.get("ask", 0) + c.spec["count_secs"] + pt}[phase])
     if phase == "reveal" and pt < 0.18:
         im.alpha_composite(Image.new("RGBA", im.size, (255, 255, 255, int(150 * (1 - pt / 0.18)))))
-    if phase == "ask" and t < 0.5:
+    if phase == "ask" and t < 0.5 and not (idx == 0 and tm_i.get("hook")):
         iris(c, im, t / 0.5)
     return im.convert("RGB")
+
+def hook_banner(c, im, text, t, hd):
+    """Big tilted hook card shown over puzzle 1 for the first seconds (retention hook)."""
+    W = im.width
+    a = eob(t / 0.3) if t < hd else max(0.0, 1 - (t - hd) / 0.3)
+    if a <= 0.02: return
+    size = 84 if c.v else 70; lines = wrap(text, size, W - 220)
+    h = int(len(lines) * size * 1.2 + 70); w = W - 120
+    card_ = Image.new("RGBA", (w + 60, h + 60), (0, 0, 0, 0)); cd = ImageDraw.Draw(card_)
+    cd.rounded_rectangle((30, 40, w + 30, h + 40), radius=40, fill=(15, 5, 40, 90))
+    card_ = card_.filter(ImageFilter.GaussianBlur(12)); cd = ImageDraw.Draw(card_)
+    cd.rounded_rectangle((30, 30, w + 30, h + 30), radius=40, fill=(255, 255, 255))
+    cd.rounded_rectangle((30, 30, 60, h + 30), radius=14, fill=(235, 50, 80))
+    for i, ln in enumerate(lines):
+        f = font(F_BOLD, size); tw = cd.textlength(ln, font=f)
+        cd.text(((w + 60 - tw) / 2 + 10, 30 + 35 + i * size * 1.2), ln, font=f, fill=(235, 50, 80) if i == len(lines) - 1 else (40, 30, 90))
+    card_ = card_.rotate(-3, resample=Image.BICUBIC, expand=True)
+    pulse = 1 + 0.03 * math.sin(t * 8)
+    paste(im, card_, W / 2, im.height * (0.47 if c.v else 0.5), a * pulse, 1)
+
+def progress_bar(c, im, seg, t_local):
+    """Thin bar across the very top showing how much of the whole video is done (keeps viewers to the end)."""
+    tm = c.spec.get("timing", {}); order = tm.get("order")
+    if not order or not c.v: return
+    tot = sum(tm[g]["dur"] for g in order); before = sum(tm[g]["dur"] for g in order[:order.index(seg)]) if seg in order else 0
+    u = max(0.0, min(1.0, (before + t_local) / tot))
+    d = ImageDraw.Draw(im); W = im.width
+    d.rectangle((0, 0, W, 12), fill=(255, 255, 255, 70)); d.rectangle((0, 0, int(W * u), 12), fill=c.accent)
 
 def iris(c, im, u):
     """Professional circle-wipe transition: a brand-coloured screen opens from the centre."""
@@ -616,6 +653,7 @@ def draw_outro(c, t):
         tap = 1 + 0.12 * max(0, math.sin((t - 1.3 - 0.45 * k) * 6)) if t > 1.3 + 0.45 * k else 1
         bx = (W / 2 + (k - 1) * 330) if v else (W * 0.62 + (k - 1) * 300)
         paste(im, _icon_btn(e, lab, col, size), bx, (1640 if v else 790), a_ * tap)
+    progress_bar(c, im, "outro", t)
     return im.convert("RGB")
 
 def frame_at(c, seg, t):

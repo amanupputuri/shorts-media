@@ -21,7 +21,11 @@ retry once, skip that video, and carry on. Report at the end.
 Read `pipeline/used.json` (list of short keys of puzzles already used). Never repeat one.
 If `pipeline/insights.json` exists (weekly Studio review), use its `themes` and `best_title_patterns` for ideas and titles.
 N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
-- `s01.json … sNN.json` — Shorts. Each: **3 puzzles, all of the day's format**, orientation `"v"`, count_secs 3,
+- `s01.json … sNN.json` — Shorts. Each: **3 puzzles, all of the day's format**, orientation `"v"`, count_secs **2**,
+  a `"hook"` (≤ 7 words, a bold challenge shown over puzzle 1 in the first 2 s, e.g. "Only 2% get Level 3 right!",
+  "Your eyes will fail the last one" — different every Short), puzzles ordered EASY → MEDIUM → HARD (the badges say so;
+  Level 3 must be genuinely hard so people rewatch), whole Short 25–35 s. RETENTION RULES: no slow start, the say.intro
+  line is the hook spoken by Hoot (≤ 7 words), q lines ≤ 4 words,
   label `"PUZZLE"`. Vary difficulty: easy, medium, tricky.
 - `long.json` — orientation `"h"`, count_secs 5, label `"PUZZLE"`, **20 puzzles = one each of the 20 formats in step 1's `long_formats` (in that order)**,
   shuffled order, easy → harder.

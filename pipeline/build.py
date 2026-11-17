@@ -75,11 +75,19 @@ def main():
         sys.path.insert(0, HERE); import eyebrain
         ask = max(round(dur(q) + 0.5, 3), 3.0 if spec["orientation"] == "v" else 3.4, eyebrain.min_ask(spec["items"][i]))
         timing[f"i{i}"] = {"ask": ask, "dur": round(ask + cs + dur(a) + 0.8, 3), "q": q, "a": a}
-    timing["outro"] = {"dur": round(max(dur(segs[-1]) + 0.8, 2.2), 3)}
+    hook_mode = spec["orientation"] == "v" and spec.get("hook_mode", True)
+    if hook_mode:
+        # retention: no title card — puzzle 1 starts at frame 0 with the hook banner while Hoot says the intro line
+        hd = round(dur(segs[0]) + 0.25, 3)
+        t0_ = timing["i0"]; t0_["hook"] = hd; t0_["qoff"] = hd
+        t0_["ask"] = round(max(t0_["ask"], hd + dur(t0_["q"]) + 0.6), 3)
+        t0_["dur"] = round(t0_["ask"] + cs + dur(t0_["a"]) + 0.8, 3)
+    timing["outro"] = {"dur": round(max(dur(segs[-1]) + 0.5, 1.8) if hook_mode else max(dur(segs[-1]) + 0.8, 2.2), 3)}
     spec["timing"] = timing
     sp = os.path.join(work, "spec_timed.json"); json.dump(spec, open(sp, "w"), indent=1)
 
-    order = ["intro"] + [f"i{i}" for i in range(n_items)] + ["outro"]
+    order = ([] if hook_mode else ["intro"]) + [f"i{i}" for i in range(n_items)] + ["outro"]
+    spec["timing"]["order"] = order; json.dump(spec, open(sp, "w"), indent=1)
     # render scenes, at most 6 in parallel
     procs = []
     for g in order:
@@ -108,7 +116,8 @@ def main():
         elif g == "outro": add(voice, load(segs[-1]), t0 + 0.15)
         else:
             tm = timing[g]; item = spec["items"][int(g[1:])]
-            add(voice, load(tm["q"]), t0 + 0.15)
+            if tm.get("qoff"): add(voice, load(segs[0]), t0 + 0.1)
+            add(voice, load(tm["q"]), t0 + 0.15 + tm.get("qoff", 0))
             for k in range(len(item.get("options", []))): add(sfx, pop, t0 + 0.8 + 0.35 * k + (0.2 if item.get("display") else 0), 0.35)
             for k in range(cs): add(sfx, tick, t0 + tm["ask"] + k, 0.5)
             r = t0 + tm["ask"] + cs
