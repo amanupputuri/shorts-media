@@ -60,16 +60,15 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
 1. **On screen question = what Hoot says.** `prompt` is exactly Hoot's q line (same words). No "Answer: A, B or C"-style text on screen:
    set `"hint": ""` on every item. Never say or show "row and column" for a find-it puzzle — reveal with "Here it is! …" and the green ring
    (odd letter, crowd, mirrored emoji). Row/column only where the options ARE cells (Grid Finder "A, E2").
-2. **Two-part questions** (a watch phase, then the question): `prompt` = first part ("Watch the flashes!", "Remember the cards.", "Add the dice.",
+2. **Two-part questions** — BOTH lines are shown stacked at once (first line yellow, second white): set `"stack": true` with `prompt` + `prompt2`. `prompt` = first part ("Watch the flashes!", "Remember the cards.", "Add the dice.",
    "Remember all 6 digits OTP"), `prompt2` = second part ("Which number flashed last?", "Find the matching pair!", "What is the total?",
-   "Can you tell the correct OTP?"). The screen switches to prompt2 when the watch phase ends. Hoot's q line says both sentences in order.
+   "Can you tell the correct OTP?"). (without `stack` the screen would switch to prompt2 after the watch phase — not used any more). Hoot's q line says both sentences in order.
    Puzzles with no watch phase (e.g. What's Missing) put both sentences into one `prompt`.
 3. **Answers**: the spoken answer is short and never says row/column or "Square N" for spot-the-difference
    ("The trumpet became a horn."). Memory Grid: "Number twelve flashed last."
 4. **Bug**: `show_arrows: true`; q = "Where does the bug stop? Listen to Hoot! <moves spoken>".
 5. **Fruit Math (long)**: EASY — two fruits only: two equations (A+A=n, A+B=m), ask B+B.
-6. **Mid-video pop-up (long videos)**: spec `"midcta": {"idx": 9}` shows a LIKE + SUBSCRIBE pop-up (with bell) over the reveal of puzzle 10
-   (the middle). Plus `"teaser"` hook banners on items 6, 11, 16 and 20 ("Warm-up over. Now it gets tricky!", "Halfway there! Keep going!",
+6. **Pop-up + hooks only from puzzle 5 on (long videos)**: spec `"midcta": {"idx": 4}` shows a LIKE + SUBSCRIBE pop-up (with bell) over the reveal of puzzle 5; nothing before puzzle 5. Plus `"teaser"` hook banners on puzzles 5, 10, 15 and 20 (none before 5) ("Warm-up over. Now it gets tricky!", "Halfway there! Keep going!",
    "Hard mode! Only 1% get these", "FINAL PUZZLE! Don't blink...") — vary the wording each day, never repeat the same set two days running.
 7. Voice reuse: when only some lines change, regenerate just those lines (generations_count 1, voice cPmGMZvsZ24aRiDy6Vc2) and splice them with
    spec `"voice_override": {"<segment index>": "path.mp3"}` (segment index: intro 0, puzzle i q = 2i-1, a = 2i, 1-based).

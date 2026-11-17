@@ -444,20 +444,24 @@ def draw_item(c, idx, t, phase, pt):
     qa = eo(t / 0.4) if phase == "ask" else 1
     size = L["prompt_size"]
     # QUESTION FIRST: show the real question (prompt2 if there is one) from the very first frame, plus how to answer
-    ptxt = item["prompt"]
-    if item.get("prompt2"):  # two-stage question: "Watch the flashes!" -> "Which number flashed last?"
+    ptxt = item["prompt"]; stack = bool(item.get("stack") and item.get("prompt2"))
+    if item.get("prompt2") and not stack:  # two-stage question: first part -> second part
         import eyebrain
         se = item.get("stage_end") or max(1.5, eyebrain.min_ask(item) - 1.5)
         if phase != "ask" or t >= se: ptxt = item["prompt2"]
-    lines = wrap(ptxt, size, L["prompt_w"])
-    while len(lines) > 2 and size > 56:
-        size -= 6; lines = wrap(ptxt, size, L["prompt_w"])
+    def _lines(sz):
+        if stack: return wrap(item["prompt"], sz, L["prompt_w"]) + wrap(item["prompt2"], sz, L["prompt_w"])
+        return wrap(ptxt, sz, L["prompt_w"])
+    lines = _lines(size)
+    while len(lines) > (3 if stack else 2) and size > 56:
+        size -= 6; lines = _lines(size)
+    n_first = len(wrap(item["prompt"], size, L["prompt_w"])) if stack else 0
     hint = item["hint"] if "hint" in item else answer_hint(item)
     hsize = int(size * 0.5) if hint else 0
     hint_h = int(hsize * 1.5) if hint else 0
     lay = Image.new("RGBA", (W, int(size * 1.25 * len(lines) + 40 + hint_h)), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
     for i, ln in enumerate(lines):
-        text_center(ld, ln, W / 2, 10 + i * size * 1.22, size, stroke=6, maxw=L["prompt_w"])
+        text_center(ld, ln, W / 2, 10 + i * size * 1.22, size, fill=(c.accent if (stack and i < n_first) else (255, 255, 255)), stroke=6, maxw=L["prompt_w"])
     if hint:
         text_center(ld, hint, W / 2, 10 + len(lines) * size * 1.22 + 6, hsize, fill=c.accent, stroke=4, maxw=L["prompt_w"])
     if qa < 1: lay.putalpha(lay.split()[-1].point(lambda v: int(v * qa)))
