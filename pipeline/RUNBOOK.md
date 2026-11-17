@@ -22,7 +22,7 @@ Read `pipeline/used.json` (list of short keys of puzzles already used). Never re
 If `pipeline/insights.json` exists (weekly Studio review), use its `themes` and `best_title_patterns` for ideas and titles.
 N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
 - `s01.json … sNN.json` — Shorts. Each: **exactly 6 puzzles, all of the day's format: 2 EASY, 2 MEDIUM, 2 HARD, in that
-  order** (badges are added automatically), orientation `"v"`, count_secs **5** (Shorts land ~62–72 s).
+  order** (badges are added automatically), orientation `"v"`, count_secs **3** (Shorts land ~55–65 s).
   HOOKS (most important — make viewers wait for the last puzzle):
   · `"hook"` (≤ 7 words) shown over puzzle 1 at second 0 and spoken by Hoot as say.intro. It must promise a payoff at
     the END: "Puzzle 6 fools 99% of people", "Wait for the last one…", "Only geniuses get all 6", "Level 6 broke my brain".
