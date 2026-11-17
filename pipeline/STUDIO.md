@@ -40,3 +40,4 @@ Create → Post: an image (a puzzle question frame from today's video) + "Can yo
 or a quiz post with 3 options. Max 2 per day.
 
 ## Log
+- 2026-11-17: related video → 16 Nov long ("Memory, Focus & IQ Test") set on uwxQXJoo4X0, E2qM9D5hePo, nWAZdGW0XWE. Save kept hanging on lbxkNwup954 (Studio was slow / 504) — still to do: lbxkNwup954 (16 Nov long), and the 15 Nov Shorts qW8--lvbzQg, ocdkD64Rxs4, zL6DCQVwDDg, BbnrciUKNoY → 15 Nov long ("How Many Can You Solve? (Memory, Spot It & More)"). Tip: after Save, wait until the dim overlay is gone before leaving the page.
