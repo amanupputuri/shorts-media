@@ -35,9 +35,18 @@ Write the ranking to `pipeline/insights.json` ({"updated": DATE, "top_formats": 
 brain teasers / eye tests and add 5–10 theme ideas to insights.json "themes". The daily RUNBOOK reads it.
 Report the findings to Aman in 5–8 short lines and suggest format changes (he decides).
 
-## 6. Community posts (when Posts tab is available)
-Create → Post: an image (a puzzle question frame from today's video) + "Can you find it? 👀 Answer in the comments!"
-or a quiz post with 3 options. Max 2 per day.
+## 6. Community posts — 2 per day, scheduled between 13:00 and 20:00 IST
+Images: render a puzzle question frame with engine.py (spec: orientation "v", pill_text "WIT WONDERLAND DAILY PUZZLE",
+mascot false, item fact ["",""], nudge "Answer in the comments!"), still at t=4.5, crop (0,120,1080,1650) → resize
+1080x1530 → crop to 1080x1350 (4:5). Commit to main as posts/DATE-a.jpg / -b.jpg (public raw URL). Vary puzzle types.
+Posting (built-in browser, youtube.com allowed): open https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA/posts →
+click the text box, type the caption (question + "Comment your answer below! 👇" + 3 hashtags) → in JS fetch the raw
+image URL, make a File, put it into the first `input[type=file][accept="image/*"]` via DataTransfer and dispatch
+"change" → click "Image" (shows the preview) → click "Delete" on the preview and inject the file AGAIN (only the second
+injection enables the Post button) → dropdown arrow next to Post → "Schedule post" → set date (calendar) and time
+(e.g. 2:15 PM / 6:45 PM; use JS scrollIntoView on the [role=option] if the list is long) → Schedule → check the
+SCHEDULED tab. Several days can be scheduled in one session.
 
 ## Log
 - 2026-11-17: related video → 16 Nov long ("Memory, Focus & IQ Test") set on uwxQXJoo4X0, E2qM9D5hePo, nWAZdGW0XWE. Save kept hanging on lbxkNwup954 (Studio was slow / 504) — still to do: lbxkNwup954 (16 Nov long), and the 15 Nov Shorts qW8--lvbzQg, ocdkD64Rxs4, zL6DCQVwDDg, BbnrciUKNoY → 15 Nov long ("How Many Can You Solve? (Memory, Spot It & More)"). Tip: after Save, wait until the dim overlay is gone before leaving the page.
+- 2026-11-17: 2 image posts scheduled — Spot the difference (14:15) and Find the owl (18:45).
