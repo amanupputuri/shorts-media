@@ -113,11 +113,11 @@ Name files `TARGET-s01.mp4 … TARGET-sNN.mp4`, `TARGET-long.mp4`. URL:
 `https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/FILE` — curl -sI each, must be 200.
 
 ## 6. Schedule in Buffer (`pipeline/buffer_post.py`)
-Pick N+1 **random** times on TARGET between 11:00 and 23:00 IST — the last one no later than 23:00 (random minutes, not round numbers, at least 90 minutes apart,
-and never earlier than 30 minutes after now). Generate them with Python `random` seeded by TARGET. N go to the Shorts in random
-order; the long video gets one of the times between 16:00 and 21:00.
+Pick N **random** times on TARGET between **13:00 and 21:00 IST** for the Shorts (random minutes, not round numbers,
+at least 90 minutes apart, never earlier than 30 minutes after now). Generate them with Python `random` seeded by TARGET.
+The long video is for **11:00 IST** (Aman's schedule: day runs 11 AM – 9 PM).
 **Buffer's YouTube channel only accepts Shorts** (vertical, ≤ 3 min) — do NOT send the long video to Buffer. Put only the
-N Shorts in posts.json. For the long video, write its title, full description and the suggested time (16:00–21:00) into
+N Shorts in posts.json. For the long video, write its title, full description and the time 11:00 into
 `pipeline/schedule/TARGET.json` and into the final report with its download URL, so Aman can upload it in the YouTube app.
 Write `work/TARGET/posts.json` = list of {"url", "title", "text", "due_ist": "TARGET HH:MM"} and run
 `python3 pipeline/buffer_post.py schedule work/TARGET/posts.json`. Every step must come back `PostActionSuccess`;
