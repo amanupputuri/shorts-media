@@ -404,7 +404,7 @@ def draw_item(c, idx, t, phase, pt):
     lab = c.spec.get("label", "QUESTION")
     levels = c.spec.get("levels")
     if not levels and c.v and n_total >= 3:  # easy → medium → hard across the Short
-        ne = round(n_total * 0.4); nh = max(1, round(n_total * 0.25))
+        ne = n_total // 3; nh = n_total // 3  # 6 puzzles → 2 easy, 2 medium, 2 hard
         levels = ["EASY"] * ne + ["MEDIUM"] * (n_total - ne - nh) + ["HARD"] * nh
     if levels:
         lv = levels[idx]; lcol = {"EASY": (40, 185, 100), "MEDIUM": (250, 150, 30), "HARD": (235, 50, 80)}.get(lv, (230, 60, 90))
@@ -514,6 +514,13 @@ def draw_item(c, idx, t, phase, pt):
     tm_i = c.spec.get("timing", {}).get(f"i{idx}", {})
     if idx == 0 and phase == "ask" and tm_i.get("hook") and c.spec.get("hook") and t < tm_i["hook"] + 0.3:
         hook_banner(c, im, c.spec["hook"], t, tm_i["hook"])
+    elif idx > 0 and phase == "ask" and c.v and t < 1.9:
+        tz = item.get("teaser")
+        if tz is None:  # default cliff-hangers that keep people watching to the last puzzle
+            if idx == n_total - 1: tz = "FINAL PUZZLE! Don't blink..."
+            elif levels and levels[idx] == "HARD" and levels[idx - 1] != "HARD": tz = "HARD MODE! Only 1% get these"
+            elif levels and levels[idx] == "MEDIUM" and levels[idx - 1] == "EASY": tz = "Warm-up done. Now it gets tricky!"
+        if tz: hook_banner(c, im, tz, t, 1.6)
     progress_bar(c, im, f"i{idx}", {"ask": t, "count": tm_i.get("ask", 0) + pt, "reveal": tm_i.get("ask", 0) + c.spec["count_secs"] + pt}[phase])
     if phase == "reveal" and pt < 0.18:
         im.alpha_composite(Image.new("RGBA", im.size, (255, 255, 255, int(150 * (1 - pt / 0.18)))))

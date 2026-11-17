@@ -21,12 +21,17 @@ retry once, skip that video, and carry on. Report at the end.
 Read `pipeline/used.json` (list of short keys of puzzles already used). Never repeat one.
 If `pipeline/insights.json` exists (weekly Studio review), use its `themes` and `best_title_patterns` for ideas and titles.
 N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
-- `s01.json … sNN.json` — Shorts. Each: **8–10 puzzles, all of the day's format** (Aman wants every Short **60–90 s**;
-  aim ~70 s), orientation `"v"`, count_secs **3**, a `"hook"` (≤ 7 words, a bold challenge shown over puzzle 1 in the
-  first 2 s, e.g. "Only 2% get all 10 right!", "Your eyes will fail the last one" — different every Short). Order the
-  puzzles EASY → MEDIUM → HARD (badges are added automatically: first ~40% easy, last ~25% hard); the last ones must be
-  genuinely hard so people rewatch. RETENTION RULES: no slow start, the say.intro line is the hook spoken by Hoot
-  (≤ 7 words), q lines ≤ 4 words,
+- `s01.json … sNN.json` — Shorts. Each: **exactly 6 puzzles, all of the day's format: 2 EASY, 2 MEDIUM, 2 HARD, in that
+  order** (badges are added automatically), orientation `"v"`, count_secs **5** (Shorts land ~62–72 s).
+  HOOKS (most important — make viewers wait for the last puzzle):
+  · `"hook"` (≤ 7 words) shown over puzzle 1 at second 0 and spoken by Hoot as say.intro. It must promise a payoff at
+    the END: "Puzzle 6 fools 99% of people", "Wait for the last one…", "Only geniuses get all 6", "Level 6 broke my brain".
+    Never the same hook twice; vary the style (challenge / curiosity / dare / number).
+  · Cliff-hanger cards appear automatically (before puzzle 3: "Warm-up done. Now it gets tricky!", before puzzle 5:
+    "HARD MODE! Only 1% get these", before puzzle 6: "FINAL PUZZLE! Don't blink..."). Write your own instead by giving
+    items 2, 4 and 5 a `"teaser"` (≤ 7 words) — make them build tension toward puzzle 6.
+  · Puzzle 6 must be the hardest of the day (genuinely tricky) so the payoff is real and people rewatch.
+  RETENTION RULES: no slow start, q lines ≤ 4 words,
   label `"PUZZLE"`. Vary difficulty: easy, medium, tricky.
 - `long.json` — orientation `"h"`, count_secs 5, label `"PUZZLE"`, **20 puzzles = one each of the 20 formats in step 1's `long_formats` (in that order)**,
   shuffled order, easy → harder.
@@ -86,7 +91,7 @@ the long video uses the 20 formats listed in `long_formats` for the day (one puz
 
 ## 4. Render
 `python3 pipeline/build.py SPEC work/TARGET/build_NAME out/NAME.mp4` — run at most 2 builds at once.
-Check each output exists, Shorts 60–90 s (fix by adding/removing a puzzle), long 5–12 min. Grab 3 frames of 2 videos and look at them.
+Check each output exists, Shorts 55–90 s, long 5–12 min. Grab 3 frames of 2 videos and look at them.
 If a split fails ("split failed"), regenerate that one voice once.
 
 ## 5. Host the files
@@ -114,7 +119,7 @@ if one fails, fix it and schedule only that one again (never re-send ones that s
 Buffer sets: public, category Education (27), not made for kids, notify subscribers. Buffer can't set tags or a
 first comment — the evening Studio task pins the comment and sets the related video.
 - Title ≤ 90 chars, catchy, different every video, ends with "#shorts" for Shorts. Mention the puzzle type.
-- Description (text): 1 hook line; "Can you get all 10?" style challenge (use the real count); the puzzles in plain words (no answers in
+- Description (text): 1 hook line; "Can you get all 6?" style challenge; the puzzles in plain words (no answers in
   the first lines; answers after "ANSWERS (no peeking!)"); comment-your-score line; subscribe line with
   https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1 ; a "Search: …" line with 10–14 search
   phrases separated by commas (brain teaser, eye test, puzzle game, iq test, can you solve this, wit wonderland, the
