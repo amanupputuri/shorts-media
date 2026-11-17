@@ -119,6 +119,11 @@ Name files `TARGET-s01.mp4 … TARGET-sNN.mp4`, `TARGET-long.mp4`. URL:
 Pick N **random** times on TARGET between **13:00 and 21:00 IST** for the Shorts (random minutes, not round numbers,
 at least 90 minutes apart, never earlier than 30 minutes after now). Generate them with Python `random` seeded by TARGET.
 The long video is for **11:00 IST** (Aman's schedule: day runs 11 AM – 9 PM).
+**Long-video thumbnail:** `python3 pipeline/thumb_long.py thumbs/TARGET-long.jpg "LINE1" "LINE2" <palette 0-6> "e1,e2,e3,e4"`
+(2 short punchy lines ≤ 12 chars each, e.g. "CAN YOU" / "GET 20/20?", "ONLY 1%" / "GET ALL 20!"; 4 emoji from the day's theme; vary
+wording daily). Look at it, commit it to **main** under thumbs/, and give Aman its raw URL
+(https://raw.githubusercontent.com/amanupputuri/shorts-media/main/thumbs/TARGET-long.jpg) with the long video so he sets it as the
+custom thumbnail when uploading.
 **Buffer's YouTube channel only accepts Shorts** (vertical, ≤ 3 min) — do NOT send the long video to Buffer. Put only the
 N Shorts in posts.json. For the long video, write its title, full description and the time 11:00 into
 `pipeline/schedule/TARGET.json` and into the final report with its download URL, so Aman can upload it in the YouTube app.

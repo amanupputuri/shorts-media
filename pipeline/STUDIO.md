@@ -47,7 +47,13 @@ injection enables the Post button) → dropdown arrow next to Post → "Schedule
 (e.g. 2:15 PM / 6:45 PM; use JS scrollIntoView on the [role=option] if the list is long) → Schedule → check the
 SCHEDULED tab. Several days can be scheduled in one session.
 
+## 7. Long-video thumbnails
+If a long video still has an auto thumbnail: make one with pipeline/thumb_long.py (or use thumbs/DATE-long.jpg), commit to main,
+open /video/ID/edit, in JS fetch the raw URL → File → put into the only `input[type=file]` (accept image/jpeg,image/png) via
+DataTransfer + "change" → Save (wait until Save greys out).
+
 ## Log
 - 2026-11-17: related video → 16 Nov long ("Memory, Focus & IQ Test") set on uwxQXJoo4X0, E2qM9D5hePo, nWAZdGW0XWE. Save kept hanging on lbxkNwup954 (Studio was slow / 504) — still to do: lbxkNwup954 (16 Nov long), and the 15 Nov Shorts qW8--lvbzQg, ocdkD64Rxs4, zL6DCQVwDDg, BbnrciUKNoY → 15 Nov long ("How Many Can You Solve? (Memory, Spot It & More)"). Tip: after Save, wait until the dim overlay is gone before leaving the page.
 - 2026-11-17: 2 image posts scheduled — Spot the difference (14:15) and Find the owl (18:45).
 - 2026-11-17: new channel logo (Hoot on yellow), banner (brand/), puzzle-focused description and keywords published.
+- 2026-11-17: custom thumbnails uploaded for long videos VEQQq8HeMoo (16 Nov) and E70jagKMdfc (15 Nov).
