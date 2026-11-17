@@ -50,7 +50,11 @@ def day_info(date):
             "style": {"palette": [p[0], p[1]], "accent": [255, 210, 60], "pill": p[2], "bg": BGS[n % len(BGS)]},
             "music_seed": n,
             "themes": ([THEMES[(n * 5 + k) % len(THEMES)] for k in range(5)] if fmt in THEMABLE else []),
-            "long_formats": [FORMATS[(n + k) % len(FORMATS)] for k in range(20)]}
+            "long_formats": [FORMATS[(n + k) % len(FORMATS)] for k in range(20)],
+            # Aman, 18 Nov: every Short of the day is a DIFFERENT puzzle format (5 per day, rotating, no overlap with yesterday)
+            "short_formats": [FORMATS[(n * 5 + k) % len(FORMATS)] for k in range(5)],
+            "short_themes": [THEMES[(n * 5 + k) % len(THEMES)] if FORMATS[(n * 5 + k) % len(FORMATS)] in THEMABLE else ""
+                             for k in range(5)]}
 
 def answer(item):
     import eyebrain as E

@@ -15,16 +15,17 @@ retry once, skip that video, and carry on. Report at the end.
 - Otherwise: if IST time now is before 11:00 → TARGET = today, else TARGET = tomorrow.
 - Already done? `python3 pipeline/buffer_post.py list <TARGET 00:00 IST in UTC> <TARGET 23:59 IST in UTC>`
   (e.g. TARGET 2026-11-18 → `2026-11-17T18:30:00.000Z 2026-11-18T18:29:00.000Z`). If **3 or more** posts exist → stop, report "already scheduled".
-- `python3 pipeline/tools.py day TARGET` → gives `format` (the Shorts format of the day), `style`, `music_seed`.
+- `python3 pipeline/tools.py day TARGET` → gives `short_formats` (5 DIFFERENT formats, one per Short), `short_themes`, `style`, `music_seed`, `long_formats`.
+  **Aman, 18 Nov: every Short of the day is a DIFFERENT puzzle type** — Short k uses only `short_formats[k]` (never the same format in two Shorts of one day). The old single `format` field is no longer used for Shorts.
 
 ## 2. Write the content (the creative part — take care)
 Read `pipeline/used.json` (list of short keys of puzzles already used). Never repeat one.
 If `pipeline/insights.json` exists (weekly Studio review), use its `themes` and `best_title_patterns` for ideas and titles.
 N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
-- THEMES: if step 1 gives `themes` (5 names), Short k uses theme k: every puzzle's emoji/pictures come from that
+- THEMES: if `short_themes[k]` is not empty, Short k uses that theme: every puzzle's emoji/pictures come from that
   theme (e.g. Christmas: 🎄🎅🎁⛄🔔🦌🍪🧦⭐), and the title names it ("Christmas Spot the Difference 🎄👀 #shorts").
-  Formats built on numbers/letters/shapes have no theme (themes is empty) — keep them as they are.
-- `s01.json … sNN.json` — Shorts. Each: **exactly 6 puzzles, all of the day's format: 2 EASY, 2 MEDIUM, 2 HARD, in that
+  Formats built on numbers/letters/shapes have no theme (empty string) — keep them as they are.
+- `s01.json … sNN.json` — Shorts. Each: **exactly 6 puzzles, all of that Short's own format (`short_formats[k]`): 2 EASY, 2 MEDIUM, 2 HARD, in that
   order** (badges are added automatically), orientation `"v"`, count_secs **3** (Shorts land ~55–65 s).
   HOOKS (most important — make viewers wait for the last puzzle):
   **HOOK STYLE — attractive + encouraging (Aman, 17 Nov; Shorts AND long videos).** Every hook must make the viewer
@@ -44,7 +45,7 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
     avoid the same opening words twice in a row. Rotate styles so it feels natural, not templated:
     dare ("Think you can get puzzle 6? Show me!"), curiosity ("Wait till you see the last one!"), stat ("Only 3% get
     6/6 — be one!"), personal ("Puzzle 4 got me — can you?"), speed ("5 seconds each. Ready? Go!"), story ("I saved a
-    fun twist for last"), question ("Are your eyes sharper than an owl's?") — always in the HOOK STYLE. Fit the day's format (memory, colours,
+    fun twist for last"), question ("Are your eyes sharper than an owl's?") — always in the HOOK STYLE. Fit that Short's format (memory, colours,
     numbers…). A favourite may come back after 30 days, slightly reworded.
   · Cliff-hanger cards appear automatically (before puzzle 3: "Great start! Now it gets tricky!", before puzzle 5:
     "Hard mode! You've got this!", before puzzle 6: "Final one! Go get all six!"). Write your own instead by giving
@@ -99,7 +100,7 @@ Puzzle 4 (Upside-Down One → mirrored odd emoji in a big grid) was far too easy
 Spot the Difference 4x4, Memory Grid 4x4 ("Watch the flashes"), What's Missing 3x3 (9), Number Flash 6 digits, Bug on voice, Card Flip 4x4, Zoom Out a bit wider.
 
 ### Puzzle schemas — the 26 formats (all items also have `prompt` (on-screen question, ≤ 32 characters) and `fact` [line1 ≤ 26 chars, line2 ≤ 34 chars])
-Emoji must be single standard emoji (no flags, no skin tones, no ZWJ sequences). Shorts use only the format of the day;
+Emoji must be single standard emoji (no flags, no skin tones, no ZWJ sequences). Each Short uses only its own format from `short_formats`;
 the long video uses the 20 formats listed in `long_formats` for the day (one puzzle each); it rotates through all 26.
 - **odd4** `{"type":"odd4","options":[[label,emoji]x4],"right":i}` — 4 things, one doesn't belong (reason in fact).
 - **twins** `{"type":"twins","seed":n}` any int; answer = check output.
@@ -164,9 +165,10 @@ Use the **fixed Shorts slots 13:00, 15:00, 17:00, 19:00, 21:00 IST** (in that or
 after now). They are fixed because the scheduled task "Wit Wonderland – new upload checklist" runs at :12 past each slot
 to give every Short its thumbnail, tags, playlist, related video and pinned comment right after it goes live.
 The long video is for **11:00 IST** (Aman's schedule: day runs 11 AM – 9 PM).
-**Long-video thumbnail:** `python3 pipeline/thumb_long.py thumbs/TARGET-long.jpg "LINE1" "LINE2" <palette 0-6> "e1,e2,e3,e4"`
-(2 short punchy lines ≤ 12 chars each, e.g. "CAN YOU" / "GET 20/20?", "ONLY 1%" / "GET ALL 20!"; 4 emoji from the day's theme; vary
-wording daily). Look at it, commit it to **main** under thumbs/, and give Aman its raw URL
+**Long-video thumbnail (high-CTR style, Aman 17 Nov):** `python3 pipeline/thumb_long4.py thumbs/TARGET-long.jpg "TOP LINE" "BIG" <common emoji> <odd emoji>`
+(e.g. "99% CAN'T FIND IT" "1%" 🐼 🐨; yellow sunburst, huge outlined text, one big odd-one-out card, red arrow, big owl). Change the top line,
+big word and emoji pair EVERY day (look-alike pairs: 🐼/🐨, 🍔/🥪, 🐶/🐺, 🍊/🍑, 🚗/🚕, ⚽/🏀) so no two days look the same; never reuse yesterday's.
+Look at it at phone size (246x138) before using it. Look at it, commit it to **main** under thumbs/, and give Aman its raw URL
 (https://raw.githubusercontent.com/amanupputuri/shorts-media/main/thumbs/TARGET-long.jpg) with the long video so he sets it as the
 custom thumbnail when uploading.
 **Buffer's YouTube channel only accepts Shorts** (vertical, ≤ 3 min) — do NOT send the long video to Buffer. Put only the
@@ -193,5 +195,5 @@ first comment — the evening Studio task pins the comment and sets the related 
 - Append every Short's hook and teasers to `pipeline/hooks_used.json` ({"date": TARGET, "hook": ..., "teasers": [...]}).
 - Append the new puzzle keys (e.g. "cups:1:0-1,1-2,0-2", "odd4:penguin") to `pipeline/used.json` on **main**, commit,
   push (use `git -c push.negotiate=true push`).
-- Send a short report (SendUserMessage + PushNotification if available): date, format of the day, how many
+- Send a short report (SendUserMessage + PushNotification if available): date, the 5 Short formats, how many
   posts scheduled, any failures.
