@@ -1,21 +1,48 @@
 {
- "id": "job-8e7676b00a",
+ "id": "job-c9889a6131",
  "steps": [
   {
-   "name": "posts",
-   "query": "query($i: PostsInput!) { posts(first: 50, input: $i) { edges { node { id dueAt status text } } } }",
+   "name": "6afbe536f83aaca8f3afdd78",
+   "query": "mutation($i: DeletePostInput!) { deletePost(input:$i) { __typename ... on MutationError { message } } }",
    "variables": {
     "i": {
-     "organizationId": "6afbdb5edb9ae616ed8a7467",
-     "filter": {
-      "channelIds": [
-       "6afbdbb4ece6dfde5ff1432b"
-      ],
-      "dueAt": {
-       "start": "2026-11-16T18:30:00.000Z",
-       "end": "2026-11-17T18:29:00.000Z"
-      }
-     }
+     "id": "6afbe536f83aaca8f3afdd78"
+    }
+   }
+  },
+  {
+   "name": "6afbe535f83aaca8f3afdd2b",
+   "query": "mutation($i: DeletePostInput!) { deletePost(input:$i) { __typename ... on MutationError { message } } }",
+   "variables": {
+    "i": {
+     "id": "6afbe535f83aaca8f3afdd2b"
+    }
+   }
+  },
+  {
+   "name": "6afbe535df36f4d8256f1214",
+   "query": "mutation($i: DeletePostInput!) { deletePost(input:$i) { __typename ... on MutationError { message } } }",
+   "variables": {
+    "i": {
+     "id": "6afbe535df36f4d8256f1214"
+    }
+   }
+  },
+  {
+   "name": "6afbe533f83aaca8f3afdbde",
+   "query": "mutation($i: DeletePostInput!) { deletePost(input:$i) { __typename ... on MutationError { message } } }",
+   "variables": {
+    "i": {
+     "id": "6afbe533f83aaca8f3afdbde"
+    }
+   }
+  },
+  {
+   "name": "6afbe533797935b975e4487b",
+   "query": "mutation($i: DeletePostInput!) { deletePost(input:$i) { __typename ... on MutationError { message } } }",
+   "variables": {
+    "i": {
+     "id": "6afbe533797935b975e4487b"
     }
    }
   }
