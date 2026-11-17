@@ -57,3 +57,8 @@ DataTransfer + "change" → Save (wait until Save greys out).
 - 2026-11-17: 2 image posts scheduled — Spot the difference (14:15) and Find the owl (18:45).
 - 2026-11-17: new channel logo (Hoot on yellow), banner (brand/), puzzle-focused description and keywords published.
 - 2026-11-17: custom thumbnails uploaded for long videos VEQQq8HeMoo (16 Nov) and E70jagKMdfc (15 Nov).
+- 2026-11-17: related video set on lbxkNwup954 (16 Nov long) and all 4 of the 15 Nov Shorts (15 Nov long). Today's 5 Shorts still need one once live + today's long video is up.
+- 2026-11-17: playlists created — "20 Eye & Brain Puzzles – Full Brain Workouts 🦉" (2 long), "What Changed? Memory Test Shorts 🧠" (4), "Odd One Out Challenges 👀" (4), "Quick Brain Quiz – 3 Questions 🧠" (8), "Did You Know? Everyday Science 🔬" (12). Method: Studio → Content → Playlists → New playlist → Add videos (picker checkboxes, aria-label "Select <title>") → Done → Create. Add each new long video / Short to the matching playlist.
+- 2026-11-17: end screens (template "1 video, 1 subscribe": Best for viewer + Subscribe) on VEQQq8HeMoo and E70jagKMdfc. New long videos: End screen → "Import from latest video" → Save.
+- 2026-11-17: "What was your score?" comment pinned on both long videos and the 8 Shorts of 15–16 Nov (youtube.com/watch → comment ⋮ → Pin → Pin).
+- 2026-11-17: 6 image posts scheduled: 18 Nov 14:15 Christmas math, 18:45 find the owl; 19 Nov 13:45 odd pair, 19:15 finger count; 20 Nov 14:45 leg count, 18:15 board copy. Images posts/2026-11-18..20-a/b.jpg (crop now keeps the pill: frame crop y110..1450 (1540 for grid/board) on the frame background). Time list items use a narrow no-break space ("2:15 PM"); date: type into input#textbox in the calendar, Enter, click the selected day to close.
