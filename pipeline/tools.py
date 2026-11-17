@@ -26,6 +26,11 @@ NAMES = {"odd4": "Find the Odd One Out", "changed": "What Changed?", "cups": "Fo
          "shapemiss": "Which One Didn't Appear?", "spotlight": "Spotlight", "pixel": "Pixel Guess", "crowd": "Find It in the Crowd",
          "colorcount": "Colour Count", "moved": "What Moved?", "dupnum": "Number Twice"}
 START = datetime.date(2026, 11, 15)
+THEMES = ["Bath Time", "Breakfast Table", "Christmas", "Winter Snow", "Ocean Life", "Farm Animals", "Jungle Safari",
+          "Sweet Treats", "Fruit Market", "Space Adventure", "School Bag", "Birthday Party", "Sports Day", "Toy Box",
+          "Bugs & Garden", "Pets at Home"]
+THEMABLE = {"odd4", "spotdiff", "missing", "flipped", "bug", "rowdiff", "countdiff", "cardflip", "zoom", "shapemiss",
+            "spotlight", "pixel", "crowd", "fruitmath", "gridfind", "analogy", "oddpair", "twins"}
 # modern, bright, kid-friendly flat colours: (top, bottom, pill)
 PALETTES = [([66, 133, 244], [44, 104, 222], [255, 92, 120]),    # sky blue
             ([124, 92, 255], [100, 66, 230], [255, 176, 32]),    # violet
@@ -41,7 +46,9 @@ def day_info(date):
     fmt = FORMATS[n % len(FORMATS)]; p = PALETTES[n % len(PALETTES)]
     return {"day_index": n, "format": fmt, "format_name": NAMES[fmt],
             "style": {"palette": [p[0], p[1]], "accent": [255, 210, 60], "pill": p[2], "bg": BGS[n % len(BGS)]},
-            "music_seed": n, "long_formats": [FORMATS[(n + k) % len(FORMATS)] for k in range(20)]}
+            "music_seed": n,
+            "themes": ([THEMES[(n * 5 + k) % len(THEMES)] for k in range(5)] if fmt in THEMABLE else []),
+            "long_formats": [FORMATS[(n + k) % len(FORMATS)] for k in range(20)]}
 
 def answer(item):
     import eyebrain as E

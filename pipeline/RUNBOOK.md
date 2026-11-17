@@ -21,6 +21,9 @@ retry once, skip that video, and carry on. Report at the end.
 Read `pipeline/used.json` (list of short keys of puzzles already used). Never repeat one.
 If `pipeline/insights.json` exists (weekly Studio review), use its `themes` and `best_title_patterns` for ideas and titles.
 N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
+- THEMES: if step 1 gives `themes` (5 names), Short k uses theme k: every puzzle's emoji/pictures come from that
+  theme (e.g. Christmas: 🎄🎅🎁⛄🔔🦌🍪🧦⭐), and the title names it ("Christmas Spot the Difference 🎄👀 #shorts").
+  Formats built on numbers/letters/shapes have no theme (themes is empty) — keep them as they are.
 - `s01.json … sNN.json` — Shorts. Each: **exactly 6 puzzles, all of the day's format: 2 EASY, 2 MEDIUM, 2 HARD, in that
   order** (badges are added automatically), orientation `"v"`, count_secs **3** (Shorts land ~55–65 s).
   HOOKS (most important — make viewers wait for the last puzzle):
