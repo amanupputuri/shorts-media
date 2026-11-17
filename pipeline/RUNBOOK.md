@@ -26,10 +26,16 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
   HOOKS (most important — make viewers wait for the last puzzle):
   · `"hook"` (≤ 7 words) shown over puzzle 1 at second 0 and spoken by Hoot as say.intro. It must promise a payoff at
     the END: "Puzzle 6 fools 99% of people", "Wait for the last one…", "Only geniuses get all 6", "Level 6 broke my brain".
-    Never the same hook twice; vary the style (challenge / curiosity / dare / number).
+    Read `pipeline/hooks_used.json` (list of {"date","hook","teasers"}). Do NOT reuse a hook from the last 30 days, and
+    avoid the same opening words twice in a row. Rotate styles so it feels natural, not templated:
+    dare ("Bet you can't get puzzle 6"), curiosity ("The last one is impossible... or is it?"), stat ("Only 3% get 6/6"),
+    personal ("My mom failed puzzle 4 😅" — no emoji on screen), speed ("You have 5 seconds. Go!"), story ("I made the
+    last one extra sneaky"), question ("Are your eyes sharper than an owl's?"). Fit the day's format (memory, colours,
+    numbers…). A favourite may come back after 30 days, slightly reworded.
   · Cliff-hanger cards appear automatically (before puzzle 3: "Warm-up done. Now it gets tricky!", before puzzle 5:
     "HARD MODE! Only 1% get these", before puzzle 6: "FINAL PUZZLE! Don't blink..."). Write your own instead by giving
-    items 2, 4 and 5 a `"teaser"` (≤ 7 words) — make them build tension toward puzzle 6.
+    items 2, 4 and 5 a `"teaser"` (≤ 7 words) — make them build tension toward puzzle 6 and differ across the day's
+    Shorts (if you leave them out, varied defaults are picked automatically).
   · Puzzle 6 must be the hardest of the day (genuinely tricky) so the payoff is real and people rewatch.
   RETENTION RULES: no slow start, q lines ≤ 4 words,
   label `"PUZZLE"`. Vary difficulty: easy, medium, tricky.
@@ -129,6 +135,7 @@ first comment — the evening Studio task pins the comment and sets the related 
   `pipeline/schedule/TARGET.json` (the evening Studio task reads it).
 
 ## 7. Wrap up
+- Append every Short's hook and teasers to `pipeline/hooks_used.json` ({"date": TARGET, "hook": ..., "teasers": [...]}).
 - Append the new puzzle keys (e.g. "cups:1:0-1,1-2,0-2", "odd4:penguin") to `pipeline/used.json` on **main**, commit,
   push (use `git -c push.negotiate=true push`).
 - Send a short report (SendUserMessage + PushNotification if available): date, format of the day, how many

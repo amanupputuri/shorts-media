@@ -516,17 +516,63 @@ def draw_item(c, idx, t, phase, pt):
         hook_banner(c, im, c.spec["hook"], t, tm_i["hook"])
     elif idx > 0 and phase == "ask" and c.v and t < 1.9:
         tz = item.get("teaser")
-        if tz is None:  # default cliff-hangers that keep people watching to the last puzzle
-            if idx == n_total - 1: tz = "FINAL PUZZLE! Don't blink..."
-            elif levels and levels[idx] == "HARD" and levels[idx - 1] != "HARD": tz = "HARD MODE! Only 1% get these"
-            elif levels and levels[idx] == "MEDIUM" and levels[idx - 1] == "EASY": tz = "Warm-up done. Now it gets tricky!"
+        if tz is None:  # default cliff-hangers (varied) that keep people watching to the last puzzle
+            rnd = random.Random(c.spec.get("hook", "") + str(idx))
+            if idx == n_total - 1: tz = rnd.choice(TEASE_FINAL)
+            elif levels and levels[idx] == "HARD" and levels[idx - 1] != "HARD": tz = rnd.choice(TEASE_HARD)
+            elif levels and levels[idx] == "MEDIUM" and levels[idx - 1] == "EASY": tz = rnd.choice(TEASE_MED)
         if tz: hook_banner(c, im, tz, t, 1.6)
     progress_bar(c, im, f"i{idx}", {"ask": t, "count": tm_i.get("ask", 0) + pt, "reveal": tm_i.get("ask", 0) + c.spec["count_secs"] + pt}[phase])
     if phase == "reveal" and pt < 0.18:
         im.alpha_composite(Image.new("RGBA", im.size, (255, 255, 255, int(150 * (1 - pt / 0.18)))))
-    if phase == "ask" and t < 0.5 and not (idx == 0 and tm_i.get("hook")):
-        iris(c, im, t / 0.5)
+    if phase == "ask" and t < 0.55 and not (idx == 0 and tm_i.get("hook")):
+        im = transition_in(c, im, t / 0.55, idx)
     return im.convert("RGB")
+
+TEASE_MED = ["Warm-up done. Now it gets tricky!", "Too easy? Let's turn it up!", "Okay, now focus...",
+             "Level up! Eyes open.", "Halfway there. Getting harder!", "Nice! But can you do this?"]
+TEASE_HARD = ["HARD MODE! Only 1% get these", "Brain check: this is where most fail", "Now the real test begins...",
+              "Hard level unlocked!", "Still with me? This one's sneaky", "Most people give up here"]
+TEASE_FINAL = ["FINAL PUZZLE! Don't blink...", "Last one. The hardest of all!", "Boss level! Can you beat it?",
+               "This one fools almost everyone", "Final round. Show me your eyes!", "Get this and you're a genius"]
+
+TRANSITIONS = ["bands", "zoom", "slide", "split", "iris"]
+
+def transition_in(c, im, u, idx):
+    """Modern scene-in transitions (rotate per puzzle): brand-colour band sweep, zoom punch, whip slide,
+    centre split, circle iris. u: 0 → 1 over the first 0.55 s of the scene."""
+    W, H = im.size; seed = c.spec.get("music_seed", 0)
+    kind = c.spec.get("transition") or TRANSITIONS[(idx + seed) % len(TRANSITIONS)]
+    dark = tuple(int(v * 0.7) for v in c.pal[1]) + (255,)
+    acc = tuple(c.accent) + (255,); pill_c = tuple(c.spec.get("style", {}).get("pill", [230, 60, 90])) + (255,)
+    if kind == "iris":
+        iris(c, im, u); return im
+    if kind == "bands":  # three diagonal colour bands sweep off to the right
+        out = im.copy(); d = ImageDraw.Draw(out)
+        for k, col in enumerate([dark, pill_c, acc]):
+            p_ = eo(max(0.0, min(1.0, (u - k * 0.12) / 0.7)))
+            x = -0.3 * W + p_ * 1.9 * W
+            d.polygon([(x, -10), (x + W * 1.2, -10), (x + W * 1.2 - H * 0.35, H + 10), (x - H * 0.35, H + 10)], fill=col)
+        return out
+    if kind == "zoom":  # punch-in: starts zoomed + blurred, snaps into focus
+        z = 1 + 0.35 * (1 - eo(u)); b = 14 * (1 - eo(u))
+        fr = im.resize((int(W * z), int(H * z)), Image.BILINEAR)
+        fr = fr.crop(((fr.width - W) // 2, (fr.height - H) // 2, (fr.width - W) // 2 + W, (fr.height - H) // 2 + H))
+        if b > 0.5: fr = fr.filter(ImageFilter.GaussianBlur(b))
+        fl = Image.new("RGBA", (W, H), (255, 255, 255, int(160 * (1 - u)))); fr.alpha_composite(fl)
+        return fr
+    if kind == "slide":  # whip pan in from the right with motion blur
+        off = int(W * (1 - eo(u)) ** 1.6 * 1.0)
+        out = Image.new("RGBA", (W, H), dark); fr = im
+        if off > 4: fr = im.filter(ImageFilter.BoxBlur(min(30, off // 12)))
+        out.alpha_composite(fr, (off, 0)) if off < W else None
+        return out
+    if kind == "split":  # two panels slide apart from the middle
+        out = im.copy(); d = ImageDraw.Draw(out); g = eo(u) * H / 2
+        d.rectangle((0, 0, W, H / 2 - g), fill=dark); d.rectangle((0, H / 2 + g, W, H), fill=pill_c)
+        if g < H / 2 - 4: d.rectangle((0, H / 2 - g - 8, W, H / 2 - g), fill=acc); d.rectangle((0, H / 2 + g, W, H / 2 + g + 8), fill=acc)
+        return out
+    return im
 
 def hook_banner(c, im, text, t, hd):
     """Big tilted hook card shown over puzzle 1 for the first seconds (retention hook)."""
