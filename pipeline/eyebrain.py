@@ -1663,7 +1663,14 @@ def draw_letterhunt(c, im, item, phase, pt, t):
             ch_ = item["odd"] if (r_, k) == (pr, pc) else item["base"]
             cx, cy = ox + (k + 0.5) * cell, oy + (r_ + 0.5) * cell
             col = LH_COLS[random.Random(item.get("seed", 0) * 100003 + r_ * 997 + k * 31).randrange(len(LH_COLS))]
-            tw = d.textlength(ch_, font=f); d.text((cx - tw / 2, cy - cell * 0.5), ch_, font=f, fill=col + (int(255 * a),))
+            short_q = ch_ == "Q" and item["base"] == "O"
+            dc = "O" if short_q else ch_
+            tw = d.textlength(dc, font=f); d.text((cx - tw / 2, cy - cell * 0.5), dc, font=f, fill=col + (int(255 * a),))
+            if short_q:  # tiny tail so the Q hides among the Os
+                bx0, by0, bx1, by1 = d.textbbox((cx - tw / 2, cy - cell * 0.5), "O", font=f)
+                rx, ry = (bx1 - bx0) / 2, (by1 - by0) / 2; mx, my = bx0 + rx, by0 + ry
+                px, py = mx + rx * 0.62, my + ry * 0.62; L = ry * 0.32
+                d.line((px - L * 0.35, py - L * 0.35, px + L * 0.65, py + L * 0.65), fill=col + (int(255 * a),), width=max(3, int(rx * 0.26)))
     cx, cy = ox + (pc + 0.5) * cell, oy + (pr + 0.5) * cell
     if phase == "reveal": _circle_hit(d, cx, cy, cell * 0.6, pt)
     return cx, cy
