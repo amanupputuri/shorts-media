@@ -24,12 +24,12 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
 - `long.json` — orientation `"h"`, count_secs 5, label `"PUZZLE"`, **20 puzzles = one each of the 20 formats in step 1's `long_formats` (in that order)**,
   shuffled order, easy → harder.
 - Every spec gets: `style` and `music_seed` from step 1 (long video: music_seed + 1), a `title_card`
-  {emoji, line1, line2, tag} and `outro` exactly {"line1": "LIKE &", "line2": "SUBSCRIBE!", "line3": "", "cta": "SUBSCRIBE", "cta_sub": ""},
+  {emoji, line1, line2, tag} and `outro` exactly {"line1": "LIKE &", "line2": "SUBSCRIBE!", "line3": "How sharp are your eyes?", "cta": "SUBSCRIBE", "cta_sub": "Comment your score below!"},
   and a `say` block: `{"intro": "...", "items": [{"q": "...", "a": "..."}, ...], "outro": "..."}`.
   The voice is **Professor Hoot** (a wise, playful owl professor) and he only says SHORT catchphrases — the puzzle
   itself is carried by on-screen text, music and sound effects. intro ≤ 10 words (often starting "Hoo-hoo!"),
   q lines ≤ 6 words (e.g. "Which key fits? Think fast!"), a lines ≤ 10 words and state the answer first
-  (e.g. "Key B! Every tooth matches."), outro is ALWAYS exactly "Like and subscribe!" (nothing else — keep the ending short). Vary the wording of all other lines every video;
+  (e.g. "Key B! Every tooth matches."), outro is ALWAYS exactly "How sharp are your eyes? Comment your score below, tell us if it was amazing, and like and subscribe!" (Aman's wording — never change it). Vary the wording of all other lines every video;
   never the same line twice in a day. Simple words, fun tone, for ages 5–80.
 - After writing each spec run `python3 pipeline/tools.py check FILE`. It prints the **true answer** of every
   puzzle (computed from the drawing data). Make every `a` line and the `fact` lines agree with it. Fix and re-check
