@@ -1,0 +1,24 @@
+name: buffer-job
+on:
+  push:
+    branches: [buffer]
+permissions:
+  contents: write
+concurrency: buffer-job
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Buffer job
+        env:
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+        run: python3 buffer_job.py job.json result.json
+      - name: Publish result
+        if: always()
+        run: |
+          [ -f result.json ] || echo '{"error":"job crashed before writing result"}' > result.json
+          mkdir /tmp/r && cp result.json /tmp/r/ && cd /tmp/r
+          git init -q -b buffer-result && git add result.json
+          git -c user.name=buffer-bot -c user.email=bot@users.noreply.github.com commit -qm "result $GITHUB_SHA"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" buffer-result
