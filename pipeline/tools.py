@@ -10,7 +10,8 @@ HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 
 FORMATS = ["odd4", "twins", "spotdiff", "memgrid", "missing", "flipped", "numflash",
            "bug", "rowdiff", "countdiff", "letterhunt", "cardflip", "diceflash", "zoom",
-           "shapemiss", "spotlight", "pixel", "crowd", "colorcount", "dupnum"]
+           "shapemiss", "spotlight", "pixel", "crowd", "colorcount", "dupnum",
+           "fruitmath", "gridfind", "patmatch", "fingers", "analogy", "oddpair"]
 NAMES = {"odd4": "Find the Odd One Out", "changed": "What Changed?", "cups": "Follow the Ball", "keys": "Which Key Fits?",
          "glasses": "Which Glass Fills First?", "path": "Which Path Gets the Prize?", "shadow": "Shadow Match",
          "mirror": "Mirror Match", "jar": "Which Jar Has More?", "fit": "How Many Fit?", "twins": "Find the Twins",
@@ -20,7 +21,7 @@ NAMES = {"odd4": "Find the Odd One Out", "changed": "What Changed?", "cups": "Fo
          "colortrap": "Colour Trap", "balance": "Balance the Scale", "dots": "Connect the Dots",
          "spotdiff": "Spot the Difference", "oddcolor": "Odd Colour Out", "memgrid": "Memory Grid", "missing": "What's Missing?",
          "flipped": "Upside-Down One", "numflash": "Number Flash", "whereflash": "Where Was It?", "bug": "Bug Arrows",
-         "rowdiff": "Which Row Is Different?", "countdiff": "How Many Differences?", "arrowout": "Arrow Out", "letterhunt": "Odd Letter Out",
+         "rowdiff": "Which Row Is Different?", "countdiff": "How Many Differences?", "arrowout": "Arrow Out", "letterhunt": "Odd Letter Out", "fruitmath": "Fruit Math", "gridfind": "Grid Finder", "patmatch": "Board Copy", "fingers": "Finger Count", "analogy": "Goes With", "oddpair": "Odd Pair Out",
          "cardflip": "Card Flip Memory", "diceflash": "Dice Flash", "zoom": "Zoom Out", "lightorder": "Light Order", "split": "Split Picture",
          "shapemiss": "Which One Didn't Appear?", "spotlight": "Spotlight", "pixel": "Pixel Guess", "crowd": "Find It in the Crowd",
          "colorcount": "Colour Count", "moved": "What Moved?", "dupnum": "Number Twice"}
@@ -36,13 +37,19 @@ def day_info(date):
     fmt = FORMATS[n % len(FORMATS)]; p = PALETTES[n % len(PALETTES)]
     return {"day_index": n, "format": fmt, "format_name": NAMES[fmt],
             "style": {"palette": [p[0], p[1]], "accent": [255, 210, 60], "pill": p[2], "bg": BGS[n % len(BGS)]},
-            "music_seed": n}
+            "music_seed": n, "long_formats": [FORMATS[(n + k) % len(FORMATS)] for k in range(20)]}
 
 def answer(item):
     import eyebrain as E
     t = item.get("type")
     L = "ABCD"
     if t == "cups": return L[E.final_slot(item)]
+    import eyebrain3 as E3
+    if t == "fruitmath": return "%s (values %s)" % (E3.fruitmath_answer(item), E3.fruitmath_values(item))
+    if t == "gridfind": return E3.gridfind_answer(item)
+    if t == "fingers": return str(E3.fingers_answer(item))
+    if t in ("patmatch", "oddpair"): return L[item["right"]]
+    if t == "analogy": return item["options"][item["right"]]
     if t == "glasses": return "glass %d" % E.glass_path(item)[-1][0]
     if t == "path":
         rows = item.get("rows", 8)
@@ -93,6 +100,7 @@ def answer(item):
 
 def check(spec):
     import eyebrain as E2
+    import eyebrain3 as E3
     errs = []
     for i, it in enumerate(spec["items"]):
         t = it.get("type")
@@ -114,6 +122,12 @@ def check(spec):
         if t == "numflash" and it["options"][it["right"]] != it["number"]: errs.append(f"item {i}: numflash right option wrong")
         if t == "numflash" and (len(it["options"]) != 5 or len(set(it["options"])) != 5): errs.append(f"item {i}: numflash needs 5 different options")
         if t == "rowdiff" and (len(it["seq"]) != 7 or len(set(it["seq"])) != 7 or it.get("rows", 4) != 4): errs.append(f"item {i}: rowdiff needs 7 different items per row and 4 rows")
+        if t == "fruitmath" and (E3.fruitmath_values(it) is None or str(E3.fruitmath_answer(it)) != str(it["options"][it["right"]])): errs.append(f"item {i}: fruitmath has no whole-number solution or right option wrong")
+        if t == "gridfind" and (it["options"][it["right"]] != E3.gridfind_answer(it) or it["target"] in it["pool"]): errs.append(f"item {i}: gridfind right option wrong or target in pool")
+        if t == "fingers" and (any(h not in E3.FINGERS for h in it["hands"]) or str(E3.fingers_answer(it)) != str(it["options"][it["right"]])): errs.append(f"item {i}: fingers right option wrong (hands only ✋ ✌️ ☝️ 🤟)")
+        if t == "patmatch" and (len(it["diffs"]) != 2 or any(it["grid"][r][q] == col for r, q, col in it["diffs"])): errs.append(f"item {i}: patmatch needs 2 diffs that really change a peg")
+        if t == "oddpair" and len(it["pairs"]) != 4: errs.append(f"item {i}: oddpair needs 4 pairs")
+        if t == "analogy" and len(it["options"]) != 3: errs.append(f"item {i}: analogy needs 3 options")
         if t == "letterhunt" and (len(it["base"]) != 1 or len(it["odd"]) != 1 or it["base"] == it["odd"]): errs.append(f"item {i}: letterhunt needs two different single characters")
         if t == "crowd" and len(it["pool"]) < 8: errs.append(f"item {i}: crowd pool needs 8+ look-alikes")
         if t == "arrowout" and not (10 <= abs((it["odd_angle"] - it["angle"] + 180) % 360 - 180) <= 25): errs.append(f"item {i}: arrowout odd angle must differ by 10-25 degrees")
