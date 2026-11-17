@@ -47,7 +47,18 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
     6/6 — be one!"), personal ("Puzzle 4 got me — can you?"), speed ("5 seconds each. Ready? Go!"), story ("I saved a
     fun twist for last"), question ("Are your eyes sharper than an owl's?") — always in the HOOK STYLE. Fit that Short's format (memory, colours,
     numbers…). A favourite may come back after 30 days, slightly reworded.
-  · Cliff-hanger cards appear automatically (before puzzle 3: "Great start! Now it gets tricky!", before puzzle 5:
+  · **SPOKEN HOOKS — natural voice, no text cards (Aman, 18 Nov; Shorts too, same as the long video).** Give
+    `say.items[2]`, `say.items[4]` and `say.items[5]` a `"hook"` (≤ 7 words, HOOK STYLE, sounds like a friend talking, e.g.
+    "Ooh, you're good! This one's sneaky.", "Two left. You've totally got this!", "Last one — the best for last!").
+    Hoot says it at the end of the previous answer screen. Make the voice for them with `tools.py hooks sNN.json` (one extra
+    generate call per Short, voice cPmGMZvsZ24aRiDy6Vc2) and `tools.py fillhooks sNN.json work/TARGET/voice/sNN-hooks.mp3`.
+    Do NOT write `"teaser"` (check fails) — with spoken hooks the old text cliff-hanger cards are switched off.
+    The opening `"hook"` banner at second 0 stays (it is also said as say.intro). Reword hooks every Short, never the same twice in a day.
+  · **PUZZLE STYLE = the latest long video's style (Aman, 18 Nov):** follow "Question first — FINAL FORMAT" below in every Short
+    (prompt = Hoot's q words, `"hint": ""`, two-part questions with `"stack": true`, short answers, find-it reveals with the green ring),
+    and for the HARD puzzles use the long video's bigger variants where the format has one (memgrid n 4, missing 9, cardflip 16, numflash 6 digits,
+    spotdiff 16) — if a build looks cramped on the vertical frame, fall back to the 3x3 version for that puzzle only.
+  · (old, now off when spoken hooks are present) Cliff-hanger cards appear automatically (before puzzle 3: "Great start! Now it gets tricky!", before puzzle 5:
     "Hard mode! You've got this!", before puzzle 6: "Final one! Go get all six!"). Write your own instead by giving
     items 2, 4 and 5 a `"teaser"` (≤ 7 words) — make them cheer the viewer on and build excitement toward puzzle 6 (HOOK STYLE), and differ across the day's
     Shorts (if you leave them out, varied defaults are picked automatically).
@@ -136,6 +147,7 @@ the long video uses the 20 formats listed in `long_formats` for the day (one puz
 - `creative_create_flow` once (name "Wit Wonderland TARGET").
 - For each Short: `python3 pipeline/tools.py prompt sNN.json` → one `creative_generate_speech` call
   (model `eleven_v4`, voice_id `cPmGMZvsZ24aRiDy6Vc2` (**Professor Hoot**, the channel's owl mascot), generations_count 1, same flow_id).
+  Plus one more call per Short for its spoken hooks: `python3 pipeline/tools.py hooks sNN.json` → download to `work/TARGET/voice/sNN-hooks.mp3` → `tools.py fillhooks`.
 - Long video: `python3 pipeline/tools.py prompt long.json 2` → 2 calls (part 1 and part 2), plus
   `python3 pipeline/tools.py hooks long.json` → 1 more call for the spoken hooks (download it to `work/TARGET/voice/hooks.mp3`,
   then `python3 pipeline/tools.py fillhooks long.json work/TARGET/voice/hooks.mp3`).
@@ -192,7 +204,7 @@ first comment — the evening Studio task pins the comment and sets the related 
   `pipeline/schedule/TARGET.json` (the evening Studio task reads it).
 
 ## 7. Wrap up
-- Append every Short's hook and teasers to `pipeline/hooks_used.json` ({"date": TARGET, "hook": ..., "teasers": [...]}).
+- Append every Short's hook and its spoken hooks (as "teasers") to `pipeline/hooks_used.json` ({"date": TARGET, "hook": ..., "teasers": [...]}).
 - Append the new puzzle keys (e.g. "cups:1:0-1,1-2,0-2", "odd4:penguin") to `pipeline/used.json` on **main**, commit,
   push (use `git -c push.negotiate=true push`).
 - Send a short report (SendUserMessage + PushNotification if available): date, the 5 Short formats, how many

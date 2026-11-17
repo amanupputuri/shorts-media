@@ -196,9 +196,11 @@ if __name__ == "__main__":
         for i, it in enumerate(spec["items"]): print(i, it.get("type"), "->", answer(it))
         e = check(spec)
         if len(spec.get("say", {}).get("items", [])) != len(spec["items"]): e.append("say.items count != items count")
-        if spec.get("orientation") == "h":
+        if True:  # Aman, 18 Nov: Shorts AND long videos use spoken (voice) hooks, no text teasers
+            if spec.get("orientation") == "v" and len([1 for si in spec.get("say", {}).get("items", []) if si.get("hook")]) < 3:
+                e.append("Shorts need 3 spoken hooks: say.items[2], [4] and [5] get a \"hook\" (<= 7 words)")
             for i, it in enumerate(spec["items"]):
-                if it.get("teaser"): e.append(f"item {i}: long videos have NO text teasers - put the line in say.items[{i}].hook (spoken)")
+                if it.get("teaser"): e.append(f"item {i}: NO text teasers any more - put the line in say.items[{i}].hook (spoken)")
                 if it.get("prompt2") and not it.get("stack"): e.append(f"item {i}: two-part question needs \"stack\": true (both lines on screen)")
             for i, si in enumerate(spec.get("say", {}).get("items", [])):
                 if si.get("hook") and i == 0: e.append("say.items[0].hook: puzzle 1 has no hook slot - end say.intro with the warm-up line")
@@ -209,7 +211,7 @@ if __name__ == "__main__":
         spec = json.load(open(sys.argv[2])); n = int(sys.argv[3]) if len(sys.argv) > 3 else 1
         for k, p in enumerate(prompt_parts(spec, n)):
             print(f"--- part {k + 1} ({len(p)} segments)"); print(" [long pause] ".join(p))
-    elif cmd == "hooks":  # TTS prompt for the spoken hooks of a long video (one generate call)
+    elif cmd == "hooks":  # TTS prompt for the spoken hooks (Shorts and long videos) (one generate call)
         spec = json.load(open(sys.argv[2])); hs = [it["hook"] for it in spec["say"]["items"] if it.get("hook")]
         print(" [long pause] ".join("[excited] " + h for h in hs) if hs else "(no hooks)")
     elif cmd == "fillhooks":
