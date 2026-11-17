@@ -444,11 +444,15 @@ def draw_item(c, idx, t, phase, pt):
     qa = eo(t / 0.4) if phase == "ask" else 1
     size = L["prompt_size"]
     # QUESTION FIRST: show the real question (prompt2 if there is one) from the very first frame, plus how to answer
-    ptxt = item.get("prompt2") or item["prompt"]
+    ptxt = item["prompt"]
+    if item.get("prompt2"):  # two-stage question: "Watch the flashes!" -> "Which number flashed last?"
+        import eyebrain
+        se = item.get("stage_end") or max(1.5, eyebrain.min_ask(item) - 1.5)
+        if phase != "ask" or t >= se: ptxt = item["prompt2"]
     lines = wrap(ptxt, size, L["prompt_w"])
     while len(lines) > 2 and size > 56:
         size -= 6; lines = wrap(ptxt, size, L["prompt_w"])
-    hint = item.get("hint") or answer_hint(item)
+    hint = item["hint"] if "hint" in item else answer_hint(item)
     hsize = int(size * 0.5) if hint else 0
     hint_h = int(hsize * 1.5) if hint else 0
     lay = Image.new("RGBA", (W, int(size * 1.25 * len(lines) + 40 + hint_h)), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
@@ -563,10 +567,12 @@ def draw_item(c, idx, t, phase, pt):
         chip = pill("ANSWER", (40, 190, 90), 38 if c.v else 32)
         paste(im, chip, W / 2, fact_y - (36 if c.v else 30), a_)
     draw_hoot_corner(c, im, phase, t, pt)
+    mc = c.spec.get("midcta")
+    if mc and phase == "reveal" and idx == mc.get("idx"): cta_popup(c, im, pt)
     tm_i = c.spec.get("timing", {}).get(f"i{idx}", {})
     if idx == 0 and phase == "ask" and tm_i.get("hook") and c.spec.get("hook") and t < tm_i["hook"] + 0.3:
         hook_banner(c, im, c.spec["hook"], t, tm_i["hook"])
-    elif idx > 0 and phase == "ask" and c.v and t < 1.9:
+    elif idx > 0 and phase == "ask" and (c.v or item.get("teaser")) and t < 1.9:
         tz = item.get("teaser")
         if tz is None:  # default cliff-hangers (varied) that keep people watching to the last puzzle
             rnd = random.Random(c.spec.get("hook", "") + str(idx))
@@ -625,6 +631,29 @@ def transition_in(c, im, u, idx):
         if g < H / 2 - 4: d.rectangle((0, H / 2 - g - 8, W, H / 2 - g), fill=acc); d.rectangle((0, H / 2 + g, W, H / 2 + g + 8), fill=acc)
         return out
     return im
+
+def cta_popup(c, im, pt):
+    """Mid-video pop-up: LIKE + SUBSCRIBE buttons (with bell) slide in, the subscribe button gets 'clicked'."""
+    a_in = eob((pt - 0.10) / 0.14); a_out = max(0.0, min(1.0, (0.96 - pt) / 0.08)); a = min(a_in, a_out)
+    if a <= 0.02: return
+    W, H = im.size; sc = 1.0 if not c.v else 1.25
+    cw, chh = int(900 * sc), int(190 * sc)
+    card_ = Image.new("RGBA", (cw + 60, chh + 60), (0, 0, 0, 0)); cd = ImageDraw.Draw(card_)
+    cd.rounded_rectangle((30, 40, cw + 30, chh + 40), radius=50, fill=(15, 5, 40, 110)); card_ = card_.filter(ImageFilter.GaussianBlur(12)); cd = ImageDraw.Draw(card_)
+    cd.rounded_rectangle((30, 30, cw + 30, chh + 30), radius=50, fill=(255, 255, 255))
+    f = font(F_BOLD, int(62 * sc))
+    cd.rounded_rectangle((60, 56, 60 + int(310 * sc), chh + 4), radius=40, fill=(30, 110, 235))
+    cd.text((60 + int(310 * sc) / 2 + 40, 30 + chh / 2), "LIKE", font=f, fill=(255, 255, 255), anchor="mm")
+    press = 0.9 if 0.45 < pt < 0.55 else 1.0
+    bx0 = 60 + int(340 * sc); cd.rounded_rectangle((bx0, 56, cw, chh + 4), radius=40, fill=(225, 30, 45))
+    cd.text(((bx0 + cw) / 2 + 36, 30 + chh / 2), "SUBSCRIBE", font=f, fill=(255, 255, 255), anchor="mm")
+    card_.alpha_composite(emoji_img("👍", int(82 * sc)), (60 + 22, 30 + int(chh / 2 - 41 * sc)))
+    card_.alpha_composite(emoji_img("🔔", int(82 * sc)), (bx0 + 22, 30 + int(chh / 2 - 41 * sc)))
+    pulse = (1 + 0.04 * math.sin(pt * 40)) * press
+    off = (1 - a_in) * 120
+    if c.v: paste(im, card_, W / 2, H - (chh + 60) / 2 - 240 + off, pulse, a)
+    else:  # landscape: compact, bottom-right corner (keeps the answer text and puzzle visible)
+        k = 0.6; paste(im, card_, W - (cw + 60) * k / 2 - 30, H - (chh + 60) * k / 2 - 14 + off * k, pulse * k, a)
 
 def hook_banner(c, im, text, t, hd):
     """Big tilted hook card shown over puzzle 1 for the first seconds (retention hook)."""

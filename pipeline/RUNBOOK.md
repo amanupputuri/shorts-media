@@ -56,11 +56,23 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
   puzzle (computed from the drawing data). Make every `a` line and the `fact` lines agree with it. Fix and re-check
   until it prints OK. Never ship a spec whose voice disagrees with `check`.
 
-### Question first (every puzzle, Shorts and long)
-The engine now shows the REAL question (`prompt2` if the puzzle has one, else `prompt`) from the very first frame, with a small yellow line
-under it saying HOW to answer (e.g. "Watch the flashes. Answer: a square number", "Answer: pick A, B or C"; override with `"hint"`).
-Hoot's q line is spoken at the start too, so write it as the question + what to do ("Which square flashes last? Watch!"). Put the
-instruction ("Watch the flashes!", "Remember these 9!") in the q line, not only in prompt.
+### Question first — FINAL FORMAT (Aman, 17 Nov; applies to every video from now on)
+1. **On screen question = what Hoot says.** `prompt` is exactly Hoot's q line (same words). No "Answer: A, B or C"-style text on screen:
+   set `"hint": ""` on every item. Never say or show "row and column" for a find-it puzzle — reveal with "Here it is! …" and the green ring
+   (odd letter, crowd, mirrored emoji). Row/column only where the options ARE cells (Grid Finder "A, E2").
+2. **Two-part questions** (a watch phase, then the question): `prompt` = first part ("Watch the flashes!", "Remember the cards.", "Add the dice.",
+   "Remember all 6 digits OTP"), `prompt2` = second part ("Which number flashed last?", "Find the matching pair!", "What is the total?",
+   "Can you tell the correct OTP?"). The screen switches to prompt2 when the watch phase ends. Hoot's q line says both sentences in order.
+   Puzzles with no watch phase (e.g. What's Missing) put both sentences into one `prompt`.
+3. **Answers**: the spoken answer is short and never says row/column or "Square N" for spot-the-difference
+   ("The trumpet became a horn."). Memory Grid: "Number twelve flashed last."
+4. **Bug**: `show_arrows: true`; q = "Where does the bug stop? Listen to Hoot! <moves spoken>".
+5. **Fruit Math (long)**: EASY — two fruits only: two equations (A+A=n, A+B=m), ask B+B.
+6. **Mid-video pop-up (long videos)**: spec `"midcta": {"idx": 9}` shows a LIKE + SUBSCRIBE pop-up (with bell) over the reveal of puzzle 10
+   (the middle). Plus `"teaser"` hook banners on items 6, 11, 16 and 20 ("Warm-up over. Now it gets tricky!", "Halfway there! Keep going!",
+   "Hard mode! Only 1% get these", "FINAL PUZZLE! Don't blink...") — vary the wording each day, never repeat the same set two days running.
+7. Voice reuse: when only some lines change, regenerate just those lines (generations_count 1, voice cPmGMZvsZ24aRiDy6Vc2) and splice them with
+   spec `"voice_override": {"<segment index>": "path.mp3"}` (segment index: intro 0, puzzle i q = 2i-1, a = 2i, 1-based).
 
 ### Long-video difficulty rules (Aman's feedback, 17 Nov)
 Puzzle 4 (Upside-Down One → mirrored odd emoji in a big grid) was far too easy; use the bigger/harder variants above for the long video:
