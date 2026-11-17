@@ -11,7 +11,8 @@ retry once, skip that video, and carry on. Report at the end.
 
 ## 1. Pick the target date
 - If TARGET is listed in `pipeline/skip_dates.txt` → it is PAUSED: do nothing else, report "paused for TARGET".
-- If IST time now is before 11:00 → TARGET = today, else TARGET = tomorrow.
+- If the message that started this run names a TARGET date, use exactly that date (it overrides everything here).
+- Otherwise: if IST time now is before 11:00 → TARGET = today, else TARGET = tomorrow.
 - Already done? `python3 pipeline/buffer_post.py list <TARGET 00:00 IST in UTC> <TARGET 23:59 IST in UTC>`
   (e.g. TARGET 2026-11-18 → `2026-11-17T18:30:00.000Z 2026-11-18T18:29:00.000Z`). If **3 or more** posts exist → stop, report "already scheduled".
 - `python3 pipeline/tools.py day TARGET` → gives `format` (the Shorts format of the day), `style`, `music_seed`.
@@ -99,6 +100,9 @@ Name files `TARGET-s01.mp4 … TARGET-sNN.mp4`, `TARGET-long.mp4`. URL:
 Pick N+1 **random** times on TARGET between 11:00 and 23:00 IST — the last one no later than 23:00 (random minutes, not round numbers, at least 90 minutes apart,
 and never earlier than 30 minutes after now). Generate them with Python `random` seeded by TARGET. N go to the Shorts in random
 order; the long video gets one of the times between 16:00 and 21:00.
+**Buffer's YouTube channel only accepts Shorts** (vertical, ≤ 3 min) — do NOT send the long video to Buffer. Put only the
+N Shorts in posts.json. For the long video, write its title, full description and the suggested time (16:00–21:00) into
+`pipeline/schedule/TARGET.json` and into the final report with its download URL, so Aman can upload it in the YouTube app.
 Write `work/TARGET/posts.json` = list of {"url", "title", "text", "due_ist": "TARGET HH:MM"} and run
 `python3 pipeline/buffer_post.py schedule work/TARGET/posts.json`. Every step must come back `PostActionSuccess`;
 if one fails, fix it and schedule only that one again (never re-send ones that succeeded — that would post twice).
