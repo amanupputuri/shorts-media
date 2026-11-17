@@ -5,7 +5,7 @@ usage: python3 build.py SPEC.json WORKDIR OUT.mp4
 SPEC fields (content written by the daily run):
   orientation  "v" (Short 1080x1920) or "h" (long 1920x1080)
   label        pill word, e.g. "PUZZLE" / "QUESTION"
-  count_secs   countdown length (3 for Shorts, 5 for long)
+  count_secs   countdown length (4 for Shorts and long videos)
   style        {palette:[[r,g,b],[r,g,b]], accent:[r,g,b], pill:[r,g,b], bg:"bubbles|stars|grid|waves|confetti", card:[r,g,b]}
   title_card   {emoji, line1, line2, tag}
   outro        {line1, line2, line3, cta, cta_sub}

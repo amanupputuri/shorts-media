@@ -65,7 +65,7 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
   · Puzzle 6 must be the hardest of the day (genuinely tricky) so the payoff is real and people rewatch.
   RETENTION RULES: no slow start, q lines ≤ 4 words,
   label `"PUZZLE"`. Vary difficulty: easy, medium, tricky.
-- `long.json` — orientation `"h"`, count_secs 5, label `"PUZZLE"`, **20 puzzles = one each of the 20 formats in step 1's `long_formats` (in that order)**,
+- `long.json` — orientation `"h"`, count_secs **4** (Aman, 18 Nov: same 4-second timer as Shorts), label `"PUZZLE"`, **20 puzzles = one each of the 20 formats in step 1's `long_formats` (in that order)**,
   shuffled order, easy → harder. **Long-video hooks are SPOKEN, never text (Aman, 17 Nov)** — see rule 6 below:
   `title_card` = {"emoji": "🦉", "line1": "20 PUZZLES", "line2": "", "tag": "Eye & Brain Workout"} (no hook question on the title card),
   `say.intro` = a natural, attractive spoken hook (≤ 14 words, HOOK STYLE) that ends with a warm-up line, e.g.
