@@ -18,6 +18,7 @@ retry once, skip that video, and carry on. Report at the end.
 
 ## 2. Write the content (the creative part — take care)
 Read `pipeline/used.json` (list of short keys of puzzles already used). Never repeat one.
+If `pipeline/insights.json` exists (weekly Studio review), use its `themes` and `best_title_patterns` for ideas and titles.
 N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
 - `s01.json … sNN.json` — Shorts. Each: **3 puzzles, all of the day's format**, orientation `"v"`, count_secs 3,
   label `"PUZZLE"`. Vary difficulty: easy, medium, tricky.
