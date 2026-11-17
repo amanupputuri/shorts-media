@@ -476,32 +476,78 @@ def draw_intro(c, t):
         paste(im, p, W / 2, 1400 if c.v else 900, s * (1 + 0.03 * math.sin(t * 6)))
     return im.convert("RGB")
 
+def _rays(W, H, cx, cy, ang, col, n=16, alpha=46):
+    lay = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(lay); R = max(W, H) * 1.2
+    for k in range(n):
+        a0 = math.radians(ang + k * 360 / n); a1 = a0 + math.radians(360 / n / 2)
+        d.polygon([(cx, cy), (cx + R * math.cos(a0), cy + R * math.sin(a0)), (cx + R * math.cos(a1), cy + R * math.sin(a1))], fill=col + (alpha,))
+    return lay
+
+def _glow(size, col):
+    g = Image.new("RGBA", (size, size), (0, 0, 0, 0)); gd = ImageDraw.Draw(g)
+    for k in range(12, 0, -1):
+        r = size / 2 * k / 12; gd.ellipse((size / 2 - r, size / 2 - r, size / 2 + r, size / 2 + r), fill=col + (int(110 * (1 - k / 12) + 8),))
+    return g
+
+def _icon_btn(emo, label, col, size):
+    f = font(F_BOLD, int(size * 0.24)); lw = ImageDraw.Draw(Image.new("RGB", (1, 1))).textlength(label, font=f)
+    Wb = int(max(size + 40, lw + 30)); im = Image.new("RGBA", (Wb, size + 110), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    cx = Wb / 2; r = size / 2
+    d.ellipse((cx - r + 6, 26, cx + r + 6, 26 + size), fill=(0, 0, 0, 90))
+    d.ellipse((cx - r, 18, cx + r, 18 + size), fill=col, outline=(255, 255, 255), width=8)
+    hl = Image.new("RGBA", im.size, (0, 0, 0, 0)); ImageDraw.Draw(hl).ellipse((cx - r * 0.62, 18 + size * 0.1, cx + r * 0.1, 18 + size * 0.36), fill=(255, 255, 255, 70))
+    im.alpha_composite(hl)
+    e = emoji_img(emo, size * 0.5); im.alpha_composite(e, (int(cx - e.width / 2), int(18 + size / 2 - e.height / 2)))
+    d.text((cx - lw / 2, size + 34), label, font=f, fill=(255, 255, 255), stroke_width=5, stroke_fill=(20, 10, 40))
+    return im
+
+def _bubble(text, w, size, tail="left"):
+    f = font(F_BOLD, size); lines = wrap(text, size, w - 70)
+    h = int(len(lines) * size * 1.25 + 60)
+    im = Image.new("RGBA", (w, h + 50), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    d.rounded_rectangle((0, 0, w - 1, h), radius=44, fill=(255, 255, 255), outline=(255, 210, 60), width=8)
+    tx = 90 if tail == "left" else w - 90
+    d.polygon([(tx - 30, h - 6), (tx + 30, h - 6), (tx - 50 if tail == "left" else tx + 50, h + 46)], fill=(255, 255, 255))
+    for i, ln in enumerate(lines):
+        tw = d.textlength(ln, font=f); d.text(((w - tw) / 2, 28 + i * size * 1.25), ln, font=f, fill=(40, 30, 90))
+    return im
+
 def draw_outro(c, t):
-    im = c.background(t); d = ImageDraw.Draw(im); W, H = c.W, c.H
+    im = c.background(t); W, H = c.W, c.H; v = c.v
     oc = c.spec["outro"]
+    hx, hy = (W / 2, 900) if v else (W * 0.27, 600)
+    im.alpha_composite(_rays(W, H, hx, hy, t * 18, tuple(c.accent)))
+    g = _glow(900 if v else 760, (255, 230, 140)); paste(im, g, hx, hy, 1)
+    rnd = random.Random(7); sd = ImageDraw.Draw(im)
+    for k in range(26):
+        px = rnd.uniform(0, W); py = (rnd.uniform(0, H) - t * rnd.uniform(60, 160)) % H; sz = rnd.uniform(6, 14) * (0.6 + 0.4 * math.sin(t * 4 + k))
+        col = [(255, 210, 60), (255, 110, 160), (110, 220, 255), (255, 255, 255)][k % 4]
+        sd.polygon([(px, py - sz * 2), (px + sz * 0.5, py), (px, py + sz * 2), (px - sz * 0.5, py)], fill=col)
+        sd.polygon([(px - sz * 2, py), (px, py + sz * 0.5), (px + sz * 2, py), (px, py - sz * 0.5)], fill=col)
     s = eob(t / 0.35)
-    lay = Image.new("RGBA", (W, 380), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
-    text_center(ld, oc["line1"], W / 2, 10, 120 if c.v else 100, stroke=8, maxw=W - 100)
-    text_center(ld, oc["line2"], W / 2, 170, 120 if c.v else 100, fill=c.accent, stroke=8, maxw=W - 100)
-    paste(im, lay, W / 2, 520 if c.v else 260, s)
-    if oc.get("line3"):
-        a_ = eo((t - 0.4) / 0.3)
-        lay = Image.new("RGBA", (W, 140), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
-        text_center(ld, oc["line3"], W / 2, 20, 70 if c.v else 60, maxw=W - 120)
-        lay.putalpha(lay.split()[-1].point(lambda v: int(v * a_))); im.alpha_composite(lay, (0, 900 if c.v else 520))
+    lay = Image.new("RGBA", (W, 300), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
+    if v:
+        text_center(ld, oc["line1"], W / 2, 0, 116, stroke=10, maxw=W - 80)
+        text_center(ld, oc["line2"], W / 2, 140, 132, fill=c.accent, stroke=10, maxw=W - 60)
+        paste(im, lay, W / 2, 330, s * (1 + 0.03 * math.sin(t * 4)))
+    else:
+        text_center(ld, oc["line1"] + " " + oc["line2"], W / 2, 60, 118, fill=c.accent, stroke=10, maxw=W - 100)
+        paste(im, lay, W * 0.62, 200, s * (1 + 0.03 * math.sin(t * 4)))
     if c.spec.get("mascot") is not False:
-        hs = 300 if c.v else 300
-        hx, hy = (W / 2 - 350, 1110) if c.v else (W / 2 - 560, 800)
-        paste(im, hoot_img(hs, "point" if t > 0.5 else "idle", blink_at(t)), hx, hy - abs(math.sin(t * 2.5)) * 10, eob((t - 0.2) / 0.4))
-    s2 = eob((t - 0.4) / 0.4)
-    cta = oc.get("cta", "SUBSCRIBE")
-    btn = Image.new("RGBA", (800, 220), (0, 0, 0, 0)); bd = ImageDraw.Draw(btn)
-    bd.rounded_rectangle((0, 0, 799, 219), radius=110, fill=(255, 40, 70))
+        paste(im, hoot_img(560 if v else 470, "cheer" if t > 0.4 else "idle", blink_at(t)), hx, hy - abs(math.sin(t * 2.6)) * 18, eob((t - 0.1) / 0.4))
     sub = oc.get("cta_sub", "")
-    f = font(F_BOLD, 76 if sub else 92); tw = bd.textlength(cta, font=f); bd.text(((800 - tw) / 2, 28 if sub else 50), cta, font=f, fill=(255, 255, 255))
     if sub:
-        f2 = font(F_MED, 44); tw = bd.textlength(sub, font=f2); bd.text(((800 - tw) / 2, 128), sub, font=f2, fill=(255, 230, 230))
-    paste(im, btn, W / 2, 1350 if c.v else 800, s2 * (1 + 0.04 * math.sin(t * 5)))
+        bub = _bubble(sub, 760 if v else 820, 64 if v else 66, "left")
+        a_ = eob((t - 0.5) / 0.4)
+        paste(im, bub, (W / 2 + 60) if v else W * 0.62, 1270 if v else 450, a_)
+    btns = [("👍", "LIKE", (60, 130, 245)), ("🔔", "SUBSCRIBE", (240, 40, 70)), ("💬", "COMMENT", (40, 185, 100))]
+    size = 200 if v else 170
+    for k, (e, lab, col) in enumerate(btns):
+        a_ = eob((t - 0.7 - 0.18 * k) / 0.35)
+        if a_ < 0.03: continue
+        tap = 1 + 0.12 * max(0, math.sin((t - 1.3 - 0.45 * k) * 6)) if t > 1.3 + 0.45 * k else 1
+        bx = (W / 2 + (k - 1) * 330) if v else (W * 0.62 + (k - 1) * 300)
+        paste(im, _icon_btn(e, lab, col, size), bx, (1640 if v else 790), a_ * tap)
     return im.convert("RGB")
 
 def frame_at(c, seg, t):
