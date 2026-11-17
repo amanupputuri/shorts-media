@@ -1345,7 +1345,10 @@ def _opt_row(c, d, item, phase, pt, t, labels, y_v, start=1.4, h_x=None, emojis=
         if sc < 0.05: continue
         fill = (255, 255, 255)
         if phase == "reveal" and pt > 0.6: fill = (40, 190, 90) if q == item["right"] else (150, 40, 55)
-        d.rounded_rectangle((ox_ - ow / 2, oy_ - oh / 2, ox_ + ow / 2, oy_ + oh / 2), radius=28, fill=fill, outline=c.accent, width=6)
+        from engine import soft_shadow
+        try: soft_shadow(d._image, (ox_ - ow / 2, oy_ - oh / 2, ox_ + ow / 2, oy_ + oh / 2), 28, off=8, blur=10, alpha=60)
+        except Exception: pass
+        d.rounded_rectangle((ox_ - ow / 2, oy_ - oh / 2, ox_ + ow / 2, oy_ + oh / 2), radius=28, fill=fill, outline=(255, 255, 255) if fill != (255, 255, 255) else (230, 232, 245), width=3)
         sz = 70; f = font(F_BOLD, sz)
         while d.textlength(o, font=f) > ow - 90 and sz > 30: sz -= 4; f = font(F_BOLD, sz)
         tw = d.textlength(o, font=f)
@@ -1608,6 +1611,9 @@ def _grid_geom(c, cols, rows, top_pad=20, size_cap=None, box=None):
     return cell, ox, oy
 
 def _panel(d, ox, oy, w, h, r=36):
+    from engine import soft_shadow
+    try: soft_shadow(d._image, (ox - 20, oy - 20, ox + w + 20, oy + h + 20), r)
+    except Exception: pass
     d.rounded_rectangle((ox - 20, oy - 20, ox + w + 20, oy + h + 20), radius=r, fill=(255, 255, 255, 235))
 
 def _circle_hit(d, cx, cy, rr, pt):

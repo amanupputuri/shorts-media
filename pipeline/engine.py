@@ -10,8 +10,8 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FONTS = os.path.join(HERE, "fonts")
-F_BOLD = os.path.join(FONTS, "Poppins-Bold.ttf")
-F_MED = os.path.join(FONTS, "Poppins-Medium.ttf")
+F_BOLD = os.path.join(FONTS, "Fredoka-SemiBold.ttf")   # premium rounded headline font
+F_MED = os.path.join(FONTS, "Nunito-Bold.ttf")
 EMOJI = os.path.join(FONTS, "NotoColorEmoji.ttf")
 if not os.path.exists(EMOJI):
     EMOJI = "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf"
@@ -66,7 +66,19 @@ class Ctx:
             for y in range(256):
                 u = y / 255
                 g.putpixel((0, y), tuple(int(a[i] + (b[i] - a[i]) * u) for i in range(3)))
-            self._bg = g.resize((W, H))
+            bg = g.resize((W, H)).convert("RGBA")
+            # premium depth: soft light from the top, gentle vignette at the edges
+            import numpy as np
+            yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+            dx = (xx - W / 2) / (W * 0.75); dy = (yy - H * 0.18) / (H * 0.75)
+            light = np.clip(1 - np.sqrt(dx * dx + dy * dy), 0, 1) ** 2 * 70
+            ex = (xx - W / 2) / (W / 2); ey = (yy - H / 2) / (H / 2)
+            vig = np.clip(np.sqrt(ex * ex + ey * ey) - 0.75, 0, 1) * 90
+            a = np.zeros((H, W, 4), np.uint8); a[..., :3] = 255; a[..., 3] = light.astype(np.uint8)
+            bg.alpha_composite(Image.fromarray(a, "RGBA"))
+            b_ = np.zeros((H, W, 4), np.uint8); b_[..., :3] = (20, 10, 50); b_[..., 3] = vig.astype(np.uint8)
+            bg.alpha_composite(Image.fromarray(b_, "RGBA"))
+            self._bg = bg.convert("RGB")
         im = self._bg.copy().convert("RGBA")
         ov = Image.new("RGBA", (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(ov)
         k = self.bgkind
@@ -119,6 +131,14 @@ class Ctx:
                 d.rectangle((x - 9, y - 4, x + 9, y + 4), fill=c + (70,))
         im.alpha_composite(ov)
         return im
+
+def soft_shadow(base, box, r=30, off=14, blur=18, alpha=70):
+    """Draw a soft drop shadow under a rounded box onto base (RGBA)."""
+    x0, y0, x1, y1 = [int(v) for v in box]; pad = blur * 3
+    sh = Image.new("RGBA", (x1 - x0 + 2 * pad, y1 - y0 + 2 * pad), (0, 0, 0, 0))
+    ImageDraw.Draw(sh).rounded_rectangle((pad, pad, pad + x1 - x0, pad + y1 - y0), radius=r, fill=(15, 5, 40, alpha))
+    sh = sh.filter(ImageFilter.GaussianBlur(blur))
+    base.alpha_composite(sh, (max(0, x0 - pad), max(0, y0 - pad + off))) if x0 - pad >= 0 and y0 - pad + off >= 0 else base.paste(sh, (x0 - pad, y0 - pad + off), sh)
 
 def text_center(d, txt, cx, y, size, fill=(255, 255, 255), fnt=F_BOLD, stroke=0, sfill=(20, 10, 40), maxw=900):
     f = font(fnt, size)
@@ -175,8 +195,11 @@ def card(w, h, letter, label, emo, state, fill=(255, 255, 255), accent=(255, 210
     elif state == "wrong":
         bg, edge, lt = (150, 40, 55), (230, 120, 130), (255, 210, 210)
     else:
-        bg, edge, lt = fill, accent, (30, 30, 60)
-    d.rounded_rectangle((pad, pad, pad + w, pad + h), radius=rad, fill=bg, outline=edge, width=8)
+        bg, edge, lt = fill, (232, 234, 246), (30, 30, 60)
+        sh = Image.new("RGBA", im.size, (0, 0, 0, 0))
+        ImageDraw.Draw(sh).rounded_rectangle((pad + 4, pad + 12, pad + w - 4, pad + h + 8), radius=rad, fill=(15, 5, 40, 70))
+        im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(10)))
+    d.rounded_rectangle((pad, pad, pad + w, pad + h), radius=rad, fill=bg, outline=edge, width=4 if state == "normal" else 8)
     cy = pad + h / 2
     x = pad + 30
     if w / h < 2.3:

@@ -15,7 +15,11 @@ def _box(c):
     x0, y0, x1, y1 = area(c)
     return (x0 + 20, y0, x1 - 20, y0 + 560) if c.v else (x0 + 40, y0 + 40, x0 + 1060, y1 - 20)
 
-def _white(d, b, r=40): d.rounded_rectangle(b, radius=r, fill=(255, 255, 255, 235))
+def _white(d, b, r=40):
+    from engine import soft_shadow
+    try: soft_shadow(d._image, b, r)
+    except Exception: pass
+    d.rounded_rectangle(b, radius=r, fill=(255, 255, 255, 245))
 
 def _opts(c, d, item, phase, pt, t, b, start=1.4):
     return _opt_row(c, d, item, phase, pt, t, item["options"], b[3] + 110 if c.v else 0, start)
