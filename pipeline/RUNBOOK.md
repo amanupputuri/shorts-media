@@ -124,7 +124,9 @@ Write `work/TARGET/posts.json` = list of {"url", "title", "text", "due_ist": "TA
 if one fails, fix it and schedule only that one again (never re-send ones that succeeded — that would post twice).
 Buffer sets: public, category Education (27), not made for kids, notify subscribers. Buffer can't set tags or a
 first comment — the evening Studio task pins the comment and sets the related video.
-- Title ≤ 90 chars, catchy, different every video, ends with "#shorts" for Shorts. Mention the puzzle type.
+- Title: SHORT (3–7 words + 1–2 emoji, ≤ 60 chars), challenge or curiosity style, keep the searchable puzzle words
+  (e.g. "Can You Spot the Difference? 🛁👀", "Only 1% Find the Owl 🦉"), then "#shorts". Use `insights.json` best_title_patterns
+  and themes (seasonal: Christmas/winter from late Nov). Never long vague titles.
 - Description (text): 1 hook line; "Can you get all 6?" style challenge; the puzzles in plain words (no answers in
   the first lines; answers after "ANSWERS (no peeking!)"); comment-your-score line; subscribe line with
   https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1 ; a "Search: …" line with 10–14 search

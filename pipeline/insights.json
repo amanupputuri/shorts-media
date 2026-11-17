@@ -1,0 +1,38 @@
+{
+ "updated": "2026-11-17",
+ "source": "YouTube Studio analytics (last 28 days) + Research tab (Shorts outliers in niche)",
+ "channel": {
+  "views_28d": 37900, "subs_28d": 51, "total_subs": 57,
+  "shorts_stayed_to_watch": "39.4% channel avg (mostly old science Shorts)",
+  "traffic": "Shorts feed 95%, YouTube search 3%",
+  "audience": "99% new viewers; male 25-34; UK, Malaysia, Philippines, US, India"
+ },
+ "puzzle_shorts_so_far": [
+  {"title": "Spot the Change! Can You Beat This What Changed Memory Test?", "views": 885, "stayed": "27.8%"},
+  {"title": "Find the Odd One Out! Only Sharp Eyes Get 3/3", "views": 944, "stayed": "24.0%"},
+  {"title": "Which One Doesn't Fit? Odd One Out Brain Test", "views": 838, "stayed": "21.9%"},
+  {"title": "What Changed? 3 Memory Puzzles Only Sharp Eyes Can Solve", "views": 374, "stayed": "16.3%"},
+  {"title": "Test Your Brain in 60 Seconds (text quiz)", "views": 1000, "stayed": "36.1%"}
+ ],
+ "long_videos": "CTR only 2.4-2.6% (auto thumbnails) and average view duration 38-45% (1:38-1:55 of 4:13) -> custom thumbnails needed",
+ "diagnosis": "Puzzle Shorts lose 72-84% of viewers in the first second: they opened on a title card, not the puzzle. Fixed by the hook-first format (puzzle visible at frame 0 + hook card).",
+ "top_formats": ["spotdiff", "odd4", "crowd", "letterhunt", "colorcount", "dupnum", "fruitmath"],
+ "weak_formats": ["changed/memory-only openers that show nothing to solve in the first second"],
+ "best_title_patterns": [
+  "Short and punchy, 3-7 words + 1-2 emoji: 'Can You Spot the Hidden Treats? 🍒🍟🍉'",
+  "Challenge stat: 'Only a few can get this right 😱🤯', '1 In 100 People Land This', 'Only 0.001% get this correct ✅'",
+  "Themed scene + task + countdown: 'Bath Time Spot The Difference — One Left!'",
+  "Direct question: 'Which is the CORRECT cup of coffee?', 'Did you get it? 👀🤔'",
+  "Keep the searchable puzzle words in the title (spot the difference, odd one out, find the…) - search is 3% of views",
+  "Avoid long, vague titles like 'What Changed? 3 Memory Puzzles Only Sharp Eyes Can Solve' (worst performer)"
+ ],
+ "themes": [
+  "Everyday scenes kids and adults know: bath time, breakfast table, school bag, kitchen, beach day, birthday party, toy box",
+  "Food and treats (fruits, sweets, fast food) - top niche outlier",
+  "Christmas / winter / snow (late November -> December demand rises)",
+  "Animals (zoo, farm, ocean, pets) - 'Kids vs Animal Quiz' style",
+  "Optical illusions and 'which direction is it spinning' style trick visuals",
+  "Coffee cups / correct one out of 3 (spot the correct one)"
+ ],
+ "notes": "Shorts traffic is 95% feed: the first frame and first second decide everything. Every Short must show the puzzle immediately; titles should promise a challenge. Long videos need custom thumbnails (upload in Studio)."
+}
