@@ -1,9 +1,9 @@
 {
- "id": "job-3746ab8eab",
+ "id": "job-187b7e8e45",
  "steps": [
   {
    "name": "intro",
-   "query": "{ a: __type(name:\"YoutubePostMetadataInput\") { inputFields { name type { name kind ofType { name } } } } }",
+   "query": "{ a: __type(name:\"CreatePostInput\") { inputFields { name type { name kind ofType { name } } } } b: __type(name:\"PostTypeId\") { enumValues { name } } }",
    "variables": {}
   }
  ]
