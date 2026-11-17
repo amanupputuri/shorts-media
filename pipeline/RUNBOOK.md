@@ -49,34 +49,44 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
   and a `say` block: `{"intro": "...", "items": [{"q": "...", "a": "..."}, ...], "outro": "..."}`.
   The voice is **Professor Hoot** (a wise, playful owl professor) and he only says SHORT catchphrases — the puzzle
   itself is carried by on-screen text, music and sound effects. intro ≤ 10 words (often starting "Hoo-hoo!"),
-  q lines ≤ 6 words (e.g. "Which key fits? Think fast!"), a lines ≤ 10 words and state the answer first
+  q lines ≤ 6 words (e.g. "Which key fits? Think fast!"; **exception: the Bug puzzle's q reads out the moves**), a lines ≤ 10 words and state the answer first
   (e.g. "Key B! Every tooth matches."), outro is ALWAYS exactly "Like and subscribe! Comment your score below!" (Aman's wording — short, never change it). Vary the wording of all other lines every video;
   never the same line twice in a day. Simple words, fun tone, for ages 5–80.
 - After writing each spec run `python3 pipeline/tools.py check FILE`. It prints the **true answer** of every
   puzzle (computed from the drawing data). Make every `a` line and the `fact` lines agree with it. Fix and re-check
   until it prints OK. Never ship a spec whose voice disagrees with `check`.
 
+### Question first (every puzzle, Shorts and long)
+The engine now shows the REAL question (`prompt2` if the puzzle has one, else `prompt`) from the very first frame, with a small yellow line
+under it saying HOW to answer (e.g. "Watch the flashes. Answer: a square number", "Answer: pick A, B or C"; override with `"hint"`).
+Hoot's q line is spoken at the start too, so write it as the question + what to do ("Which square flashes last? Watch!"). Put the
+instruction ("Watch the flashes!", "Remember these 9!") in the q line, not only in prompt.
+
+### Long-video difficulty rules (Aman's feedback, 17 Nov)
+Puzzle 4 (Upside-Down One → mirrored odd emoji in a big grid) was far too easy; use the bigger/harder variants above for the long video:
+Spot the Difference 4x4, Memory Grid 4x4 ("Watch the flashes"), What's Missing 3x3 (9), Number Flash 6 digits, Bug on voice, Card Flip 4x4, Zoom Out a bit wider.
+
 ### Puzzle schemas — the 26 formats (all items also have `prompt` (on-screen question, ≤ 32 characters) and `fact` [line1 ≤ 26 chars, line2 ≤ 34 chars])
 Emoji must be single standard emoji (no flags, no skin tones, no ZWJ sequences). Shorts use only the format of the day;
 the long video uses the 20 formats listed in `long_formats` for the day (one puzzle each); it rotates through all 26.
 - **odd4** `{"type":"odd4","options":[[label,emoji]x4],"right":i}` — 4 things, one doesn't belong (reason in fact).
 - **twins** `{"type":"twins","seed":n}` any int; answer = check output.
-- **spotdiff** `{"type":"spotdiff","prompt":"Spot the difference!","scene":[9 emoji],"diff":0-8,"alt":e (similar-looking, e.g. 🌼→🌻)}`
-- **memgrid** `{"type":"memgrid","prompt":"Watch the squares!","prompt2":"Which square lit up LAST?","seq":[4-5 cell indexes 0-8, no repeats]}`
-- **missing** `{"type":"missing","prompt":"Remember these 6!","prompt2":"Which one is missing?","before":[6 emoji],"gone":i,"options":[3 emoji incl. before[gone]],"right":i}`
-- **flipped** `{"type":"flipped","prompt":"Find the upside-down one!","emoji":e (clearly not symmetric: 🐟🐌🦒🚗🐘),"pos":[row,col],"mode":"rot"}`
-- **bug** `{"type":"bug","prompt":"Where does the bug stop?","start":[r,c],"moves":"4-6 of U/D/L/R"}` must stay on the 4x4 grid; answer = check output.
+- **spotdiff** `{"type":"spotdiff","prompt":"Spot the difference!","scene":[9 emoji],"diff":0-8,"alt":e (similar-looking, e.g. 🌼→🌻)}` — **long video: 4x4 = `scene` of 16 different emoji, `diff` 0-15** (Shorts keep 3x3).
+- **memgrid** `{"type":"memgrid","prompt":"Watch the squares!","prompt2":"Which square lit up LAST?","seq":[4-5 cell indexes 0-8, no repeats]}` — **long video: add `"n":4` (4x4 grid) and `seq` of 6-7 cells 0-15, no repeats**; prompt "Watch the flashes!" (Shorts keep 3x3).
+- **missing** `{"type":"missing","prompt":"Remember these 6!","prompt2":"Which one is missing?","before":[6 emoji],"gone":i,"options":[3 emoji incl. before[gone]],"right":i}` — **long video: 3x3 = `before` of 9 different emoji, prompt "Remember these 9!"**.
+- **flipped** `{"type":"flipped","prompt":"Find the upside-down one!","emoji":e (clearly not symmetric: 🐟🐌🦒🚗🐘),"pos":[row,col]}` — **now HARD**: the odd emoji is MIRRORED (not turned upside-down) inside a big grid (12x6 long / 7x9 Shorts; `pos` row 0-5 col 0-11 long, row 0-8 col 0-6 Shorts). Optional `"mode":"rot"` (upside-down, easy) and `"grid":[cols,rows]`.
+- **bug** `{"type":"bug","prompt":"Where does the bug stop?","start":[r,c],"moves":"4-6 of U/D/L/R"}` must stay on the 4x4 grid; answer = check output. **VOICE-DRIVEN: no arrows on screen — Hoot SPEAKS the moves.** The bug's `say.items[i].q` must name the start square and every move in order ("Bug starts on ten. Up, up, left, down, right!") — `check` fails if the spoken moves differ from `moves`. (Optional `"show_arrows":true` brings the arrows back.)
 - **countdiff** `{"type":"countdiff","prompt":"How many differences?","scene":[9 emoji],"diffs":[[cell,alt],...] (1-3),"options":["1","2","3"],"right":len(diffs)-1}`
-- **cardflip** `{"type":"cardflip","prompt":"Remember the cards!","prompt2":"Find the matching pair!","cards":[9 emoji, exactly 2 == target],"target":e,"options":["a & b" strings, one is the true pair],"right":i}`
+- **cardflip** `{"type":"cardflip","prompt":"Remember the cards!","prompt2":"Find the matching pair!","cards":[9 emoji, exactly 2 == target] (**long video: 16 cards = 4x4, 15 different emoji + the target twice**),"target":e,"options":["a & b" strings, one is the true pair],"right":i}`
 - **diceflash** `{"type":"diceflash","prompt":"Remember the dice!","prompt2":"What was the total?","dice":[2 values 1-6],"options":[3 strings],"right":i}`
-- **zoom** `{"type":"zoom","prompt":"What is it? Guess early!","emoji":e,"focus":[0.3-0.7,0.3-0.7],"options":[3 names],"right":i}`
+- **zoom** `{"type":"zoom","prompt":"What is it? Guess early!","emoji":e,"focus":[0.3-0.7,0.3-0.7],"options":[3 names],"right":i}` — starts zoomed in 4.5x and zooms out to 2.4x while you guess (a little wider than before); optional `"zoom":[start,end]`.
 
 - **shapemiss** `{"type":"shapemiss","prompt":"Watch closely!","prompt2":"Which one did NOT appear?","seq":[5 emoji],"options":[3 emoji: exactly one NOT in seq],"right":i}`
 - **spotlight** `{"type":"spotlight","prompt":"What's in the dark?","emoji":e (big clear animal/object),"options":[3 names],"right":i}`
 - **pixel** `{"type":"pixel","prompt":"Guess before it clears!","emoji":e,"options":[3 names],"right":i}`
 - **colorcount** `{"type":"colorcount","prompt":"How many GREEN shapes?","counts":{"green":n,"red":n,"blue":n,"yellow":n} (total ≤ 30),"ask":colour,"seed":n,"options":[3 strings],"right":i}`
 
-- **numflash** `{"type":"numflash","prompt":"Remember the number!","prompt2":"Which number did you see?","number":"5 digits","options":[5 different look-alike numbers incl. number (swap 2 digits, change 1 digit…)],"right":i}`
+- **numflash** `{"type":"numflash","prompt":"Remember the number!","prompt2":"Which number did you see?","number":"5 digits (**long video: 6 digits**)","options":[5 different look-alike numbers of the same length incl. number (swap 2 digits, change 1 digit…)],"right":i}`
 - **rowdiff** `{"type":"rowdiff","prompt":"Which row is different?","seq":[7 DIFFERENT, easy-to-tell-apart emoji of one theme, e.g. 🍎🍌🍇🍓🍊🍉🍍 or 🐶🐱🐭🐰🦊🐻🐼],"rows":4,"odd_row":0-3,"swap":[k,k+1]}` MEDIUM (two neighbours swapped; never use look-alike faces).
 - **letterhunt** `{"type":"letterhunt","prompt":"Find the odd letter!","base":"O","odd":"Q","pos":[row 0-9,col 0-15]}` — dense grid; use look-alike pairs and vary daily: O/Q, M/N, E/F, P/R, C/G, 8/B, 5/S, 0/O, V/Y, I/T, 3/8, U/V.
 - **crowd** `{"type":"crowd","prompt":"Find it in the crowd!","target":e,"pool":[8+ emoji that look very similar to the target — same colour/shape family, e.g. 🐧 among 🐦🕊️🦅🦆🦉🐓🦜🐤],"pos":[row 0-8,col 0-15],"seed":n}` HARD (dense grid).

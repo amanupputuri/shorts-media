@@ -5,7 +5,7 @@
   python3 tools.py prompt SPEC [N]       -> print TTS prompt(s); long videos are split in N parts (default 1)
   python3 tools.py fill SPEC VOICE...    -> write voice paths + voice_counts into SPEC
 """
-import sys, json, datetime, os
+import sys, json, datetime, os, re
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 
 FORMATS = ["odd4", "twins", "spotdiff", "memgrid", "missing", "flipped", "numflash",
@@ -158,6 +158,18 @@ def check(spec):
             cnt = Counter(it["nums"])
             if sorted(cnt.values())[-1] != 2 or list(cnt.values()).count(2) != 1: errs.append(f"item {i}: dupnum needs exactly one number twice")
         if t == "hidden" and it["base"] == it["odd"]: errs.append(f"item {i}: hidden base == odd")
+        # --- long-video upgrades (grids / digits / voice-driven bug) ---
+        if t == "spotdiff" and (len(it["scene"]) not in (9, 16) or not 0 <= it["diff"] < len(it["scene"])): errs.append(f"item {i}: spotdiff scene must have 9 or 16 emoji and diff inside it")
+        if t == "memgrid" and (it.get("n", 3) not in (3, 4) or any(not 0 <= k < it.get("n", 3) ** 2 for k in it["seq"])): errs.append(f"item {i}: memgrid n must be 3 or 4 and seq cells inside the grid")
+        if t == "missing" and len(it["before"]) not in (6, 9): errs.append(f"item {i}: missing needs 6 or 9 emoji (long video: 9 = 3x3)")
+        if t == "numflash" and len(set(len(o) for o in it["options"] + [it["number"]])) != 1: errs.append(f"item {i}: numflash options must all have the same number of digits as the number")
+        if t == "cardflip" and len(it["cards"]) not in (9, 10, 16): errs.append(f"item {i}: cardflip needs 9, 10 or 16 cards (long video: 16 = 4x4)")
+        if t == "flipped" and not (0 <= it["pos"][0] and 0 <= it["pos"][1]): errs.append(f"item {i}: flipped pos must be >= 0")
+        if t == "bug" and not it.get("show_arrows"):
+            q = (spec.get("say", {}).get("items", [{}] * (i + 1))[i] or {}).get("q", "").lower()
+            words = [w for w in re.findall(r"[a-z]+", q) if w in ("up", "down", "left", "right")]
+            want = [{"U": "up", "D": "down", "L": "left", "R": "right"}[m] for m in it["moves"]]
+            if words != want: errs.append(f"item {i}: bug is voice-driven - say.items[{i}].q must say the moves in order {want} (found {words})")
     return errs
 
 def prompt_parts(spec, n):

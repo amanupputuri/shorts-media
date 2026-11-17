@@ -395,6 +395,28 @@ def draw_hoot_corner(c, im, phase, t, pt):
     s = eob(t / 0.5) if phase == "ask" else 1
     paste(im, hoot_img(size, pose, blink_at(t + 0.7)), x, y - bob, s)
 
+ANSWER_HINTS = {
+    "memgrid": "Watch the flashes. Answer: a square number",
+    "spotdiff": "Look at A and B. Answer: the square that changed",
+    "missing": "Remember all 9. Answer: A, B or C",
+    "flipped": "Answer: the row and column",
+    "numflash": "Remember all 6 digits. Answer: A to E",
+    "bug": "Listen to Hoot! Answer: the square number",
+    "cardflip": "Remember the cards. Answer: A, B or C",
+    "zoom": "Guess early! Answer: A, B or C",
+    "diceflash": "Remember the dice. Answer: A, B or C",
+    "rowdiff": "Answer: the row letter",
+    "letterhunt": "Answer: the row and column",
+    "crowd": "Answer: the row and column",
+}
+def answer_hint(item):
+    """one short line under the question that says HOW to answer (shown from the first frame)"""
+    t = item.get("type")
+    if t in ANSWER_HINTS: return ANSWER_HINTS[t]
+    n = len(item.get("options") or [])
+    if n: return "Answer: pick " + ", ".join("ABCDE"[:n - 1]) + " or " + "ABCDE"[n - 1]
+    return ""
+
 def draw_item(c, idx, t, phase, pt):
     item = c.spec["items"][idx]
     L = layout(c, item)
@@ -423,18 +445,23 @@ def draw_item(c, idx, t, phase, pt):
     # prompt
     qa = eo(t / 0.4) if phase == "ask" else 1
     size = L["prompt_size"]
-    ptxt = item["prompt"]
-    if item.get("prompt2") and (phase != "ask" or t >= 3.0): ptxt = item["prompt2"]
+    # QUESTION FIRST: show the real question (prompt2 if there is one) from the very first frame, plus how to answer
+    ptxt = item.get("prompt2") or item["prompt"]
     lines = wrap(ptxt, size, L["prompt_w"])
     while len(lines) > 2 and size > 56:
         size -= 6; lines = wrap(ptxt, size, L["prompt_w"])
-    lay = Image.new("RGBA", (W, int(size * 1.25 * len(lines) + 40)), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
+    hint = item.get("hint") or answer_hint(item)
+    hsize = int(size * 0.5) if hint else 0
+    hint_h = int(hsize * 1.5) if hint else 0
+    lay = Image.new("RGBA", (W, int(size * 1.25 * len(lines) + 40 + hint_h)), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
     for i, ln in enumerate(lines):
         text_center(ld, ln, W / 2, 10 + i * size * 1.22, size, stroke=6, maxw=L["prompt_w"])
+    if hint:
+        text_center(ld, hint, W / 2, 10 + len(lines) * size * 1.22 + 6, hsize, fill=c.accent, stroke=4, maxw=L["prompt_w"])
     if qa < 1: lay.putalpha(lay.split()[-1].point(lambda v: int(v * qa)))
     im.alpha_composite(lay, (0, int(L["prompt"] - (1 - qa) * 40)))
     custom_origin = None
-    prompt_bottom = L["prompt"] + len(lines) * size * 1.22 + 20
+    prompt_bottom = L["prompt"] + len(lines) * size * 1.22 + 20 + hint_h
     if item.get("type") in __import__("eyebrain").DRAW:
         import eyebrain
         lay = Image.new("RGBA", im.size, (0, 0, 0, 0))
