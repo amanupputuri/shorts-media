@@ -1,5 +1,6 @@
 """Custom eye & brain puzzle drawers. Each draw_X(c, im, item, phase, pt, t) draws the main area
 and returns (x, y) for the confetti burst. min_ask(item) gives the minimum question phase length."""
+import random
 import math
 from PIL import Image, ImageDraw, ImageFilter
 from engine import emoji_img, eob, eo, cl, paste, font, F_BOLD, text_center
@@ -1648,6 +1649,7 @@ def draw_missing(c, im, item, phase, pt, t):
     return c.W / 2, (y0 + y1) / 2
 
 # 35 Find the letter
+LH_COLS = [(230, 60, 80), (40, 130, 230), (30, 170, 90), (245, 150, 20), (150, 70, 210), (20, 170, 180), (230, 80, 170), (90, 90, 110)]
 def draw_letterhunt(c, im, item, phase, pt, t):
     d = ImageDraw.Draw(im)
     cols, rows = (8, 10) if c.v else (16, 6)
@@ -1660,7 +1662,8 @@ def draw_letterhunt(c, im, item, phase, pt, t):
         for k in range(cols):
             ch_ = item["odd"] if (r_, k) == (pr, pc) else item["base"]
             cx, cy = ox + (k + 0.5) * cell, oy + (r_ + 0.5) * cell
-            tw = d.textlength(ch_, font=f); d.text((cx - tw / 2, cy - cell * 0.5), ch_, font=f, fill=(40, 40, 70, int(255 * a)))
+            col = LH_COLS[random.Random(item.get("seed", 0) * 100003 + r_ * 997 + k * 31).randrange(len(LH_COLS))]
+            tw = d.textlength(ch_, font=f); d.text((cx - tw / 2, cy - cell * 0.5), ch_, font=f, fill=col + (int(255 * a),))
     cx, cy = ox + (pc + 0.5) * cell, oy + (pr + 0.5) * cell
     if phase == "reveal": _circle_hit(d, cx, cy, cell * 0.6, pt)
     return cx, cy
