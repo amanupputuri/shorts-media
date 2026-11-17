@@ -402,7 +402,10 @@ def draw_item(c, idx, t, phase, pt):
     W = c.W
     n_total = len(c.spec["items"])
     lab = c.spec.get("label", "QUESTION")
-    levels = c.spec.get("levels") or (["EASY", "MEDIUM", "HARD"] if c.v and n_total == 3 else None)
+    levels = c.spec.get("levels")
+    if not levels and c.v and n_total >= 3:  # easy → medium → hard across the Short
+        ne = round(n_total * 0.4); nh = max(1, round(n_total * 0.25))
+        levels = ["EASY"] * ne + ["MEDIUM"] * (n_total - ne - nh) + ["HARD"] * nh
     if levels:
         lv = levels[idx]; lcol = {"EASY": (40, 185, 100), "MEDIUM": (250, 150, 30), "HARD": (235, 50, 80)}.get(lv, (230, 60, 90))
         p = pill(f"LEVEL {idx + 1}  ·  {lv}", lcol, 46 if c.v else 40)
