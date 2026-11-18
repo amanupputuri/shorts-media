@@ -275,11 +275,11 @@ def layout(c, item):
     has_disp = bool(item.get("display"))
     nopt = len(item.get("options", []))
     if c.v:
-        # Shorts (Aman, 18 Nov): compact header so the puzzle can fill ~90% of the width
+        # Shorts (Aman, 18 Nov): compact header; puzzle ~80% of the width; bottom content kept above the title overlay
         L = dict(head=150, prompt=226, prompt_size=84, prompt_w=W - 90,
                  disp=(W / 2, 880), disp_h=260, disp_w=W - 120,
-                 opt_box=(40, 1060 if has_disp else 560, W - 40, 1540),
-                 bottom=1625, count=(W / 2, 1730), bar=(160, 1872, W - 160, 1900), opt_y=1500)
+                 opt_box=(W * 0.1, 1060 if has_disp else 560, W * 0.9, 1460),
+                 bottom=1555, count=(W / 2, 1660), bar=(160, 1790, W - 160, 1816), opt_y=1415)
     else:
         L = dict(head=80, prompt=140, prompt_size=86, prompt_w=W - 300,
                  disp=(W / 2, 540), disp_h=200, disp_w=W - 300,
@@ -480,7 +480,7 @@ def draw_item(c, idx, t, phase, pt):
         # fill the empty space: scale the whole puzzle up to the free area (same scale every frame of the scene)
         fit = bb and item.get("autofit", True)
         if fit and c.v:
-            # Shorts (Aman, 18 Nov): the puzzle itself fills ~90% of the width; option boxes go on their own row below it
+            # Shorts (Aman, 18 Nov): the puzzle itself fills ~80% of the width; option boxes go on their own row below it
             lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); opt = Image.new("RGBA", im.size, (0, 0, 0, 0))
             # first frame already shows the whole puzzle (entrance animations skipped); puzzles with a timed watch phase
             # only skip the first 0.5 s so no flash/step is lost
@@ -496,7 +496,7 @@ def draw_item(c, idx, t, phase, pt):
                 try: eyebrain.DRAW[item["type"]](c, lay0, item, "reveal", 1.5, tm0.get("ask", 6) + c.spec["count_secs"] + 1.5)
                 finally: eyebrain.OPT = None
                 b0 = lay0.getbbox() or lay.getbbox() or (0, 0, W, 10); ob0 = opt0.getbbox()
-                fx0, fx1 = 54, W - 54
+                fx0, fx1 = W * 0.1, W * 0.9   # puzzle + options cover ~80% of the width (Aman: like/comment buttons and title overlay the edges)
                 if ob0:
                     osc = min((fx1 - fx0) / (ob0[2] - ob0[0]), 180 / (ob0[3] - ob0[1]), 1.6)
                     oc = (W / 2, L["opt_y"]); fy1 = L["opt_y"] - (ob0[3] - ob0[1]) * osc / 2 - 28

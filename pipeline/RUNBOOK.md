@@ -89,7 +89,7 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
   until it prints OK. Never ship a spec whose voice disagrees with `check`.
 
 ### Shorts layout (Aman, 18 Nov — engine does this automatically)
-The puzzle fills ~90% of the screen width from the very first frame: compact header (small owl top-left, level pill, one-line question
+The puzzle fills ~80% of the screen width (Aman: like/comment buttons and the title overlay the edges) from the very first frame: compact header (small owl top-left, level pill, one-line question
 if possible), option boxes on their own row under the puzzle, countdown/answer below. No hook text over the puzzle. Keep Short
 prompts short (≤ 24 characters fits on one line and gives the puzzle more room).
 
