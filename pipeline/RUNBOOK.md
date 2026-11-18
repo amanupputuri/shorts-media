@@ -93,6 +93,24 @@ The puzzle fills ~80% of the screen width (Aman: like/comment buttons and the ti
 if possible), option boxes on their own row under the puzzle, countdown/answer below. No hook text over the puzzle. Keep Short
 prompts short (≤ 24 characters fits on one line and gives the puzzle more room).
 
+### MASTER STYLE — centred, equal spacing (Aman, 18 Nov; engine does it automatically for Shorts)
+Every Short question screen is ONE block centred on the screen: question text → icon/picture (if any) → option boxes →
+timer (or ANSWER + fact). All parts are centred left-right, the whole block is centred top-to-bottom, and the gap between
+every part (text, icon, each option box, timer) is the SAME. Option boxes are 80% of the width, same height, big text.
+Do not add manual offsets or extra text that breaks this. Look at one frame per Short before shipping.
+
+### QUIZ SHORTS (Aman, 18 Nov) — 21 quiz formats, 6 questions, each a DIFFERENT format
+Formats: true/false, which is bigger, guess the number, odd fact out, spell it right, quick maths, where is it from,
+order it, fill the gap, opposite word, same meaning, body facts, flag quiz (flag shown), capital city, how long does it live,
+sports quiz, which doesn't float, which is heavier, hidden word, count the letters, random facts. Every question has options.
+Item: `{"type":"quiz","prompt":"…","prompt2":"…"(optional, with "stack":true),"hint":"",
+"display":{"kind":"emoji","text":"🐙"} (optional — only when it helps; 2-option questions),
+"options":[["Label","emoji"(optional)],…] (2–3), "right":i, "fact":["one short reason"]}`.
+2 easy, 2 medium, 2 hard; 4-second timer; say.intro hook; spoken hooks on say.items[1..5] (a hook BETWEEN every two
+questions, short, engaging, never the same twice); say.items[3].hook = the LIKE ask; check every fact; example spec:
+`quiz/2026-11-18-quiz1.json`; thumbnails: `pipeline/thumb_quiz.py` (answers hidden with "?").
+YouTube Studio has no A/B test for Shorts — make 3 thumbnails, publish the strongest, keep the others in thumbs/.
+
 ### Question first — FINAL FORMAT (Aman, 17 Nov; applies to every video from now on)
 1. **On screen question = what Hoot says.** `prompt` is exactly Hoot's q line (same words). No "Answer: A, B or C"-style text on screen:
    set `"hint": ""` on every item. Never say or show "row and column" for a find-it puzzle — reveal with "Here it is! …" and the green ring

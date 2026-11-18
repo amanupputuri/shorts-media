@@ -229,7 +229,7 @@ def card(w, h, letter, label, emo, state, fill=(255, 255, 255), accent=(255, 210
         e = emoji_img(emo, min(h * 0.62, 170)); ew = e.width + 30
         im.alpha_composite(e, (int(pad + w - 30 - e.width), int(cy - e.height / 2)))
     maxw = pad + w - ew - x - 20
-    sz = min(96, h * 0.34); f = font(F_BOLD, sz)
+    sz = min(96, h * 0.42); f = font(F_BOLD, sz)
     if not label: maxw = 10**6
     while d.textlength(label, font=f) > maxw and sz > 26: sz -= 3; f = font(F_BOLD, sz)
     if not letter and not emo:
@@ -287,9 +287,57 @@ def layout(c, item):
                  bottom=930, count=(W - 140, 140), bar=(560, 1040, W - 560, 1062))
     if not has_disp and c.v and nopt == 0:
         L["disp"] = (W / 2, 900)
+    if c.v and nopt and item.get("type") not in __import__("eyebrain").DRAW:
+        center_stack(c, item, L)
     return L
 
+def center_stack(c, item, L):
+    """MASTER STYLE for Shorts quiz/option questions (Aman, 18 Nov): question text, icon, option boxes and the
+    timer/answer area are one block, centred horizontally and vertically, with the SAME gap between every part."""
+    W = c.W
+    size = L["prompt_size"]; stack = bool(item.get("stack") and item.get("prompt2"))
+    def _lines(sz):
+        if stack: return wrap(item["prompt"], sz, L["prompt_w"]) + wrap(item["prompt2"], sz, L["prompt_w"])
+        return wrap(item["prompt"], sz, L["prompt_w"])
+    lines = _lines(size)
+    while len(lines) > (3 if stack else 2) and size > 56:
+        size -= 6; lines = _lines(size)
+    hp = len(lines) * size * 1.22 + 10
+    disp = item.get("display")
+    hd = 0
+    if disp: hd = {"emoji": 230, "big": 170}.get(disp["kind"], 260)
+    n = len(item["options"])
+    oh = {2: 210, 3: 190, 4: 220}.get(n, 170)
+    rows = 2 if n == 4 else n
+    blocks = [hp] + ([hd] if hd else []) + [None, 300]   # None = options (height depends on the gap)
+    top, bot = 215, 1825
+    fixed = hp + hd + rows * oh + 300
+    k = len(blocks)
+    G = max(40, min(100, (bot - top - fixed) / (k + 1 + (rows - 1))))
+    total = fixed + G * (k - 1) + G * (rows - 1)
+    y = top + (bot - top - total) / 2
+    L["prompt"] = y - 10; y += hp + G
+    if hd:
+        L["disp"] = (W / 2, y + hd / 2); y += hd + G
+    rects = []
+    bw = W * 0.8
+    if n == 4:
+        w = (bw - G) / 2
+        for i in range(4):
+            r, kk = divmod(i, 2)
+            rects.append((W / 2 - bw / 2 + w / 2 + kk * (w + G), y + oh / 2 + r * (oh + G), w, oh))
+    else:
+        for i in range(n):
+            rects.append((W / 2, y + oh / 2 + i * (oh + G), bw, oh))
+    y += rows * oh + (rows - 1) * G + G
+    L["rects"] = rects
+    L["opt_box"] = (W / 2 - bw / 2, rects[0][1] - oh / 2, W / 2 + bw / 2, rects[-1][1] + oh / 2)
+    L["count"] = (W / 2, y + 120); L["bar"] = (160, y + 262, W - 160, y + 288)
+    L["bottom"] = y + 45
+    L["prompt_size_fixed"] = size
+
 def option_rects(c, L, n):
+    if L.get("rects") and len(L["rects"]) == n: return L["rects"]
     x0, y0, x1, y1 = L["opt_box"]; bw, bh = x1 - x0, y1 - y0
     rects = []
     if n == 2:
