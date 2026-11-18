@@ -1,0 +1,234 @@
+{
+ "orientation": "v",
+ "count_secs": 4,
+ "label": "QUESTION",
+ "music_seed": 7,
+ "style": {
+  "palette": [
+   [
+    40,
+    70,
+    200
+   ],
+   [
+    110,
+    40,
+    170
+   ]
+  ],
+  "accent": [
+   255,
+   210,
+   60
+  ],
+  "pill": [
+   255,
+   90,
+   140
+  ],
+  "bg": "dots"
+ },
+ "hook": "Can you ace all six?",
+ "title_card": {
+  "emoji": "🦉",
+  "line1": "6 QUIZ",
+  "line2": "QUESTIONS",
+  "tag": "Brain Quiz"
+ },
+ "outro": {
+  "line1": "LIKE &",
+  "line2": "SUBSCRIBE!",
+  "line3": "",
+  "cta": "SUBSCRIBE",
+  "cta_sub": "Comment your score below!"
+ },
+ "items": [
+  {
+   "type": "quiz",
+   "level": "EASY",
+   "prompt": "True or false?",
+   "prompt2": "An octopus has 3 hearts.",
+   "stack": true,
+   "hint": "",
+   "display": {
+    "kind": "emoji",
+    "text": "🐙"
+   },
+   "options": [
+    [
+     "True",
+     "✅"
+    ],
+    [
+     "False",
+     "❌"
+    ]
+   ],
+   "right": 0,
+   "fact": [
+    "Two pump blood to its gills!"
+   ]
+  },
+  {
+   "type": "quiz",
+   "level": "EASY",
+   "prompt": "Quick maths!",
+   "prompt2": "What is 7 × 8?",
+   "stack": true,
+   "hint": "",
+   "options": [
+    [
+     "54"
+    ],
+    [
+     "56"
+    ],
+    [
+     "64"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "7 × 8 = 56"
+   ]
+  },
+  {
+   "type": "quiz",
+   "level": "MEDIUM",
+   "prompt": "Capital of Australia?",
+   "hint": "",
+   "options": [
+    [
+     "Sydney",
+     "🏙️"
+    ],
+    [
+     "Canberra",
+     "🏛️"
+    ],
+    [
+     "Melbourne",
+     "🌉"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "Canberra, not Sydney!"
+   ]
+  },
+  {
+   "type": "quiz",
+   "level": "MEDIUM",
+   "prompt": "Which is heavier?",
+   "prompt2": "1 kg feathers or 1 kg iron?",
+   "stack": true,
+   "hint": "",
+   "options": [
+    [
+     "Feathers",
+     "🪶"
+    ],
+    [
+     "Iron",
+     "🔩"
+    ],
+    [
+     "Same",
+     "⚖️"
+    ]
+   ],
+   "right": 2,
+   "fact": [
+    "Both weigh 1 kg!"
+   ]
+  },
+  {
+   "type": "quiz",
+   "level": "HARD",
+   "prompt": "Which spelling is right?",
+   "hint": "",
+   "options": [
+    [
+     "Neccessary"
+    ],
+    [
+     "Necessary"
+    ],
+    [
+     "Necesary"
+    ]
+   ],
+   "right": 1,
+   "letters": true,
+   "fact": [
+    "One C, double S!"
+   ]
+  },
+  {
+   "type": "quiz",
+   "level": "HARD",
+   "prompt": "Which food never spoils?",
+   "hint": "",
+   "options": [
+    [
+     "Rice",
+     "🍚"
+    ],
+    [
+     "Honey",
+     "🍯"
+    ],
+    [
+     "Bread",
+     "🍞"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "3,000-year-old honey was still edible!"
+   ]
+  }
+ ],
+ "say": {
+  "intro": "Hoo-hoo! Six quick questions. Can you ace them all?",
+  "items": [
+   {
+    "q": "True or false? An octopus has three hearts.",
+    "a": "True! Two hearts pump blood to its gills."
+   },
+   {
+    "q": "Quick maths! What is seven times eight?",
+    "a": "Fifty-six! Seven eights are fifty-six.",
+    "hook": "Nice! Ready for a quick one?"
+   },
+   {
+    "q": "What's the capital of Australia?",
+    "a": "Canberra! Not Sydney, surprise!",
+    "hook": "You're doing great. This one's sneaky!"
+   },
+   {
+    "q": "Which is heavier? A kilo of feathers or a kilo of iron?",
+    "a": "Same! A kilo is a kilo.",
+    "hook": "Enjoying this? Tap like so I can make more quizzes!"
+   },
+   {
+    "q": "Which spelling is right?",
+    "a": "B! One C, double S.",
+    "hook": "Hard mode now. You've got this!"
+   },
+   {
+    "q": "Which food never spoils?",
+    "a": "Honey! Ancient honey was still good to eat.",
+    "hook": "Last one, and it's the best!"
+   }
+  ],
+  "outro": "Like and subscribe! Comment your score below!"
+ },
+ "voice": [
+  "/home/claude/qz/v.mp3"
+ ],
+ "voice_counts": [
+  14
+ ],
+ "hook_voice": "/home/claude/qz/h.mp3"
+}
