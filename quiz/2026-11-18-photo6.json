@@ -63,7 +63,7 @@
     "Those pointy ears gave it away!"
    ],
    "panel": "photospot",
-   "photo": "/home/claude/ph/fox.jpg",
+   "photo": "quiz/photos/fox.jpg",
    "focus": [
     0.52,
     0.58
@@ -77,7 +77,7 @@
    "hint": "",
    "options": [
     [
-     "Basketball"
+     "Papaya"
     ],
     [
      "Orange"
@@ -91,16 +91,16 @@
     "Its dimples hold juicy oils!"
    ],
    "panel": "photozoom",
-   "photo": "/home/claude/ph/orange.jpg",
+   "photo": "quiz/photos/orange_tree.jpg",
    "focus": [
-    0.5,
-    0.55
+    0.508,
+    0.476
    ],
    "zooms": [
     12.0,
+    10.5,
+    9.2,
     8.0,
-    5.5,
-    3.6,
     1.0
    ]
   },
@@ -124,7 +124,7 @@
     "Look at that curly tail!"
    ],
    "panel": "photospot",
-   "photo": "/home/claude/ph/cham.jpg",
+   "photo": "quiz/photos/cham.jpg",
    "focus": [
     0.5,
     0.5
@@ -150,10 +150,10 @@
     "The fuzz helps it grip the court!"
    ],
    "panel": "photozoom",
-   "photo": "/home/claude/ph/tennis.jpg",
+   "photo": "quiz/photos/tennis.jpg",
    "focus": [
-    0.5,
-    0.5
+    0.6,
+    0.38
    ],
    "zooms": [
     8.0,
@@ -183,7 +183,7 @@
     "Its feathers blend into the bark!"
    ],
    "panel": "photospot",
-   "photo": "/home/claude/ph/owl.jpg",
+   "photo": "quiz/photos/owl.jpg",
    "focus": [
     0.5,
     0.45
@@ -210,7 +210,7 @@
     "Each diamond is a tiny fruit!"
    ],
    "panel": "photozoom",
-   "photo": "/home/claude/ph/pine.jpg",
+   "photo": "quiz/photos/pine.jpg",
    "focus": [
     0.5,
     0.68
