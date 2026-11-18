@@ -765,7 +765,7 @@ def _beam(r):
 def panel_photospot(c, im, box, item, phase, t):
     idx, A, cs = _item_timing(c, item); img = _photo(item["photo"])
     x0, y0, x1, y1 = box; bw, bh = int(x1 - x0), int(y1 - y0)
-    iw, ih = img.size; sc = max(bw / iw, bh / ih); cw, ch = bw / sc, bh / sc
+    iw, ih = img.size; sc = max(bw / iw, bh / ih) * item.get("crop", 1.0); cw, ch = bw / sc, bh / sc   # crop>1 = zoomed in closer
     fx, fy = item.get("focus", [0.5, 0.5])
     cx = min(max(fx * iw, cw / 2), iw - cw / 2); cy = min(max(fy * ih, ch / 2), ih - ch / 2)
     ph = img.crop((int(cx - cw / 2), int(cy - ch / 2), int(cx + cw / 2), int(cy + ch / 2))).resize((bw, bh), Image.BILINEAR)

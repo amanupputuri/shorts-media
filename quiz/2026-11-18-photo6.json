@@ -65,9 +65,11 @@
    "panel": "photospot",
    "photo": "/home/claude/ph/fox.jpg",
    "focus": [
-    0.5,
-    0.55
-   ]
+    0.52,
+    0.6
+   ],
+   "crop": 2.2,
+   "beam": 0.12
   },
   {
    "type": "quiz",
