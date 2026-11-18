@@ -1,12 +1,168 @@
 {
- "id": "job-7aaa273dd7",
+ "id": "job-bb49d6b866",
  "steps": [
   {
-   "name": "x",
-   "query": "query($i: PostInput!) { post(input: $i) { id dueAt status } }",
+   "name": "Bath Time Pixel Guess 🛁 Guess Before It Clears! #shorts",
+   "query": "mutation($input: CreatePostInput!) { createPost(input: $input) { __typename\n  ... on PostActionSuccess { post { id dueAt status } } ... on MutationError { message } } }",
    "variables": {
-    "i": {
-     "id": "6afbfcad82a2d4951bef1f13"
+    "input": {
+     "channelId": "6afbdbb4ece6dfde5ff1432b",
+     "schedulingType": "automatic",
+     "mode": "customScheduled",
+     "dueAt": "2026-11-18T07:30:00.000Z",
+     "needsApproval": false,
+     "text": "Blurry bath-time things... can you guess them early?\nCan you get all 6 before the pixels clear?\n\n6 Bath Time pixel puzzles with Professor Hoot: 2 easy, 2 medium, 2 hard.\n\nComment your score out of 6 below!\nSubscribe for new puzzles every day: https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1\n\nANSWERS (no peeking!)\n1. Bathtub\n2. Rubber duck\n3. Soap\n4. Shower\n5. Sponge\n6. Toothbrush\n\nSearch: pixel guess, guess the picture, blurry picture quiz, bath time, brain teaser, eye test, puzzle game, can you guess it, emoji quiz, iq test, guess the emoji, wit wonderland, professor hoot\n\n#shorts #pixelguess #guessthepicture #puzzle #brainteaser #eyetest #emojiquiz #witwonderland",
+     "assets": [
+      {
+       "video": {
+        "url": "https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/2026-11-18-s02.mp4"
+       }
+      }
+     ],
+     "metadata": {
+      "youtube": {
+       "title": "Bath Time Pixel Guess 🛁 Guess Before It Clears! #shorts",
+       "privacy": "public",
+       "categoryId": "27",
+       "madeForKids": false,
+       "notifySubscribers": true,
+       "license": "youtube",
+       "embeddable": true,
+       "isAiGenerated": false
+      }
+     }
+    }
+   }
+  },
+  {
+   "name": "Name the Hidden Pet? 🐶🔦 Spotlight Challenge #shorts",
+   "query": "mutation($input: CreatePostInput!) { createPost(input: $input) { __typename\n  ... on PostActionSuccess { post { id dueAt status } } ... on MutationError { message } } }",
+   "variables": {
+    "input": {
+     "channelId": "6afbdbb4ece6dfde5ff1432b",
+     "schedulingType": "automatic",
+     "mode": "customScheduled",
+     "dueAt": "2026-11-18T09:30:00.000Z",
+     "needsApproval": false,
+     "text": "A torch moves in the dark... which pet is hiding?\nCan you name all 6 pets before the light comes on?\n\n6 Pets at Home spotlight puzzles with Professor Hoot: 2 easy, 2 medium, 2 hard.\n\nComment your score out of 6 below!\nSubscribe for new puzzles every day: https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1\n\nANSWERS (no peeking!)\n1. Dog\n2. Cat\n3. Hamster\n4. Rabbit\n5. Parrot\n6. Poodle\n\nSearch: brain teaser, guess the animal, spotlight puzzle, pets quiz, eye test, puzzle game, can you guess it, animal quiz for kids, iq test, guess the pet, wit wonderland, professor hoot\n\n#shorts #puzzle #guesstheanimal #pets #brainteaser #eyetest #quiz #witwonderland",
+     "assets": [
+      {
+       "video": {
+        "url": "https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/2026-11-18-s01.mp4"
+       }
+      }
+     ],
+     "metadata": {
+      "youtube": {
+       "title": "Name the Hidden Pet? 🐶🔦 Spotlight Challenge #shorts",
+       "privacy": "public",
+       "categoryId": "27",
+       "madeForKids": false,
+       "notifySubscribers": true,
+       "license": "youtube",
+       "embeddable": true,
+       "isAiGenerated": false
+      }
+     }
+    }
+   }
+  },
+  {
+   "name": "Which Number Appears Twice? 🔢👀 #shorts",
+   "query": "mutation($input: CreatePostInput!) { createPost(input: $input) { __typename\n  ... on PostActionSuccess { post { id dueAt status } } ... on MutationError { message } } }",
+   "variables": {
+    "input": {
+     "channelId": "6afbdbb4ece6dfde5ff1432b",
+     "schedulingType": "automatic",
+     "mode": "customScheduled",
+     "dueAt": "2026-11-18T11:30:00.000Z",
+     "needsApproval": false,
+     "text": "30 numbers... one of them is hiding twice!\nCan you spot all 6 twins? Puzzle 6 is the trickiest!\n\n6 number-twice puzzles with sneaky look-alikes like 54 and 45.\n\nComment your score out of 6 below!\nSubscribe for new puzzles every day: https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1\n\nANSWERS (no peeking!)\n1. 29\n2. 81\n3. 54\n4. 72\n5. 16\n6. 93\n\nSearch: number puzzle, find the duplicate, which number appears twice, brain teaser, eye test, focus test, puzzle game, can you find it, iq test, number game, brain games, wit wonderland, professor hoot\n\n#shorts #numberpuzzle #brainteaser #eyetest #focustest #puzzle #iqtest #witwonderland",
+     "assets": [
+      {
+       "video": {
+        "url": "https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/2026-11-18-s05.mp4"
+       }
+      }
+     ],
+     "metadata": {
+      "youtube": {
+       "title": "Which Number Appears Twice? 🔢👀 #shorts",
+       "privacy": "public",
+       "categoryId": "27",
+       "madeForKids": false,
+       "notifySubscribers": true,
+       "license": "youtube",
+       "embeddable": true,
+       "isAiGenerated": false
+      }
+     }
+    }
+   }
+  },
+  {
+   "name": "Find the Egg? 🥚 Breakfast Find It Challenge #shorts",
+   "query": "mutation($input: CreatePostInput!) { createPost(input: $input) { __typename\n  ... on PostActionSuccess { post { id dueAt status } } ... on MutationError { message } } }",
+   "variables": {
+    "input": {
+     "channelId": "6afbdbb4ece6dfde5ff1432b",
+     "schedulingType": "automatic",
+     "mode": "customScheduled",
+     "dueAt": "2026-11-18T13:30:00.000Z",
+     "needsApproval": false,
+     "text": "Breakfast hide and seek - the last one is super sneaky!\nCan you find all 6 hidden foods?\n\n6 Breakfast Table find-it-in-the-crowd puzzles: strawberry, banana, croissant, milk, waffle and egg.\n\nComment your score out of 6 below!\nSubscribe for new puzzles every day: https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1\n\nANSWERS (no peeking!)\n1. Strawberry - hiding in the bread\n2. Banana - among the red fruits\n3. Croissant - among the breads\n4. Milk - among the drinks\n5. Waffle - among the pancakes\n6. Egg - among the white foods\n\nSearch: find it, find the hidden object, find the odd one out, spot it, breakfast puzzle, brain teaser, eye test, puzzle game, can you find it, iq test, hidden object game, wit wonderland, professor hoot\n\n#shorts #findit #hiddenobject #oddoneout #brainteaser #eyetest #puzzle #witwonderland",
+     "assets": [
+      {
+       "video": {
+        "url": "https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/2026-11-18-s03.mp4"
+       }
+      }
+     ],
+     "metadata": {
+      "youtube": {
+       "title": "Find the Egg? 🥚 Breakfast Find It Challenge #shorts",
+       "privacy": "public",
+       "categoryId": "27",
+       "madeForKids": false,
+       "notifySubscribers": true,
+       "license": "youtube",
+       "embeddable": true,
+       "isAiGenerated": false
+      }
+     }
+    }
+   }
+  },
+  {
+   "name": "Only 3% Count All 6 🎨 Colour Count Test #shorts",
+   "query": "mutation($input: CreatePostInput!) { createPost(input: $input) { __typename\n  ... on PostActionSuccess { post { id dueAt status } } ... on MutationError { message } } }",
+   "variables": {
+    "input": {
+     "channelId": "6afbdbb4ece6dfde5ff1432b",
+     "schedulingType": "automatic",
+     "mode": "customScheduled",
+     "dueAt": "2026-11-18T15:30:00.000Z",
+     "needsApproval": false,
+     "text": "Shapes everywhere... can you count the right colour fast?\nOnly 3% count all 6 right - can you?\n\n6 colour counting puzzles with Professor Hoot: 2 easy, 2 medium, 2 hard.\n\nComment your score out of 6 below!\nSubscribe for new puzzles every day: https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1\n\nANSWERS (no peeking!)\n1. 5 red shapes\n2. 4 yellow shapes\n3. 6 blue shapes\n4. 5 green shapes\n5. 7 red shapes\n6. 8 green shapes\n\nSearch: colour count, counting puzzle, count the shapes, brain teaser, eye test, focus test, puzzle game, can you count, iq test, attention test, brain games, wit wonderland, professor hoot\n\n#shorts #counting #colourcount #brainteaser #eyetest #focustest #puzzle #witwonderland",
+     "assets": [
+      {
+       "video": {
+        "url": "https://raw.githubusercontent.com/amanupputuri/shorts-media/media/media/2026-11-18-s04.mp4"
+       }
+      }
+     ],
+     "metadata": {
+      "youtube": {
+       "title": "Only 3% Count All 6 🎨 Colour Count Test #shorts",
+       "privacy": "public",
+       "categoryId": "27",
+       "madeForKids": false,
+       "notifySubscribers": true,
+       "license": "youtube",
+       "embeddable": true,
+       "isAiGenerated": false
+      }
+     }
     }
    }
   }
