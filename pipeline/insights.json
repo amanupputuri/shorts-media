@@ -1,23 +1,55 @@
 {
- "updated": "2026-11-17",
- "source": "YouTube Studio analytics (last 28 days) + Research tab (Shorts outliers in niche)",
+ "updated": "2026-11-18",
+ "source": "YouTube Studio analytics (28 days to 16 Nov) + per-video since-published stats for 17 Nov Shorts",
  "channel": {
-  "views_28d": 37900, "subs_28d": 51, "total_subs": 57,
-  "shorts_stayed_to_watch": "39.4% channel avg (mostly old science Shorts)",
+  "views_28d": 41397,
+  "subs_28d": 55,
+  "total_subs": 57,
+  "shorts_stayed_to_watch": "38.4% channel avg; science Shorts 30-62%, 3-question quizzes 33-42%, visual puzzles 13-29%",
   "traffic": "Shorts feed 95%, YouTube search 3%",
   "audience": "99% new viewers; male 25-34; UK, Malaysia, Philippines, US, India"
  },
  "puzzle_shorts_so_far": [
-  {"title": "Spot the Change! Can You Beat This What Changed Memory Test?", "views": 885, "stayed": "27.8%"},
-  {"title": "Find the Odd One Out! Only Sharp Eyes Get 3/3", "views": 944, "stayed": "24.0%"},
-  {"title": "Which One Doesn't Fit? Odd One Out Brain Test", "views": 838, "stayed": "21.9%"},
-  {"title": "What Changed? 3 Memory Puzzles Only Sharp Eyes Can Solve", "views": 374, "stayed": "16.3%"},
-  {"title": "Test Your Brain in 60 Seconds (text quiz)", "views": 1000, "stayed": "36.1%"}
+  {
+   "title": "Spot the Change! Can You Beat This What Changed Memory Test?",
+   "views": 885,
+   "stayed": "27.8%"
+  },
+  {
+   "title": "Find the Odd One Out! Only Sharp Eyes Get 3/3",
+   "views": 944,
+   "stayed": "24.0%"
+  },
+  {
+   "title": "Which One Doesn't Fit? Odd One Out Brain Test",
+   "views": 838,
+   "stayed": "21.9%"
+  },
+  {
+   "title": "What Changed? 3 Memory Puzzles Only Sharp Eyes Can Solve",
+   "views": 374,
+   "stayed": "16.3%"
+  },
+  {
+   "title": "Test Your Brain in 60 Seconds (text quiz)",
+   "views": 1000,
+   "stayed": "36.1%"
+  }
  ],
  "long_videos": "CTR only 2.4-2.6% (auto thumbnails) and average view duration 38-45% (1:38-1:55 of 4:13) -> custom thumbnails needed",
- "diagnosis": "Puzzle Shorts lose 72-84% of viewers in the first second: they opened on a title card, not the puzzle. Fixed by the hook-first format (puzzle visible at frame 0 + hook card).",
- "top_formats": ["spotdiff", "odd4", "crowd", "letterhunt", "colorcount", "dupnum", "fruitmath"],
- "weak_formats": ["changed/memory-only openers that show nothing to solve in the first second"],
+ "diagnosis": "Visual-puzzle Shorts lose ~80% in the first second even with hook-first. Likely causes seen in the 17 Nov s04 frames: the hook card covers puzzle panel A for the first ~3 s, the panels fill only about a third of the screen width (small emoji on a big flat background, empty bottom 40%), level 1 is EASY and each level takes ~11 s, so the Short runs 66 s. Text quizzes keep viewers better because the question is readable at once.",
+ "top_formats": [
+  "quiz3",
+  "odd4",
+  "crowd",
+  "colorcount",
+  "fruitmath"
+ ],
+ "weak_formats": [
+  "6-level spot the difference Shorts over 1 min (13-21% stayed)",
+  "changed/memory-only openers that show nothing to solve in the first second",
+  "title-card openers (e.g. 'MEMORY GRID / 3 LEVELS' for 3 s)"
+ ],
  "best_title_patterns": [
   "Short and punchy, 3-7 words + 1-2 emoji: 'Can You Spot the Hidden Treats? 🍒🍟🍉'",
   "Challenge stat: 'Only a few can get this right 😱🤯', '1 In 100 People Land This', 'Only 0.001% get this correct ✅'",
@@ -34,5 +66,18 @@
   "Optical illusions and 'which direction is it spinning' style trick visuals",
   "Coffee cups / correct one out of 3 (spot the correct one)"
  ],
- "notes": "Shorts traffic is 95% feed: the first frame and first second decide everything. Every Short must show the puzzle immediately; titles should promise a challenge. Long videos need custom thumbnails (upload in Studio)."
+ "notes": "Shorts traffic is 95% feed: the first frame and first second decide everything. Every Short must show the puzzle immediately; titles should promise a challenge. Long videos need custom thumbnails (upload in Studio).",
+ "format_stats_2026-11-18": {
+  "quiz_3q (0:56-1:04)": "33-42% stayed, 64-88% avg viewed, 1-4 subs each (best all-round puzzle format)",
+  "odd_one_out (0:33-0:35)": "13-24% stayed but 65-85% avg viewed; 'Find the Odd One Out! Only Sharp Eyes Get 3/3' = 6 subs from 945 views (best sub rate)",
+  "what_changed (0:41-0:42)": "16-29% stayed, 53-63% viewed",
+  "spotdiff 6-level hook-first (1:04-1:07, 17 Nov)": "13-21% stayed after ~1 day (385/318/254/219/166 views) - worst so far; hook-first alone did not fix the swipe-away",
+  "long videos (4:13)": "CTR 2.4-2.6%, AVD 1:37-1:55 (38-46%), 95% of views from Suggested; almost nothing arrives from Shorts"
+ },
+ "recommended_changes_pending_aman": [
+  "Puzzle fills ~90% of the screen width from frame 0; hook as a top line or voice only, never covering the puzzle",
+  "Shorts 25-35 s: 3 puzzles, start at medium, ~8 s each (4 s timer)",
+  "More 3-question quizzes and odd-one-out; pause 6-level spot-diff until redesigned",
+  "Long videos 8-10 min (more watch hours per view) + Test & compare thumbnails"
+ ]
 }
