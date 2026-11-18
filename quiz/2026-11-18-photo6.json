@@ -65,10 +65,10 @@
    "panel": "photospot",
    "photo": "quiz/photos/fox.jpg",
    "focus": [
-    0.52,
-    0.58
+    0.51,
+    0.42
    ],
-   "crop": 2.8,
+   "crop": 1.9,
    "beam": 0.12
   },
   {
