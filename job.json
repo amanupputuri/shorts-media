@@ -1,21 +1,12 @@
 {
- "id": "job-55590c153b",
+ "id": "job-29e685027f",
  "steps": [
   {
-   "name": "posts",
-   "query": "query($i: PostsInput!) { posts(first: 50, input: $i) { edges { node { id dueAt status text } } } }",
+   "name": "p",
+   "query": "query($i: PostInput!) { post(input: $i) { id dueAt status assets { ... on VideoAsset { video { url } } } } }",
    "variables": {
     "i": {
-     "organizationId": "6afbdb5edb9ae616ed8a7467",
-     "filter": {
-      "channelIds": [
-       "6afbdbb4ece6dfde5ff1432b"
-      ],
-      "dueAt": {
-       "start": "2026-11-16T18:30:00.000Z",
-       "end": "2026-11-19T18:29:00.000Z"
-      }
-     }
+     "id": "6afd1b62fc933ac285bf3ed2"
     }
    }
   }
