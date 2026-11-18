@@ -1,0 +1,255 @@
+{
+ "orientation": "v",
+ "count_secs": 4,
+ "label": "PUZZLE",
+ "music_seed": 7,
+ "style": {
+  "palette": [
+   [
+    40,
+    70,
+    200
+   ],
+   [
+    110,
+    40,
+    170
+   ]
+  ],
+  "accent": [
+   255,
+   210,
+   60
+  ],
+  "pill": [
+   255,
+   90,
+   140
+  ],
+  "bg": "dots"
+ },
+ "hook": "Only 1 in 100 get 6/6!",
+ "title_card": {
+  "emoji": "🦉",
+  "line1": "6 QUIZ",
+  "line2": "QUESTIONS",
+  "tag": "Brain Quiz"
+ },
+ "outro": {
+  "line1": "LIKE &",
+  "line2": "SUBSCRIBE!",
+  "line3": "",
+  "cta": "SUBSCRIBE",
+  "cta_sub": "Comment your score below!"
+ },
+ "items": [
+  {
+   "type": "quiz",
+   "prompt": "What's hiding in the dark?",
+   "hint": "",
+   "options": [
+    [
+     "Dog"
+    ],
+    [
+     "Fox"
+    ],
+    [
+     "Cat"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "Those pointy ears gave it away!"
+   ],
+   "panel": "photospot",
+   "photo": "/home/claude/ph/fox.jpg",
+   "focus": [
+    0.5,
+    0.55
+   ]
+  },
+  {
+   "type": "quiz",
+   "prompt": "What is it? Guess early!",
+   "hint": "",
+   "options": [
+    [
+     "Orange"
+    ],
+    [
+     "Lemon"
+    ],
+    [
+     "Basketball"
+    ]
+   ],
+   "right": 0,
+   "fact": [
+    "Its dimples hold juicy oils!"
+   ],
+   "panel": "photozoom",
+   "photo": "/home/claude/ph/orange.jpg",
+   "focus": [
+    0.47,
+    0.55
+   ]
+  },
+  {
+   "type": "quiz",
+   "prompt": "What's hiding in the dark?",
+   "hint": "",
+   "options": [
+    [
+     "Lizard"
+    ],
+    [
+     "Frog"
+    ],
+    [
+     "Chameleon"
+    ]
+   ],
+   "right": 2,
+   "fact": [
+    "Look at that curly tail!"
+   ],
+   "panel": "photospot",
+   "photo": "/home/claude/ph/cham.jpg",
+   "focus": [
+    0.5,
+    0.5
+   ]
+  },
+  {
+   "type": "quiz",
+   "prompt": "What is it? Guess early!",
+   "hint": "",
+   "options": [
+    [
+     "Moss"
+    ],
+    [
+     "Tennis ball"
+    ],
+    [
+     "Sponge"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "The fuzz helps it grip the court!"
+   ],
+   "panel": "photozoom",
+   "photo": "/home/claude/ph/tennis.jpg",
+   "focus": [
+    0.42,
+    0.62
+   ]
+  },
+  {
+   "type": "quiz",
+   "prompt": "What's hiding in the dark?",
+   "hint": "",
+   "options": [
+    [
+     "Owl"
+    ],
+    [
+     "Squirrel"
+    ],
+    [
+     "Bat"
+    ]
+   ],
+   "right": 0,
+   "fact": [
+    "Its feathers blend into the bark!"
+   ],
+   "panel": "photospot",
+   "photo": "/home/claude/ph/owl.jpg",
+   "focus": [
+    0.5,
+    0.45
+   ],
+   "beam": 0.2
+  },
+  {
+   "type": "quiz",
+   "prompt": "What is it? Guess early!",
+   "hint": "",
+   "options": [
+    [
+     "Snake skin"
+    ],
+    [
+     "Pine cone"
+    ],
+    [
+     "Pineapple"
+    ]
+   ],
+   "right": 2,
+   "fact": [
+    "Each diamond is a tiny fruit!"
+   ],
+   "panel": "photozoom",
+   "photo": "/home/claude/ph/pine.jpg",
+   "focus": [
+    0.5,
+    0.68
+   ],
+   "zooms": [
+    10.0,
+    7.0,
+    5.0,
+    3.4,
+    1.0
+   ]
+  }
+ ],
+ "say": {
+  "intro": "Only one in a hundred get all six! Look closely…",
+  "items": [
+   {
+    "q": "What's hiding in the dark?",
+    "a": "A fox! Those pointy ears gave it away."
+   },
+   {
+    "q": "What is it? Guess before it zooms out!",
+    "a": "An orange! Those tiny dimples hold its juicy oils.",
+    "hook": "Like and subscribe so you never miss a puzzle!"
+   },
+   {
+    "q": "Who's hiding on that branch?",
+    "a": "A chameleon! Look at that curly tail.",
+    "hook": "Didn't expect that? Next one's even trickier!"
+   },
+   {
+    "q": "What could this fuzzy thing be?",
+    "a": "A tennis ball! That fuzz helps it grip the court.",
+    "hook": "You're doing great. Look really closely now!"
+   },
+   {
+    "q": "Something is hiding in this tree…",
+    "a": "An owl! Its feathers blend right into the bark.",
+    "hook": "Halfway… now it gets really hard."
+   },
+   {
+    "q": "What is this?",
+    "a": "A pineapple! Each diamond is actually a tiny fruit.",
+    "hook": "Comment how many you found!"
+   }
+  ],
+  "outro": "Ready?"
+ },
+ "loop": true,
+ "kind": "quiz",
+ "voice": [
+  "/home/claude/ph/v.mp3"
+ ],
+ "voice_counts": [
+  14
+ ],
+ "hook_voice": "/home/claude/ph/h.mp3"
+}

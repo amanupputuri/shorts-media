@@ -6,7 +6,7 @@ usage:
 SEGMENT is "intro", "i0".."iN", or "outro". SPEC must already contain timings (see build.py).
 """
 import sys, os, math, json, subprocess, random
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageChops, ImageDraw, ImageFont, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FONTS = os.path.join(HERE, "fonts")
@@ -701,9 +701,104 @@ def panel_planets3(c, im, box, item, phase, t):
         if rv: _lab(d, cx, y1 - 14, "1 day = " + day, 36, c.accent if k == item["right"] else (220, 220, 230), "mm")
     im.alpha_composite(_clip(lay, box))
 
-PANELS_ALWAYS = {"flag", "sushi", "lions", "fragile", "ancient", "orbit", "organs", "basket", "turkey", "sharkhunt", "trio", "planets3"}
+# ---------------------------------------------------------------- photo puzzles (Aman, 18 Nov): cinematic zoom-out + torch spotlight
+_PHOTOS = {}
+def _photo(path):
+    if path not in _PHOTOS: _PHOTOS[path] = Image.open(path).convert("RGB")
+    return _PHOTOS[path]
 
-PANELS = {"sushi": panel_sushi, "lions": panel_lions, "fragile": panel_fragile, "ancient": panel_ancient, "orbit": panel_orbit,
+def zoom_steps(ask, cs):
+    """item-time of each zoom-out step (shared with build.py for the whoosh sounds)"""
+    return [round(ask * 0.5, 3), round(ask + 0.6, 3), round(ask + 2.2, 3), round(ask + cs, 3)]
+
+def _item_timing(c, item):
+    idx = c.spec["items"].index(item); tm = c.spec.get("timing", {}).get(f"i{idx}", {})
+    return idx, tm.get("ask", 4.0), c.spec["count_secs"]
+
+def _card_photo(c, im, box, ph, t, idx, blur=0.0, extra=None):
+    x0, y0, x1, y1 = [int(v) for v in box]; bw, bh = x1 - x0, y1 - y0
+    k = 1.0 if idx == 0 else eo(min(1.0, t / 0.4))           # slide-in from the right with a blur (transition)
+    dx = int((1 - k) * 160); blur += (1 - k) * 10
+    sh = Image.new("RGBA", im.size, (0, 0, 0, 0)); ImageDraw.Draw(sh).rounded_rectangle((x0 + dx + 10, y0 + 18, x1 + dx + 10, y1 + 18), 46, fill=(0, 0, 0, 150))
+    im.alpha_composite(sh.filter(ImageFilter.GaussianBlur(16)))
+    glow = Image.new("RGBA", im.size, (0, 0, 0, 0)); ImageDraw.Draw(glow).rounded_rectangle((x0 + dx - 10, y0 - 10, x1 + dx + 10, y1 + 10), 52, fill=tuple(c.accent) + (90,))
+    im.alpha_composite(glow.filter(ImageFilter.GaussianBlur(18)))
+    if ph.size != (bw, bh): ph = ph.resize((bw, bh), Image.BILINEAR)
+    if blur > 0.4: ph = ph.filter(ImageFilter.GaussianBlur(blur))
+    m = Image.new("L", (bw, bh), 0); ImageDraw.Draw(m).rounded_rectangle((0, 0, bw - 1, bh - 1), 44, fill=255)
+    if k < 1: m = m.point(lambda v: int(v * k))
+    im.paste(ph.convert("RGB"), (x0 + dx, y0), m)
+    if extra: extra(im, x0 + dx, y0, bw, bh)
+    ImageDraw.Draw(im).rounded_rectangle((x0 + dx, y0, x1 + dx, y1), 44, outline=(255, 255, 255), width=6)
+
+def panel_photozoom(c, im, box, item, phase, t):
+    idx, A, cs = _item_timing(c, item); img = _photo(item["photo"])
+    x0, y0, x1, y1 = box; bw, bh = int(x1 - x0), int(y1 - y0)
+    Z = item.get("zooms", [8.0, 5.5, 3.8, 2.6, 1.0]); st = zoom_steps(A, cs)
+    z = Z[0]; blur = 0.0
+    for k_, s_ in enumerate(st):
+        if t >= s_:
+            p = min(1.0, (t - s_) / 0.65); e = eo(p)
+            z = math.exp(math.log(Z[k_]) + (math.log(Z[k_ + 1]) - math.log(Z[k_])) * e); blur = math.sin(math.pi * p) * 7
+    z *= 1 + 0.015 * math.sin(t * 0.8)                       # tiny breathing drift = "camera" feel
+    fx, fy = item.get("focus", [0.5, 0.5]); iw, ih = img.size
+    cw = iw / z; ch = cw * bh / bw
+    if ch > ih: ch = ih; cw = ch * bw / bh
+    cx = min(max(fx * iw, cw / 2), iw - cw / 2); cy = min(max(fy * ih, ch / 2), ih - ch / 2)
+    ph = img.crop((int(cx - cw / 2), int(cy - ch / 2), int(cx + cw / 2), int(cy + ch / 2))).resize((bw, bh), Image.BILINEAR)
+    def extra(im_, X, Y, w_, h_):
+        if phase == "reveal": return
+        d = ImageDraw.Draw(im_); f = font(F_BOLD, 44); t_ = f"ZOOM  {max(1.0, z):.0f}×"
+        tw = d.textlength(t_, font=f); d.rounded_rectangle((X + 26, Y + 26, X + 70 + tw, Y + 92), 30, fill=(15, 10, 40, 200))
+        d.text((X + 48, Y + 34), t_, font=f, fill=c.accent)
+    _card_photo(c, im, box, ph, t, idx, blur, extra)
+
+_BEAM = {}
+def _beam(r):
+    """soft torch beam: 255 (full light) in the middle, fading to 0 at the edge"""
+    r = int(r)
+    if r not in _BEAM:
+        g = Image.radial_gradient("L").resize((2 * r, 2 * r), Image.BILINEAR)   # 0 centre -> 255 edge (at 0.5*size*sqrt2)
+        _BEAM[r] = g.point(lambda v: 255 if v < 90 else max(0, int(255 - (v - 90) * 255 / 75)))
+    return _BEAM[r]
+
+def panel_photospot(c, im, box, item, phase, t):
+    idx, A, cs = _item_timing(c, item); img = _photo(item["photo"])
+    x0, y0, x1, y1 = box; bw, bh = int(x1 - x0), int(y1 - y0)
+    iw, ih = img.size; sc = max(bw / iw, bh / ih); cw, ch = bw / sc, bh / sc
+    fx, fy = item.get("focus", [0.5, 0.5])
+    cx = min(max(fx * iw, cw / 2), iw - cw / 2); cy = min(max(fy * ih, ch / 2), ih - ch / 2)
+    ph = img.crop((int(cx - cw / 2), int(cy - ch / 2), int(cx + cw / 2), int(cy + ch / 2))).resize((bw, bh), Image.BILINEAR)
+    R = A + cs
+    if t < R:
+        r = bw * item.get("beam", 0.24)
+        bx = bw * (0.5 + 0.36 * math.sin(t * 0.95 + 0.4)); by = bh * (0.5 + 0.33 * math.sin(t * 1.37 + 1.2))
+        dark = Image.new("L", (bw, bh), 242)
+        m = Image.new("L", (bw, bh), 0); m.paste(_beam(r), (int(bx - r), int(by - r)))   # light amount
+        dark = ImageChops.subtract(dark, m)
+        blackL = Image.new("RGB", (bw, bh), (6, 6, 14))
+        lit = ph.point(lambda v: min(255, int(v * 1.12)))
+        ph = Image.composite(blackL, lit, dark)
+        gd = ImageDraw.Draw(ph, "RGBA"); gd.ellipse((bx - r * 0.82, by - r * 0.82, bx + r * 0.82, by + r * 0.82), outline=(255, 240, 180, 70), width=6)
+        for k in range(14):
+            a_ = k * 2.4 + t * 0.6; rr = r * (0.2 + 0.6 * ((k * 37) % 100) / 100)
+            px, py = bx + math.cos(a_) * rr, by + math.sin(a_ * 1.3) * rr * 0.8
+            gd.ellipse((px - 2, py - 2, px + 2, py + 2), fill=(255, 245, 210, 150))
+        def extra(im_, X, Y, w_, h_):
+            d = ImageDraw.Draw(im_); f = font(F_BOLD, 44); t_ = "SPOTLIGHT"
+            tw = d.textlength(t_, font=f); d.rounded_rectangle((X + 26, Y + 26, X + 70 + tw, Y + 92), 30, fill=(15, 10, 40, 200))
+            d.text((X + 48, Y + 34), t_, font=f, fill=c.accent)
+        _card_photo(c, im, box, ph, t, idx, 0.0, extra)
+    else:
+        p = (t - R) / 0.45
+        _card_photo(c, im, box, ph, t, idx, 0.0)
+        if p < 1:
+            fl = Image.new("RGBA", im.size, (0, 0, 0, 0)); ImageDraw.Draw(fl).rounded_rectangle(box, 44, fill=(255, 255, 255, int(230 * (1 - eo(p)))))
+            im.alpha_composite(fl)
+
+PANELS_ALWAYS = {"photozoom", "photospot", "flag", "sushi", "lions", "fragile", "ancient", "orbit", "organs", "basket", "turkey", "sharkhunt", "trio", "planets3"}
+
+PANELS = {"photozoom": panel_photozoom, "photospot": panel_photospot, "sushi": panel_sushi, "lions": panel_lions, "fragile": panel_fragile, "ancient": panel_ancient, "orbit": panel_orbit,
           "organs": panel_organs, "basket": panel_basket, "turkey": panel_turkey, "sharkhunt": panel_sharkhunt, "trio": panel_trio,
           "planets3": panel_planets3,
           "flag": panel_flag, "banana": panel_banana, "sizes": panel_sizes, "tank": panel_tank, "scale": panel_scale, "shark": panel_shark}
@@ -723,8 +818,10 @@ def center_stack(c, item, L):
     disp = item.get("display")
     hd = 0
     if disp: hd = {"emoji": 230, "big": 170}.get(disp["kind"], 260)
+    if item.get("panel"): hd = item.get("panel_h", 560)
     n = len(item["options"])
     oh = {2: 210, 3: 190, 4: 220}.get(n, 170)
+    if item.get("panel"): oh = 132
     rows = 2 if n == 4 else n
     blocks = [hp] + ([hd] if hd else []) + [None, 300]   # None = options (height depends on the gap)
     top, bot = 215, 1825
@@ -735,7 +832,9 @@ def center_stack(c, item, L):
     y = top + (bot - top - total) / 2
     L["prompt"] = y - 10; y += hp + G
     if hd:
-        L["disp"] = (W / 2, y + hd / 2); y += hd + G
+        L["disp"] = (W / 2, y + hd / 2)
+        if item.get("panel"): L["panel_box"] = (W * 0.07, y, W * 0.93, y + hd)
+        y += hd + G
     rects = []
     bw = W * 0.8
     if n == 4:

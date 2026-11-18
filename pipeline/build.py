@@ -160,6 +160,9 @@ def main():
             add(voice, load(tm["q"]), t0 + 0.15 + tm.get("qoff", 0))
             for k in range(len(item.get("options", []))): add(sfx, pop, t0 + 0.8 + 0.35 * k + (0.2 if item.get("display") else 0), 0.14)
             for k in range(cs): add(sfx, tick, t0 + tm["ask"] + k, 0.18)
+            if item.get("panel") == "photozoom":   # whoosh on every zoom-out step
+                a_ = tm["ask"]
+                for s_ in (a_ * 0.5, a_ + 0.6, a_ + 2.2): add(sfx, whoosh, t0 + s_, 0.16)
             r = t0 + tm["ask"] + cs
             add(sfx, ding, r, 0.2); add(voice, load(tm["a"]), r + 0.25)
             if tm.get("hook_seg"): add(voice, load(tm["hook_seg"]), t0 + tm["hook_at"])
