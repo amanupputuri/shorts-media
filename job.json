@@ -1,48 +1,12 @@
 {
- "id": "job-bc6cbb23be",
+ "id": "job-7aaa273dd7",
  "steps": [
   {
-   "name": "6afd1b62fc933ac285bf3ed2",
-   "query": "query($i: PostInput!) { post(input: $i) { id dueAt status assets { source } } }",
+   "name": "x",
+   "query": "query($i: PostInput!) { post(input: $i) { id dueAt status } }",
    "variables": {
     "i": {
-     "id": "6afd1b62fc933ac285bf3ed2"
-    }
-   }
-  },
-  {
-   "name": "6afd1b6339777dd13e1189cd",
-   "query": "query($i: PostInput!) { post(input: $i) { id dueAt status assets { source } } }",
-   "variables": {
-    "i": {
-     "id": "6afd1b6339777dd13e1189cd"
-    }
-   }
-  },
-  {
-   "name": "6afd1b63bb12698d15948460",
-   "query": "query($i: PostInput!) { post(input: $i) { id dueAt status assets { source } } }",
-   "variables": {
-    "i": {
-     "id": "6afd1b63bb12698d15948460"
-    }
-   }
-  },
-  {
-   "name": "6afd1b64fc933ac285bf3f3a",
-   "query": "query($i: PostInput!) { post(input: $i) { id dueAt status assets { source } } }",
-   "variables": {
-    "i": {
-     "id": "6afd1b64fc933ac285bf3f3a"
-    }
-   }
-  },
-  {
-   "name": "6afd1b64aa3b065dd96d61d4",
-   "query": "query($i: PostInput!) { post(input: $i) { id dueAt status assets { source } } }",
-   "variables": {
-    "i": {
-     "id": "6afd1b64aa3b065dd96d61d4"
+     "id": "6afbfcad82a2d4951bef1f13"
     }
    }
   }
