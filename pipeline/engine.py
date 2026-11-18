@@ -740,7 +740,7 @@ def panel_photozoom(c, im, box, item, phase, t):
         if t >= s_:
             p = min(1.0, (t - s_) / 0.65); e = eo(p)
             z = math.exp(math.log(Z[k_]) + (math.log(Z[k_ + 1]) - math.log(Z[k_])) * e); blur = math.sin(math.pi * p) * 7
-    z *= 1 + 0.015 * math.sin(t * 0.8)                       # tiny breathing drift = "camera" feel
+    if z > 1.05: z *= 1 + 0.015 * math.sin(t * 0.8)         # tiny breathing drift = "camera" feel (never below the full photo)
     fx, fy = item.get("focus", [0.5, 0.5]); iw, ih = img.size
     zz = max(1.0, z)
     cw = iw / zz; ch = cw * bh / bw
