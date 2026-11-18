@@ -62,13 +62,15 @@ def frame(b, pad, t, secs):
 
 def main():
     src, out = sys.argv[1], sys.argv[2]
-    times = int(sys.argv[3]) if len(sys.argv) > 3 else 10
+    arg3 = sys.argv[3] if len(sys.argv) > 3 else "10"
+    explicit = [float(x) for x in arg3.split(",")] if "," in arg3 else None   # explicit start times (s)
+    times = len(explicit) if explicit else int(arg3)
     secs = float(sys.argv[4]) if len(sys.argv) > 4 else 4.0
     W, H, D = probe(src)
     scale = W / 1920 if W > H else W / 1080 * 0.9
     b = badge(scale); pad = int(14 * scale)
     first, last = 8.0, D - 8.0 - secs  # skip the title card and the outro (it already says like & subscribe)
-    starts = [round(first + k * (last - first) / (times - 1), 2) for k in range(times)]
+    starts = explicit or [round(first + k * (last - first) / (times - 1), 2) for k in range(times)]
     bw, bh = b.width + 2 * pad + EXTRA, b.height + 2 * pad
     bw += bw % 2; bh += bh % 2
     mx, my = int(28 * scale), int(26 * scale)

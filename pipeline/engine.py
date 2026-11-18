@@ -232,9 +232,23 @@ def card(w, h, letter, label, emo, state, fill=(255, 255, 255), accent=(255, 210
     sz = min(96, h * 0.42); f = font(F_BOLD, sz)
     if not label: maxw = 10**6
     while d.textlength(label, font=f) > maxw and sz > 26: sz -= 3; f = font(F_BOLD, sz)
-    if not letter and not emo:
+    words = label.split()
+    if sz < h * 0.3 and len(words) > 1:   # long answer: two lines at a readable size instead of tiny text
+        best = None
+        for k_ in range(1, len(words)):
+            l1, l2 = " ".join(words[:k_]), " ".join(words[k_:])
+            s2 = min(96, h * 0.3); f2 = font(F_BOLD, s2)
+            while max(d.textlength(l1, font=f2), d.textlength(l2, font=f2)) > maxw and s2 > 26: s2 -= 2; f2 = font(F_BOLD, s2)
+            if not best or s2 > best[0]: best = (s2, l1, l2)
+        s2, l1, l2 = best; f2 = font(F_BOLD, s2)
+        if s2 > sz:
+            for j_, ln in enumerate((l1, l2)):
+                xx = x if (letter or emo) else pad + (w - d.textlength(ln, font=f2)) / 2
+                d.text((xx, cy - s2 * 1.15 + j_ * s2 * 1.1), ln, font=f2, fill=lt)
+            label = None
+    if label is not None and not letter and not emo:
         tw = d.textlength(label, font=f); x = pad + (w - tw) / 2
-    d.text((x, cy - sz * 0.66), label, font=f, fill=lt)
+    if label is not None: d.text((x, cy - sz * 0.66), label, font=f, fill=lt)
     if state in ("right", "wrong"):
         bx, by = pad + w - 46, pad - 14
         d.ellipse((bx - 40, by - 40, bx + 40, by + 40), fill=(255, 255, 255))
@@ -289,7 +303,39 @@ def layout(c, item):
         L["disp"] = (W / 2, 900)
     if c.v and nopt and item.get("type") not in __import__("eyebrain").DRAW:
         center_stack(c, item, L)
+    elif not c.v and nopt and item.get("type") not in __import__("eyebrain").DRAW:
+        center_stack_h(c, item, L)
     return L
+
+def center_stack_h(c, item, L):
+    """MASTER STYLE, landscape (Aman, 18 Nov): question, picture/graphic panel, one row of option cards and the
+    ANSWER + fact line form one block centred top-to-bottom with the SAME gap between every part."""
+    W = c.W
+    size = L["prompt_size"]; stack = bool(item.get("stack") and item.get("prompt2"))
+    def _lines(sz):
+        if stack: return wrap(item["prompt"], sz, L["prompt_w"]) + wrap(item["prompt2"], sz, L["prompt_w"])
+        return wrap(item["prompt"], sz, L["prompt_w"])
+    lines = _lines(size)
+    while len(lines) > (3 if stack else 2) and size > 56:
+        size -= 6; lines = _lines(size)
+    hp = len(lines) * size * 1.22 + 10
+    hd = 300 if item.get("panel") else (240 if item.get("display") else 0)
+    n = len(item["options"]); oh = 190; hf = 150
+    top, bot = 185, 1015
+    k = 3 + (1 if hd else 0)
+    G = max(28, min(80, (bot - top - (hp + hd + oh + hf)) / (k + 1)))
+    total = hp + hd + oh + hf + G * (k - 1)
+    y = top + (bot - top - total) / 2
+    L["prompt"] = y - 10; y += hp + G
+    if hd:
+        L["disp"] = (W / 2, y + hd / 2); L["disp_h"] = hd; L["panel_box"] = (W / 2 - 520, y, W / 2 + 520, y + hd); y += hd + G
+    ow = min(560, (W - 320 - (n - 1) * G) / n)
+    x0 = W / 2 - (n * ow + (n - 1) * G) / 2
+    L["rects"] = [(x0 + ow / 2 + i * (ow + G), y + oh / 2, ow, oh) for i in range(n)]
+    L["opt_box"] = (x0, y, x0 + n * ow + (n - 1) * G, y + oh)
+    y += oh + G
+    L["bottom"] = int(y + 28)          # fact text; ANSWER pill sits just above it (fact_y - 30)
+    L["prompt_size_fixed"] = size
 
 def anim_sink(c, im, L, item, pt):
     """Reveal graphic (Aman, 18 Nov): all options drop into a water tank, only the right one sinks."""
@@ -351,6 +397,316 @@ def anim_spider(c, im, L, item, pt):
     im.alpha_composite(lay)
 
 ANIMS = {"sink": anim_sink, "spider": anim_spider}
+
+# ---------------------------------------------------------------- landscape answer panels (Aman, 18 Nov: premium reveal graphics)
+def _clip(lay, box):
+    m = Image.new("L", lay.size, 0); ImageDraw.Draw(m).rounded_rectangle(box, 36, fill=255)
+    a = lay.split()[-1]; from PIL import ImageChops; lay.putalpha(ImageChops.multiply(a, m)); return lay
+
+def _glass(d, box, r=36):
+    d.rounded_rectangle(box, r, fill=(255, 255, 255, 34), outline=(255, 255, 255, 150), width=5)
+
+def panel_flag(c, im, box, item, phase, pt):
+    cols = item["flag"]; x0, y0, x1, y1 = box; h = y1 - y0 - 30; w = h * 1.5; cx = (x0 + x1) / 2; cy = (y0 + y1) / 2
+    lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    d.rounded_rectangle((cx - w / 2 + 8, cy - h / 2 + 14, cx + w / 2 + 8, cy + h / 2 + 14), 18, fill=(0, 0, 0, 90))
+    for i, col in enumerate(cols):
+        d.rectangle((cx - w / 2 + i * w / len(cols), cy - h / 2, cx - w / 2 + (i + 1) * w / len(cols), cy + h / 2), fill=tuple(col))
+    d.rounded_rectangle((cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2), 14, outline=(255, 255, 255), width=8)
+    im.alpha_composite(lay.filter(ImageFilter.GaussianBlur(0)))
+
+def panel_banana(c, im, box, item, phase, pt):
+    x0, y0, x1, y1 = box; cx = (x0 + x1) / 2
+    lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay); _glass(d, box)
+    g = eo(pt / 1.0); gy = y1 - 30; top = gy - (y1 - y0 - 70) * g
+    d.rounded_rectangle((cx - 26, top, cx + 26, gy), 20, fill=(120, 160, 60))
+    d.rectangle((cx - 360, gy, cx + 360, gy + 10), fill=(130, 90, 50))
+    if g > 0.6:
+        lg = eo((pt - 0.6) / 0.6)
+        for k, ang in enumerate((-150, -110, -60, -20)):
+            a_ = math.radians(ang); L_ = 210 * lg
+            ex, ey = cx + math.cos(a_) * L_, top + 20 + math.sin(a_) * L_ * 0.6
+            d.polygon([(cx, top + 30), (ex - 30, ey), (ex + 30, ey - 20)], fill=(70, 170, 70))
+            d.line([(cx, top + 30), (ex, ey - 10)], fill=(40, 120, 40), width=6)
+    if pt > 1.2:
+        e = emoji_img("🍌", 110); lay.alpha_composite(e, (int(cx + 18), int(top + 70)))
+        e2 = emoji_img("🍌", 90); lay.alpha_composite(e2, (int(cx + 30), int(top + 140)))
+    if pt > 1.5:
+        f = font(F_BOLD, 50); t_ = "Giant HERB!"
+        d.text((cx - 470, y0 + 30), t_, font=f, fill=c.accent, stroke_width=5, stroke_fill=(20, 10, 50))
+    im.alpha_composite(_clip(lay, box))
+
+def panel_sizes(c, im, box, item, phase, pt):
+    x0, y0, x1, y1 = box; sz = item["sizes"]; n = len(sz)
+    lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay); _glass(d, box)
+    mx = max(s_[2] for s_ in sz); H_ = (y1 - y0) - 90; f = font(F_BOLD, 40)
+    cw = (x1 - x0) / n
+    for k, (col, label, rel) in enumerate(sz):
+        a_ = eob((pt - 0.2 - k * 0.45) / 0.45)
+        if a_ <= 0: continue
+        r = max(10, H_ / 2 * rel / mx) * a_; cx = x0 + cw * (k + 0.5); cy = y0 + 20 + H_ / 2
+        if r > 60:
+            glow = Image.new("RGBA", im.size, (0, 0, 0, 0))
+            ImageDraw.Draw(glow).ellipse((cx - r - 18, cy - r - 18, cx + r + 18, cy + r + 18), fill=tuple(col) + (120,))
+            lay.alpha_composite(glow.filter(ImageFilter.GaussianBlur(16)))
+        d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=tuple(col), outline=(255, 255, 255), width=4)
+        tw = d.textlength(label, font=f)
+        d.text((cx - tw / 2, y1 - 62), label, font=f, fill=(255, 255, 255), stroke_width=4, stroke_fill=(20, 10, 50))
+    if item.get("size_note") and pt > 0.3 + n * 0.45:
+        f2 = font(F_BOLD, 54); t_ = item["size_note"]; tw = d.textlength(t_, font=f2)
+        d.text((x1 - tw - 40, y0 + 26), t_, font=f2, fill=c.accent, stroke_width=5, stroke_fill=(20, 10, 50))
+    im.alpha_composite(_clip(lay, box))
+
+def panel_tank(c, im, box, item, phase, pt):
+    x0, y0, x1, y1 = box; surf = y0 + 80
+    lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    d.rounded_rectangle(box, 34, fill=(255, 255, 255, 30), outline=(255, 255, 255, 220), width=7)
+    n = len(item["options"]); cw = (x1 - x0) / n; fl = set(item.get("floats", [item["right"]]))
+    for k, op in enumerate(item["options"]):
+        if len(op) < 2: continue
+        e = emoji_img(op[1], 110); cx = x0 + cw * (k + 0.5)
+        drop = eo((pt - 0.2 - k * 0.12) / 0.45)
+        y = (y0 - 150) + (surf - 55 - (y0 - 150)) * drop
+        if k not in fl and pt > 0.9: y = surf - 55 + (y1 - 125 - (surf - 55)) * eo((pt - 0.9) / 1.5)
+        elif drop >= 1: y += math.sin(pt * 4 + k) * 6
+        if drop > 0: lay.alpha_composite(e, (int(cx - e.width / 2), int(y)))
+    wl = Image.new("RGBA", im.size, (0, 0, 0, 0)); wd = ImageDraw.Draw(wl)
+    pts = [(x0 + 8, y1 - 8)] + [(x0 + 8 + i * (x1 - x0 - 16) / 50, surf + math.sin(pt * 3 + i * 0.6) * 5) for i in range(51)] + [(x1 - 8, y1 - 8)]
+    wd.polygon(pts, fill=(70, 170, 255, 115)); lay.alpha_composite(wl)
+    im.alpha_composite(_clip(lay, box))
+
+def panel_scale(c, im, box, item, phase, pt):
+    x0, y0, x1, y1 = box; cx = (x0 + x1) / 2; L_, Lb, R_, Rb, heavy = item["scale"]
+    lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay); _glass(d, box)
+    piv = (cx, y0 + 95); tilt = math.radians(12) * eo((pt - 0.4) / 1.0) * (1 if heavy == 1 else -1)
+    d.polygon([(cx - 60, y1 - 25), (cx + 60, y1 - 25), (cx, piv[1])], fill=(230, 200, 120))
+    arm = 330; lx, ly = cx - arm * math.cos(tilt), piv[1] - arm * math.sin(tilt); rx, ry = cx + arm * math.cos(tilt), piv[1] + arm * math.sin(tilt)
+    d.line([(lx, ly), (rx, ry)], fill=(240, 210, 130), width=14); d.ellipse((cx - 16, piv[1] - 16, cx + 16, piv[1] + 16), fill=(255, 230, 150))
+    f = font(F_BOLD, 40)
+    for (px, py, emo, lab) in ((lx, ly, L_, Lb), (rx, ry, R_, Rb)):
+        d.line([(px, py), (px - 70, py + 70)], fill=(240, 210, 130), width=5); d.line([(px, py), (px + 70, py + 70)], fill=(240, 210, 130), width=5)
+        d.chord((px - 95, py + 30, px + 95, py + 130), 0, 180, fill=(240, 210, 130))
+        e = emoji_img(emo, 100); lay.alpha_composite(e, (int(px - e.width / 2), int(py - 15)))
+        tw = d.textlength(lab, font=f); d.text((px - tw / 2, py + 136), lab, font=f, fill=(255, 255, 255), stroke_width=4, stroke_fill=(20, 10, 50))
+    im.alpha_composite(_clip(lay, box))
+
+def panel_shark(c, im, box, item, phase, pt):
+    x0, y0, x1, y1 = box; cy = (y0 + y1) / 2 + 10
+    lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    d.rounded_rectangle(box, 34, fill=(20, 60, 120, 150), outline=(255, 255, 255, 170), width=5)
+    for k in range(9):
+        bx = x0 + 60 + (k * 113 + pt * 40) % (x1 - x0 - 120); by = y1 - 30 - ((k * 37 + pt * 90) % (y1 - y0 - 60))
+        d.ellipse((bx - 7, by - 7, bx + 7, by + 7), outline=(200, 230, 255, 160), width=2)
+    sx = x0 + 120 + (x1 - x0 - 520) * eo(pt / 2.6); s = 1.0; wig = math.sin(pt * 6) * 8
+    body = [(sx, cy), (sx + 80, cy - 52), (sx + 260, cy - 62), (sx + 360, cy - 30), (sx + 400, cy + wig * 0.3), (sx + 360, cy + 34), (sx + 220, cy + 56), (sx + 70, cy + 40)]
+    d.polygon(body, fill=(120, 135, 150), outline=(40, 50, 70), width=4)
+    d.polygon([(sx + 30, cy - 10), (sx - 70, cy - 70 + wig), (sx - 40, cy), (sx - 70, cy + 60 + wig), (sx + 30, cy + 15)], fill=(110, 125, 140), outline=(40, 50, 70), width=4)
+    d.polygon([(sx + 180, cy - 58), (sx + 230, cy - 120), (sx + 250, cy - 60)], fill=(110, 125, 140), outline=(40, 50, 70), width=4)
+    d.polygon([(sx + 200, cy + 40), (sx + 230, cy + 95), (sx + 260, cy + 46)], fill=(110, 125, 140), outline=(40, 50, 70), width=4)
+    d.ellipse((sx + 330, cy - 22, sx + 346, cy - 6), fill=(20, 25, 35))
+    d.polygon([(sx + 150, cy + 30), (sx + 380, cy + 10), (sx + 360, cy + 34), (sx + 220, cy + 54)], fill=(200, 210, 215))
+    yrs = int(250 * eo(pt / 2.4)); f = font(F_BOLD, 64); t_ = f"{yrs}+ years!" if pt > 2.4 else f"{yrs} years"
+    d.text((x0 + 40, y0 + 22), "🦈" if False else "Greenland shark", font=font(F_BOLD, 40), fill=(255, 255, 255), stroke_width=4, stroke_fill=(20, 10, 50))
+    tw = d.textlength(t_, font=f); d.text((x1 - tw - 40, y0 + 18), t_, font=f, fill=c.accent, stroke_width=5, stroke_fill=(20, 10, 50))
+    im.alpha_composite(_clip(lay, box))
+
+def _lab(d, x, y, t_, sz, fill=(255, 255, 255), anchor="la"):
+    f = font(F_BOLD, sz); d.text((x, y), t_, font=f, fill=fill, stroke_width=max(3, sz // 12), stroke_fill=(20, 10, 50), anchor=anchor)
+
+def panel_sushi(c, im, box, item, phase, t):
+    x0, y0, x1, y1 = box; lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    d.rounded_rectangle(box, 36, fill=(60, 30, 25, 200), outline=(255, 255, 255, 150), width=5)
+    by = y1 - 95; d.rounded_rectangle((x0 + 20, by, x1 - 20, by + 50), 20, fill=(150, 150, 165))
+    for k in range(24):
+        xx = x0 + 20 + ((k * 46 - t * 120) % (x1 - x0 - 40)); d.line([(xx, by + 4), (xx, by + 46)], fill=(110, 110, 125), width=3)
+    foods = ["🍣", "🍙", "🍤", "🍣", "🥟", "🍣", "🍱"]
+    for k, e in enumerate(foods):
+        xx = x0 + 40 + ((k * 170 + t * 120) % (x1 - x0 - 120)); im_e = emoji_img(e, 96); lay.alpha_composite(im_e, (int(xx), int(by - 88)))
+    ch = emoji_img("🥢", 120); lay.alpha_composite(ch, (int(x0 + 420 + math.sin(t * 2) * 30), int(y0 + 20 + abs(math.sin(t * 2)) * 30)))
+    lay.alpha_composite(emoji_img("🍵", 80), (int(x1 - 130), int(y0 + 30)))
+    im.alpha_composite(_clip(lay, box))
+
+def panel_lions(c, im, box, item, phase, t):
+    x0, y0, x1, y1 = box; lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    for yy in range(int(y0), int(y1)):   # savanna sunset
+        k = (yy - y0) / (y1 - y0); d.line([(x0, yy), (x1, yy)], fill=(int(255 - 60 * k), int(170 - 40 * k), int(80 - 30 * k), 255))
+    d.ellipse((x1 - 260, y0 + 30, x1 - 120, y0 + 170), fill=(255, 230, 120))
+    d.rectangle((x0, y1 - 70, x1, y1), fill=(170, 120, 50))
+    tr = (x0 + 140, y1 - 70); d.rectangle((tr[0] - 10, tr[1] - 120, tr[0] + 10, tr[1]), fill=(80, 50, 30)); d.ellipse((tr[0] - 110, tr[1] - 170, tr[0] + 110, tr[1] - 100), fill=(60, 110, 50))
+    for k, (sz, off) in enumerate([(120, 0), (100, 150), (90, 270), (70, 380), (65, 470)]):
+        xx = x0 + 300 + ((off + t * 70) % (x1 - x0 - 380)); bob = abs(math.sin(t * 6 + k)) * 8
+        lay.alpha_composite(emoji_img("🦁", sz), (int(xx), int(y1 - 60 - sz - bob)))
+    im.alpha_composite(_clip(lay, box))
+
+def panel_fragile(c, im, box, item, phase, t):
+    x0, y0, x1, y1 = box; cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    d.rounded_rectangle((cx - 420, y0 + 20, cx + 420, y1 - 20), 24, fill=(200, 150, 90), outline=(120, 80, 40), width=6)   # cardboard box
+    d.rectangle((cx - 420, cy - 18, cx + 420, cy + 18), fill=(225, 190, 130))
+    st = Image.new("RGBA", (620, 220), (0, 0, 0, 0)); sd = ImageDraw.Draw(st)
+    sd.rounded_rectangle((6, 6, 614, 214), 20, fill=(255, 250, 240), outline=(210, 30, 40), width=12)
+    f = font(F_BOLD, 110); sd.text((310, 70), "FRAGILE", font=f, fill=(210, 30, 40), anchor="mm")
+    f2 = font(F_BOLD, 38); sd.text((310, 160), "HANDLE WITH CARE", font=f2, fill=(210, 30, 40), anchor="mm")
+    g = emoji_img("🍷", 70); st.alpha_composite(g, (24, 70)); st.alpha_composite(g, (526, 70))
+    k = eob(min(1, t / 0.5)); ang = -6 + math.sin(t * 3) * 2
+    st = st.rotate(ang, expand=True, resample=Image.BICUBIC); st = st.resize((max(1, int(st.width * k)), max(1, int(st.height * k))), Image.LANCZOS)
+    lay.alpha_composite(st, (int(cx - st.width / 2), int(cy - st.height / 2)))
+    im.alpha_composite(_clip(lay, box))
+
+def panel_ancient(c, im, box, item, phase, t):
+    x0, y0, x1, y1 = box; lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    for yy in range(int(y0), int(y1)):
+        k = (yy - y0) / (y1 - y0); d.line([(x0, yy), (x1, yy)], fill=(int(255 - 30 * k), int(200 - 60 * k), int(120 - 60 * k), 255))
+    d.ellipse((x0 + 90, y0 + 30, x0 + 210, y0 + 150), fill=(255, 245, 190))
+    gy = y1 - 60
+    for (px, w, h) in ((x0 + 380, 330, 210), (x0 + 640, 260, 160), (x0 + 820, 180, 110)):
+        d.polygon([(px - w / 2, gy), (px + w / 2, gy), (px, gy - h)], fill=(215, 170, 95), outline=(150, 105, 50))
+        d.polygon([(px, gy - h), (px + w / 2, gy), (px + w * 0.12, gy)], fill=(185, 140, 75))
+    d.rectangle((x0, gy, x1, y1), fill=(230, 185, 110))
+    cam = emoji_img("🐪", 110); lay.alpha_composite(cam, (int(x1 - 160 - (t * 60) % (x1 - x0 - 200)), int(gy - 100 + abs(math.sin(t * 5)) * -6)))
+    _lab(d, x1 - 40, y0 + 22, "4,500 years old!", 44, c.accent, "ra")
+    im.alpha_composite(_clip(lay, box))
+
+def panel_orbit(c, im, box, item, phase, t):
+    x0, y0, x1, y1 = box; cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    d.rounded_rectangle(box, 36, fill=(8, 8, 30, 230), outline=(255, 255, 255, 120), width=4)
+    for k in range(40): sx = x0 + (k * 97) % (x1 - x0); sy = y0 + (k * 53) % (y1 - y0); d.ellipse((sx, sy, sx + 3, sy + 3), fill=(255, 255, 255, 180))
+    glow = Image.new("RGBA", im.size, (0, 0, 0, 0)); ImageDraw.Draw(glow).ellipse((cx - 60, cy - 60, cx + 60, cy + 60), fill=(255, 190, 40, 200))
+    lay.alpha_composite(glow.filter(ImageFilter.GaussianBlur(18))); d = ImageDraw.Draw(lay)
+    d.ellipse((cx - 40, cy - 40, cx + 40, cy + 40), fill=(255, 205, 60))
+    pl = [((170, 160, 150), 6, 4.1), ((230, 190, 120), 9, 1.6), ((70, 140, 230), 10, 1.0), ((215, 100, 60), 8, 0.53),
+          ((210, 170, 130), 20, 0.084), ((230, 210, 150), 17, 0.034), ((150, 210, 230), 13, 0.012), ((80, 110, 220), 13, 0.006)]
+    for k, (col, r, sp) in enumerate(pl):
+        rx = 75 + k * 58; ry = rx * 0.25; d.ellipse((cx - rx, cy - ry, cx + rx, cy + ry), outline=(255, 255, 255, 60), width=2)
+        a = t * sp * 1.2 + k * 1.3; px, py = cx + rx * math.cos(a), cy + ry * math.sin(a)
+        d.ellipse((px - r, py - r, px + r, py + r), fill=col)
+        if k == 5: d.ellipse((px - r * 1.8, py - r * 0.5, px + r * 1.8, py + r * 0.5), outline=(240, 220, 170), width=3)
+    im.alpha_composite(_clip(lay, box))
+
+def panel_organs(c, im, box, item, phase, t):
+    x0, y0, x1, y1 = box; lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay); _glass(d, box)
+    cw = (x1 - x0) / 3; rv = phase == "reveal"
+    for k, lab in enumerate(("Liver", "Skin", "Lungs")):
+        cx = x0 + cw * (k + 0.5); cy = y0 + 125; s = 1 + 0.06 * math.sin(t * 3 + k)
+        if rv and k == item["right"]: s *= 1 + 0.25 * eob(min(1, t / 0.5))
+        if k == 0:
+            d.ellipse((cx - 95 * s, cy - 55 * s, cx + 70 * s, cy + 50 * s), fill=(150, 50, 40), outline=(90, 20, 20), width=5)
+            d.ellipse((cx + 20 * s, cy - 40 * s, cx + 95 * s, cy + 25 * s), fill=(160, 60, 45), outline=(90, 20, 20), width=5)
+        elif k == 1:
+            e = emoji_img("🖐️", int(150 * s)); lay.alpha_composite(e, (int(cx - e.width / 2), int(cy - e.height / 2)))
+        else:
+            br = 1 + 0.08 * math.sin(t * 2.5); e = emoji_img("🫁", int(150 * s * br)); lay.alpha_composite(e, (int(cx - e.width / 2), int(cy - e.height / 2)))
+        _lab(d, cx, y1 - 40, lab, 44, c.accent if (rv and k == item["right"]) else (255, 255, 255), "mm")
+    if rv: _lab(d, x0 + cw * 1.5, y0 + 18, "≈ 2 m²!", 40, c.accent, "ma")
+    im.alpha_composite(_clip(lay, box))
+
+def panel_basket(c, im, box, item, phase, t):
+    x0, y0, x1, y1 = box; lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    d.rounded_rectangle(box, 36, fill=(205, 140, 70), outline=(255, 255, 255, 160), width=5)
+    for k in range(12): d.line([(x0 + k * 90, y0), (x0 + k * 90, y1)], fill=(190, 125, 60), width=3)
+    d.arc((x1 - 330, y0 + 40, x1 + 30, y1 + 200), 90, 270, fill=(255, 255, 255), width=5)
+    hx, hy = x1 - 110, y0 + 95
+    d.rectangle((hx + 40, y0 + 20, hx + 50, y1 - 20), fill=(90, 90, 100)); d.rectangle((hx + 20, hy - 70, hx + 46, hy + 10), fill=(250, 250, 250), outline=(60, 60, 70), width=3)
+    d.ellipse((hx - 50, hy - 8, hx + 20, hy + 8), outline=(235, 90, 30), width=6)
+    for k, px in enumerate((x0 + 120, x0 + 300, x0 + 470, x0 + 620, x0 + 760)):
+        bob = abs(math.sin(t * 5 + k)) * 14; lay.alpha_composite(emoji_img("⛹️", 110), (int(px + math.sin(t * 1.5 + k) * 25), int(y1 - 140 - bob)))
+    ph = (t % 1.8) / 1.8; sx, sy = x0 + 790, y1 - 150; ex, ey = hx - 25, hy - 20
+    bx = sx + (ex - sx) * ph; byy = sy + (ey - sy) * ph - math.sin(ph * math.pi) * 170
+    lay.alpha_composite(emoji_img("🏀", 54), (int(bx - 27), int(byy - 27)))
+    _lab(d, x0 + 30, y0 + 22, "5 vs 5", 46, (255, 255, 255))
+    im.alpha_composite(_clip(lay, box))
+
+def panel_turkey(c, im, box, item, phase, t):
+    x0, y0, x1, y1 = box; lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    for yy in range(int(y0), int(y1)):
+        k = (yy - y0) / (y1 - y0); d.line([(x0, yy), (x1, yy)], fill=(int(250 - 120 * k), int(150 - 60 * k), int(120 + 40 * k), 255))
+    wy = y1 - 70
+    for (mx, s) in ((x0 + 230, 1.0), (x0 + 560, 1.3), (x0 + 860, 0.9)):
+        d.rectangle((mx - 110 * s, wy - 70 * s, mx + 110 * s, wy), fill=(70, 50, 90)); d.pieslice((mx - 80 * s, wy - 150 * s, mx + 80 * s, wy - 10 * s), 180, 360, fill=(70, 50, 90))
+        for dx in (-140, 140):
+            d.rectangle((mx + dx * s - 7, wy - 190 * s, mx + dx * s + 7, wy), fill=(70, 50, 90)); d.polygon([(mx + dx * s - 10, wy - 190 * s), (mx + dx * s + 10, wy - 190 * s), (mx + dx * s, wy - 225 * s)], fill=(70, 50, 90))
+    d.rectangle((x0, wy, x1, y1), fill=(40, 90, 150))
+    for k in range(6): xx = x0 + (k * 180 + t * 40) % (x1 - x0); d.line([(xx, wy + 20 + k % 3 * 15), (xx + 60, wy + 20 + k % 3 * 15)], fill=(150, 200, 240), width=3)
+    lay.alpha_composite(emoji_img("⛵", 80), (int(x0 + 80 + (t * 50) % (x1 - x0 - 200)), int(wy - 40)))
+    lay.alpha_composite(emoji_img("🐦", 40), (int(x0 + 300 + t * 30 % 400), int(y0 + 40 + math.sin(t * 3) * 10)))
+    im.alpha_composite(_clip(lay, box))
+
+def _shark(d, sx, cy, s, wig, flip=False):
+    def P(x, y): return (sx - x * s, cy + y * s) if flip else (sx + x * s, cy + y * s)
+    d.polygon([P(0, 0), P(80, -52), P(260, -62), P(360, -30), P(400, 0), P(360, 34), P(220, 56), P(70, 40)], fill=(120, 135, 150), outline=(40, 50, 70), width=4)
+    d.polygon([P(30, -10), P(-70, -70 + wig), P(-40, 0), P(-70, 60 + wig), P(30, 15)], fill=(110, 125, 140), outline=(40, 50, 70), width=4)
+    d.polygon([P(180, -58), P(230, -120), P(250, -60)], fill=(110, 125, 140), outline=(40, 50, 70), width=4)
+    d.polygon([P(150, 30), P(380, 10), P(360, 34), P(220, 54)], fill=(200, 210, 215))
+    ex, ey = P(338, -14); d.ellipse((ex - 8, ey - 8, ex + 8, ey + 8), fill=(20, 25, 35))
+    mx, my = P(392, 10); d.polygon([P(330, 12), P(395, 4), P(370, 24)], fill=(80, 20, 30))
+
+def panel_sharkhunt(c, im, box, item, phase, t):
+    x0, y0, x1, y1 = box; cy = (y0 + y1) / 2 + 10
+    lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    d.rounded_rectangle(box, 34, fill=(15, 55, 115, 220), outline=(255, 255, 255, 160), width=5)
+    cyc = (t % 4.0) / 4.0
+    sx = x0 - 300 + (x1 - x0 + 350) * cyc
+    for k in range(7):   # fish school, scatters when the shark gets close
+        fx0 = x0 + 520 + (k % 4) * 60; fy0 = cy - 70 + (k // 4) * 70 + (k % 2) * 20
+        dist = (sx + 400) - fx0; sc = max(0.0, min(1.0, (dist + 120) / 200))
+        fx = fx0 + sc * (180 + k * 25); fy = fy0 + sc * ((k % 3) - 1) * 120 + math.sin(t * 6 + k) * 5
+        lay.alpha_composite(emoji_img("🐟", 62), (int(fx), int(fy)))
+    _shark(d, sx, cy, 0.9, math.sin(t * 8) * 10)
+    for k in range(10):
+        bx = x0 + 40 + (k * 107) % (x1 - x0 - 80); by = y1 - 20 - ((k * 41 + t * 80) % (y1 - y0 - 40)); d.ellipse((bx - 6, by - 6, bx + 6, by + 6), outline=(200, 230, 255, 150), width=2)
+    _lab(d, x0 + 30, y0 + 20, "No bones — just cartilage!", 40, c.accent) if phase == "reveal" else None
+    im.alpha_composite(_clip(lay, box))
+
+def panel_trio(c, im, box, item, phase, t):
+    x0, y0, x1, y1 = box; lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay); _glass(d, box)
+    cw = (x1 - x0) / 3; rv = phase == "reveal"
+    # honey jar
+    cx = x0 + cw * 0.5; lay.alpha_composite(emoji_img("🍯", 140), (int(cx - 70), int(y0 + 40 + math.sin(t * 2) * 6)))
+    # goldfish bowl
+    cx = x0 + cw * 1.5; cy = y0 + 125
+    d.ellipse((cx - 110, cy - 95, cx + 110, cy + 95), fill=(120, 190, 255, 110), outline=(255, 255, 255, 220), width=5)
+    fx = cx + math.sin(t * 1.7) * 55; e = emoji_img("🐠", 70)
+    if math.cos(t * 1.7) < 0: e = e.transpose(Image.FLIP_LEFT_RIGHT)
+    lay.alpha_composite(e, (int(fx - 35), int(cy - 20 + math.sin(t * 3) * 10)))
+    for k in range(4): by = cy + 70 - ((t * 60 + k * 35) % 150); d.ellipse((cx - 30 + k * 18, by, cx - 20 + k * 18, by + 10), outline=(255, 255, 255, 200), width=2)
+    # octopus + 3 hearts
+    cx = x0 + cw * 2.5; lay.alpha_composite(emoji_img("🐙", 130), (int(cx - 65), int(y0 + 45 + math.sin(t * 2.5) * 8)))
+    for k in range(3): lay.alpha_composite(emoji_img("❤️", 34), (int(cx - 60 + k * 45), int(y0 + 10 + abs(math.sin(t * 4 + k)) * -6 + 6)))
+    for k, lab in enumerate(("Honey", "Goldfish", "Octopus")):
+        _lab(d, x0 + cw * (k + 0.5), y1 - 40, lab, 42, (255, 90, 90) if (rv and k == item["right"]) else (255, 255, 255), "mm")
+    if rv:
+        cx = x0 + cw * 1.5; d.line([(cx - 120, y0 + 40), (cx + 120, y1 - 70)], fill=(255, 70, 70), width=12); d.line([(cx + 120, y0 + 40), (cx - 120, y1 - 70)], fill=(255, 70, 70), width=12)
+    im.alpha_composite(_clip(lay, box))
+
+def panel_planets3(c, im, box, item, phase, t):
+    x0, y0, x1, y1 = box; lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    d.rounded_rectangle(box, 36, fill=(8, 8, 30, 230), outline=(255, 255, 255, 120), width=4)
+    for k in range(40): sx = x0 + (k * 97) % (x1 - x0); sy = y0 + (k * 53) % (y1 - y0); d.ellipse((sx, sy, sx + 3, sy + 3), fill=(255, 255, 255, 180))
+    cw = (x1 - x0) / 3; rv = phase == "reveal"
+    data = [("Mercury", (170, 160, 150), 55, "59 days"), ("Venus", (230, 190, 120), 80, "243 days"), ("Jupiter", (210, 170, 130), 110, "10 hours")]
+    for k, (nm, col, r, day) in enumerate(data):
+        cx = x0 + cw * (k + 0.5); cy = y0 + 125
+        if rv and k == item["right"]:
+            glow = Image.new("RGBA", im.size, (0, 0, 0, 0)); ImageDraw.Draw(glow).ellipse((cx - r - 25, cy - r - 25, cx + r + 25, cy + r + 25), fill=(255, 210, 80, 160))
+            lay.alpha_composite(glow.filter(ImageFilter.GaussianBlur(14))); d = ImageDraw.Draw(lay)
+        d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=col)
+        spd = {0: 0.3, 1: 0.05, 2: 2.5}[k]   # spin speed ~ how short the day is
+        for j in range(3):
+            off = ((t * spd * r + j * r * 0.7) % (2 * r)) - r
+            if k == 2: d.line([(cx - math.sqrt(max(0, r * r - (off * 0.5) ** 2)), cy + off * 0.5), (cx + math.sqrt(max(0, r * r - (off * 0.5) ** 2)), cy + off * 0.5)], fill=(180, 120, 90), width=8)
+            else:
+                xx = cx + off; hh = math.sqrt(max(0, r * r - off * off)) * 0.4; d.ellipse((xx - 8, cy - hh * 0.3 - 8, xx + 8, cy - hh * 0.3 + 8), fill=tuple(max(0, v - 40) for v in col))
+        _lab(d, cx, y1 - 52, nm, 40, (255, 255, 255), "mm")
+        if rv: _lab(d, cx, y1 - 14, "1 day = " + day, 36, c.accent if k == item["right"] else (220, 220, 230), "mm")
+    im.alpha_composite(_clip(lay, box))
+
+PANELS_ALWAYS = {"flag", "sushi", "lions", "fragile", "ancient", "orbit", "organs", "basket", "turkey", "sharkhunt", "trio", "planets3"}
+
+PANELS = {"sushi": panel_sushi, "lions": panel_lions, "fragile": panel_fragile, "ancient": panel_ancient, "orbit": panel_orbit,
+          "organs": panel_organs, "basket": panel_basket, "turkey": panel_turkey, "sharkhunt": panel_sharkhunt, "trio": panel_trio,
+          "planets3": panel_planets3,
+          "flag": panel_flag, "banana": panel_banana, "sizes": panel_sizes, "tank": panel_tank, "scale": panel_scale, "shark": panel_shark}
 
 def center_stack(c, item, L):
     """MASTER STYLE for Shorts quiz/option questions (Aman, 18 Nov): question text, icon, option boxes and the
@@ -496,10 +852,17 @@ def blink_at(t, period=3.3):
     p = t % period
     return max(0.0, 1 - abs(p - 0.09) / 0.09) if p < 0.18 else 0.0
 
-def draw_hoot_corner(c, im, phase, t, pt):
+def draw_hoot_corner(c, im, phase, t, pt, idx=None):
     if c.spec.get("mascot") is False: return
-    size = 160 if c.v else 190
-    x, y = (112, 112) if c.v else (125, 960)   # Shorts: small, top-left, clear of the question text
+    size = 160 if c.v else 230
+    x, y = (112, 112) if c.v else (150, 945)   # Shorts: small, top-left, clear of the question text
+    tm = c.spec.get("timing", {}).get(f"i{idx}", {}) if idx is not None else {}
+    if not c.v and tm.get("hook_at") and t >= tm["hook_at"] - 0.2:
+        # Hoot jumps up big and talks while he says the hook (Aman, 18 Nov: show the character wherever possible)
+        k = eob((t - tm["hook_at"] + 0.2) / 0.4); big = 230 + 90 * k     # grows into the free bottom-left corner
+        bob = abs(math.sin(t * 9)) * 16
+        paste(im, hoot_img(int(big), "cheer", blink_at(t + 0.7)), 165, 955 - 10 * k - bob, 1)
+        return
     pose, bob = "idle", 0.0
     if phase == "count": pose = "think"
     elif phase == "reveal":
@@ -649,7 +1012,12 @@ def draw_item(c, idx, t, phase, pt):
         else:
             im.alpha_composite(lay)
         d = ImageDraw.Draw(im)
-    if item.get("display"):
+    pnl = item.get("panel")
+    if pnl in PANELS and L.get("panel_box") and pnl in PANELS_ALWAYS:
+        PANELS[pnl](c, im, L["panel_box"], item, phase, t if pnl != "flag" else pt)
+    elif pnl in PANELS and L.get("panel_box") and phase == "reveal" and pt > 0.25:
+        PANELS[pnl](c, im, L["panel_box"], item, phase, pt - 0.25)
+    elif item.get("display"):
         draw_display(c, im, L, item, phase, pt, t)
     # options
     opts = [] if custom_origin else item.get("options", [])
@@ -736,7 +1104,7 @@ def draw_item(c, idx, t, phase, pt):
         a_ = eob((pt - 0.35) / 0.35)
         chip = pill("ANSWER", (40, 190, 90), 38 if c.v else 32)
         paste(im, chip, W / 2, L.get("pill_y", fact_y - (36 if c.v else 30)), a_)
-    draw_hoot_corner(c, im, phase, t, pt)
+    draw_hoot_corner(c, im, phase, t, pt, idx)
     mc = c.spec.get("midcta")
     if mc and phase == "reveal" and idx == mc.get("idx"): cta_popup(c, im, pt)
     tm_i = c.spec.get("timing", {}).get(f"i{idx}", {})

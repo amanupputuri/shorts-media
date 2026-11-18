@@ -200,15 +200,17 @@ if __name__ == "__main__":
         if len(spec.get("say", {}).get("items", [])) != len(spec["items"]): e.append("say.items count != items count")
         if True:  # Aman, 18 Nov: Shorts AND long videos use spoken (voice) hooks, no text teasers
             if spec.get("orientation") == "v" and spec.get("count_secs") != 4: e.append("Shorts use count_secs 4 (Aman, 18 Nov)")
-            if spec.get("orientation") == "h" and len(spec["items"]) != LONG_N: e.append(f"long videos have {LONG_N} puzzles (Aman, 18 Nov: 8-10 min)")
-            if spec.get("orientation") == "h" and (spec.get("midcta") or {}).get("idx") != len(spec["items"]) // 2 - 1:
+            if spec.get("orientation") == "h" and spec.get("kind") != "quiz" and len(spec["items"]) != LONG_N: e.append(f"long videos have {LONG_N} puzzles (Aman, 18 Nov: 8-10 min)")
+            if spec.get("orientation") == "h" and spec.get("kind") != "quiz" and (spec.get("midcta") or {}).get("idx") != len(spec["items"]) // 2 - 1:
                 e.append(f"long video: set \"midcta\": {{\"idx\": {len(spec['items']) // 2 - 1}}} (LIKE + SUBSCRIBE pop-up at the halfway point)")
             if spec.get("orientation") == "v" and len(spec["items"]) >= 6 and len([1 for si in spec.get("say", {}).get("items", []) if si.get("hook")]) < 4:
                 e.append("Shorts need 4 spoken hooks: say.items[2], [4], [5] (<= 7 words) + the LIKE ask on say.items[2]")
             # Aman, 18 Nov: once in the middle of EVERY video Hoot asks for a like so he can keep making puzzles
             mid = 2 if spec.get("orientation") == "v" else len(spec["items"]) // 2
             sit = spec.get("say", {}).get("items", [])
-            if len(spec["items"]) >= 6 and len(sit) > mid and "like" not in sit[mid].get("hook", "").lower():
+            if spec.get("kind") == "quiz" and not any("like" in si.get("hook", "").lower() for si in sit):
+                e.append("quiz video needs a spoken LIKE + SUBSCRIBE hook")
+            elif spec.get("kind") != "quiz" and len(spec["items"]) >= 6 and len(sit) > mid and "like" not in sit[mid].get("hook", "").lower():
                 e.append(f"say.items[{mid}].hook must be the mid-video LIKE ask (<= 12 words), e.g. \"Enjoying this? Tap like so I can make more puzzles!\"")
             for i, it in enumerate(spec["items"]):
                 if it.get("teaser"): e.append(f"item {i}: NO text teasers any more - put the line in say.items[{i}].hook (spoken)")

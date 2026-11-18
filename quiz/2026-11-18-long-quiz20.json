@@ -1,0 +1,704 @@
+{
+ "orientation": "h",
+ "kind": "quiz",
+ "count_secs": 4,
+ "label": "QUESTION",
+ "music_seed": 11,
+ "badge": false,
+ "style": {
+  "palette": [
+   [
+    14,
+    16,
+    46
+   ],
+   [
+    52,
+    22,
+    98
+   ]
+  ],
+  "accent": [
+   255,
+   200,
+   70
+  ],
+  "pill": [
+   120,
+   90,
+   255
+  ],
+  "bg": "dots"
+ },
+ "levels": [
+  "EASY",
+  "EASY",
+  "EASY",
+  "EASY",
+  "EASY",
+  "MEDIUM",
+  "MEDIUM",
+  "MEDIUM",
+  "MEDIUM",
+  "MEDIUM",
+  "MEDIUM",
+  "MEDIUM",
+  "MEDIUM",
+  "MEDIUM",
+  "HARD",
+  "HARD",
+  "HARD",
+  "HARD",
+  "HARD",
+  "HARD"
+ ],
+ "hook": "Only geniuses get 20/20!",
+ "title_card": {
+  "emoji": "🦉",
+  "line1": "20 QUIZ",
+  "line2": "QUESTIONS",
+  "tag": "Brain Quiz"
+ },
+ "outro": {
+  "line1": "THAT'S",
+  "line2": "ALL 20!",
+  "line3": "",
+  "cta": "SUBSCRIBE",
+  "cta_sub": "New quiz every day!"
+ },
+ "items": [
+  {
+   "type": "quiz",
+   "prompt": "True or false?",
+   "hint": "",
+   "options": [
+    [
+     "True",
+     "✅"
+    ],
+    [
+     "False",
+     "❌"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "It's a giant herb, not a tree!"
+   ],
+   "prompt2": "Bananas grow on trees.",
+   "stack": true,
+   "display": {
+    "kind": "emoji",
+    "text": "🍌"
+   },
+   "panel": "banana"
+  },
+  {
+   "type": "quiz",
+   "prompt": "Quick maths: 9 × 7 = ?",
+   "hint": "",
+   "options": [
+    [
+     "56"
+    ],
+    [
+     "63"
+    ],
+    [
+     "72"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "9 × 7 = 63"
+   ]
+  },
+  {
+   "type": "quiz",
+   "prompt": "Sushi comes from which country?",
+   "hint": "",
+   "options": [
+    [
+     "China",
+     "🐼"
+    ],
+    [
+     "Japan",
+     "🗻"
+    ],
+    [
+     "Korea",
+     "🥢"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "Sushi is from Japan!"
+   ],
+   "panel": "sushi"
+  },
+  {
+   "type": "quiz",
+   "prompt": "Which is bigger?",
+   "hint": "",
+   "options": [
+    [
+     "The Sun",
+     "☀️"
+    ],
+    [
+     "The Moon",
+     "🌙"
+    ]
+   ],
+   "right": 0,
+   "fact": [
+    "The Sun is about 400× wider!"
+   ],
+   "display": {
+    "kind": "emoji",
+    "text": "☀️🌙"
+   },
+   "panel": "sizes",
+   "sizes": [
+    [
+     [
+      255,
+      190,
+      40
+     ],
+     "Sun",
+     400
+    ],
+    [
+     [
+      205,
+      205,
+      215
+     ],
+     "Moon",
+     1
+    ]
+   ],
+   "size_note": "400× wider!"
+  },
+  {
+   "type": "quiz",
+   "prompt": "Whose flag is this?",
+   "hint": "",
+   "options": [
+    [
+     "Italy"
+    ],
+    [
+     "Ireland"
+    ],
+    [
+     "Mexico"
+    ]
+   ],
+   "right": 0,
+   "fact": [
+    "Green, white and red — Italy!"
+   ],
+   "panel": "flag",
+   "flag": [
+    [
+     0,
+     146,
+     70
+    ],
+    [
+     255,
+     255,
+     255
+    ],
+    [
+     206,
+     43,
+     55
+    ]
+   ]
+  },
+  {
+   "type": "quiz",
+   "prompt": "A group of lions is called a…",
+   "hint": "",
+   "options": [
+    [
+     "Pride"
+    ],
+    [
+     "Pack"
+    ],
+    [
+     "Herd"
+    ]
+   ],
+   "right": 0,
+   "fact": [
+    "A pride of lions!"
+   ],
+   "panel": "lions"
+  },
+  {
+   "type": "quiz",
+   "prompt": "FRAGILE means…",
+   "hint": "",
+   "options": [
+    [
+     "Easily broken"
+    ],
+    [
+     "Very heavy"
+    ],
+    [
+     "Very old"
+    ]
+   ],
+   "right": 0,
+   "fact": [
+    "Fragile = easily broken"
+   ],
+   "panel": "fragile"
+  },
+  {
+   "type": "quiz",
+   "prompt": "Opposite of ANCIENT?",
+   "hint": "",
+   "options": [
+    [
+     "Modern"
+    ],
+    [
+     "Old"
+    ],
+    [
+     "Huge"
+    ]
+   ],
+   "right": 0,
+   "fact": [
+    "Ancient ↔ Modern"
+   ],
+   "panel": "ancient"
+  },
+  {
+   "type": "quiz",
+   "prompt": "Smallest to biggest planet?",
+   "hint": "",
+   "options": [
+    [
+     "Mercury, Mars, Earth"
+    ],
+    [
+     "Mars, Mercury, Earth"
+    ],
+    [
+     "Earth, Mars, Mercury"
+    ]
+   ],
+   "right": 0,
+   "fact": [
+    "Mercury, then Mars, then Earth!"
+   ],
+   "display": {
+    "kind": "emoji",
+    "text": "🪐"
+   },
+   "panel": "orbit",
+   "sizes": [
+    [
+     [
+      170,
+      160,
+      150
+     ],
+     "Mercury",
+     0.38
+    ],
+    [
+     [
+      215,
+      100,
+      60
+     ],
+     "Mars",
+     0.53
+    ],
+    [
+     [
+      70,
+      140,
+      230
+     ],
+     "Earth",
+     1.0
+    ]
+   ]
+  },
+  {
+   "type": "quiz",
+   "prompt": "Your body's biggest organ?",
+   "hint": "",
+   "options": [
+    [
+     "Liver"
+    ],
+    [
+     "Skin"
+    ],
+    [
+     "Lungs"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "Your skin is your biggest organ!"
+   ],
+   "panel": "organs"
+  },
+  {
+   "type": "quiz",
+   "prompt": "Which spelling is right?",
+   "hint": "",
+   "options": [
+    [
+     "Definately"
+    ],
+    [
+     "Definitely"
+    ],
+    [
+     "Definitly"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "It has 'finite' inside!"
+   ]
+  },
+  {
+   "type": "quiz",
+   "prompt": "A Greenland shark can live…",
+   "hint": "",
+   "options": [
+    [
+     "50 years"
+    ],
+    [
+     "150 years"
+    ],
+    [
+     "250+ years"
+    ]
+   ],
+   "right": 2,
+   "fact": [
+    "The longest-living animal with a backbone!"
+   ],
+   "display": {
+    "kind": "emoji",
+    "text": "🦈"
+   },
+   "panel": "shark"
+  },
+  {
+   "type": "quiz",
+   "prompt": "Which one floats in water?",
+   "hint": "",
+   "options": [
+    [
+     "Ice cube",
+     "🧊"
+    ],
+    [
+     "Grape",
+     "🍇"
+    ],
+    [
+     "Marble",
+     "🔮"
+    ]
+   ],
+   "right": 0,
+   "fact": [
+    "Ice is lighter than water!"
+   ],
+   "display": {
+    "kind": "emoji",
+    "text": "💧"
+   },
+   "panel": "tank",
+   "floats": [
+    0
+   ]
+  },
+  {
+   "type": "quiz",
+   "prompt": "Basketball: players per team on court?",
+   "hint": "",
+   "options": [
+    [
+     "5"
+    ],
+    [
+     "6"
+    ],
+    [
+     "7"
+    ]
+   ],
+   "right": 0,
+   "fact": [
+    "Five players each!"
+   ],
+   "panel": "basket"
+  },
+  {
+   "type": "quiz",
+   "prompt": "Capital of Turkey?",
+   "hint": "",
+   "options": [
+    [
+     "Istanbul",
+     "🕌"
+    ],
+    [
+     "Ankara",
+     "🏛️"
+    ],
+    [
+     "Izmir",
+     "⛵"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "Ankara — not Istanbul!"
+   ],
+   "panel": "turkey"
+  },
+  {
+   "type": "quiz",
+   "prompt": "How many bones does a shark have?",
+   "hint": "",
+   "options": [
+    [
+     "0"
+    ],
+    [
+     "100"
+    ],
+    [
+     "200"
+    ]
+   ],
+   "right": 0,
+   "fact": [
+    "Its skeleton is all cartilage!"
+   ],
+   "panel": "sharkhunt"
+  },
+  {
+   "type": "quiz",
+   "prompt": "Which is heavier?",
+   "hint": "",
+   "options": [
+    [
+     "Water",
+     "💧"
+    ],
+    [
+     "Ice",
+     "🧊"
+    ],
+    [
+     "Same",
+     "⚖️"
+    ]
+   ],
+   "right": 0,
+   "fact": [
+    "Ice is lighter — that's why it floats!"
+   ],
+   "prompt2": "A cup of water or the same cup of ice?",
+   "stack": true,
+   "display": {
+    "kind": "emoji",
+    "text": "⚖️"
+   },
+   "panel": "scale",
+   "scale": [
+    "💧",
+    "Water",
+    "🧊",
+    "Ice",
+    0
+   ]
+  },
+  {
+   "type": "quiz",
+   "prompt": "Which one is FALSE?",
+   "hint": "",
+   "options": [
+    [
+     "Honey never spoils"
+    ],
+    [
+     "Goldfish forget in 3 sec"
+    ],
+    [
+     "Octopuses have 3 hearts"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "Goldfish remember for months!"
+   ],
+   "panel": "trio"
+  },
+  {
+   "type": "quiz",
+   "prompt": "Letters in ENCYCLOPEDIA?",
+   "hint": "",
+   "options": [
+    [
+     "11"
+    ],
+    [
+     "12"
+    ],
+    [
+     "13"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "E-N-C-Y-C-L-O-P-E-D-I-A = 12"
+   ]
+  },
+  {
+   "type": "quiz",
+   "prompt": "Which planet has the longest day?",
+   "hint": "",
+   "options": [
+    [
+     "Mercury"
+    ],
+    [
+     "Venus"
+    ],
+    [
+     "Jupiter"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "A day on Venus is longer than its year!"
+   ],
+   "panel": "planets3"
+  }
+ ],
+ "say": {
+  "intro": "Twenty questions, twenty different challenges. Only geniuses get them all! Keep score!",
+  "items": [
+   {
+    "q": "True or false? Bananas grow on trees.",
+    "a": "False! It's a giant herb, not a tree."
+   },
+   {
+    "q": "Quick maths! Nine times seven?",
+    "a": "Sixty-three!"
+   },
+   {
+    "q": "Sushi comes from which country?",
+    "a": "Japan!"
+   },
+   {
+    "q": "Which is bigger, the Sun or the Moon?",
+    "a": "The Sun! It's about four hundred times wider."
+   },
+   {
+    "q": "Whose flag is this?",
+    "a": "Italy! Green, white and red.",
+    "hook": "Four down! Ready for something trickier?"
+   },
+   {
+    "q": "A group of lions is called a…?",
+    "a": "A pride!"
+   },
+   {
+    "q": "What does fragile mean?",
+    "a": "Easily broken!",
+    "hook": "Six done! Like and subscribe so you never miss a quiz!"
+   },
+   {
+    "q": "What's the opposite of ancient?",
+    "a": "Modern!"
+   },
+   {
+    "q": "Smallest to biggest planet?",
+    "a": "Mercury, then Mars, then Earth!",
+    "hook": "Eight down! Now it gets really interesting."
+   },
+   {
+    "q": "What's your body's biggest organ?",
+    "a": "Your skin!"
+   },
+   {
+    "q": "Which spelling is right?",
+    "a": "Definitely! It has finite inside."
+   },
+   {
+    "q": "How long can a Greenland shark live?",
+    "a": "Over two hundred and fifty years!"
+   },
+   {
+    "q": "Which one floats in water?",
+    "a": "The ice cube! Ice is lighter than water.",
+    "hook": "Twelve done! This next one is wild."
+   },
+   {
+    "q": "How many basketball players per team on court?",
+    "a": "Five!"
+   },
+   {
+    "q": "What's the capital of Turkey?",
+    "a": "Ankara! Not Istanbul."
+   },
+   {
+    "q": "How many bones does a shark have?",
+    "a": "Zero! Its skeleton is all cartilage."
+   },
+   {
+    "q": "Which is heavier, a cup of water or a cup of ice?",
+    "a": "Water! Ice is lighter, that's why it floats.",
+    "hook": "Sixteen down! Only the sharpest minds survive."
+   },
+   {
+    "q": "Which one is false?",
+    "a": "Goldfish do remember! For months, not seconds."
+   },
+   {
+    "q": "How many letters in encyclopedia?",
+    "a": "Twelve! Comment your score below!",
+    "hook": "Like and subscribe if you're still with me!"
+   },
+   {
+    "q": "Which planet has the longest day?",
+    "a": "Venus! Its day is longer than its year."
+   }
+  ],
+  "outro": "That's all twenty! See you in the next quiz!"
+ },
+ "voice": [
+  "/home/claude/lq/v1.mp3",
+  "/home/claude/lq/v2.mp3"
+ ],
+ "voice_counts": [
+  21,
+  21
+ ],
+ "hook_voice": "/home/claude/lq/h.mp3"
+}
