@@ -275,10 +275,11 @@ def layout(c, item):
     has_disp = bool(item.get("display"))
     nopt = len(item.get("options", []))
     if c.v:
-        L = dict(head=190, prompt=320, prompt_size=112, prompt_w=W - 100,
+        # Shorts (Aman, 18 Nov): compact header so the puzzle can fill ~90% of the width
+        L = dict(head=150, prompt=226, prompt_size=84, prompt_w=W - 90,
                  disp=(W / 2, 880), disp_h=260, disp_w=W - 120,
-                 opt_box=(60, 1060 if has_disp else 760, W - 60, 1480),
-                 bottom=1520, count=(W / 2, 1600), bar=(160, 1750, W - 160, 1786))
+                 opt_box=(40, 1060 if has_disp else 560, W - 40, 1540),
+                 bottom=1625, count=(W / 2, 1730), bar=(160, 1872, W - 160, 1900), opt_y=1500)
     else:
         L = dict(head=80, prompt=140, prompt_size=86, prompt_w=W - 300,
                  disp=(W / 2, 540), disp_h=200, disp_w=W - 300,
@@ -293,7 +294,7 @@ def option_rects(c, L, n):
     rects = []
     if n == 2:
         if c.v:
-            h = min(300, (bh - 60) / 2)
+            h = min(420, (bh - 60) / 2)
             for i in range(2):
                 cy = y0 + bh / 4 + i * bh / 2
                 rects.append((W2(c), cy, bw - 40, h))
@@ -303,7 +304,7 @@ def option_rects(c, L, n):
                 rects.append((x0 + w / 2 + i * (w + 80), y0 + bh / 2, w, h))
     elif n == 4:
         if c.v:
-            w = (bw - 50) / 2; h = min(270, (bh - 50) / 2)
+            w = (bw - 50) / 2; h = min(420, (bh - 50) / 2)
             for i in range(4):
                 r, k = divmod(i, 2)
                 rects.append((x0 + w / 2 + k * (w + 50), y0 + h / 2 + 10 + r * (h + 50), w, h))
@@ -314,7 +315,7 @@ def option_rects(c, L, n):
                 rects.append((x0 + w / 2 + k * (w + 60), y0 + h / 2 + 10 + r * (h + 40), w, h))
     elif n == 3:
         if c.v:
-            h = min(200, (bh - 60) / 3)
+            h = min(300, (bh - 60) / 3)
             for i in range(3):
                 rects.append((W2(c), y0 + h / 2 + i * (h + 30), bw - 40, h))
         else:
@@ -384,15 +385,15 @@ def blink_at(t, period=3.3):
 
 def draw_hoot_corner(c, im, phase, t, pt):
     if c.spec.get("mascot") is False: return
-    size = 210 if c.v else 190
-    x, y = (130, 205) if c.v else (125, 960)
+    size = 160 if c.v else 190
+    x, y = (112, 112) if c.v else (125, 960)   # Shorts: small, top-left, clear of the question text
     pose, bob = "idle", 0.0
     if phase == "count": pose = "think"
     elif phase == "reveal":
         pose = "cheer"; bob = abs(math.sin(pt * 7)) * 24 * max(0.0, 1 - pt / 2.5)
     else:
         bob = math.sin(t * 2.4) * 5
-    s = eob(t / 0.5) if phase == "ask" else 1
+    s = eob(t / 0.5) if (phase == "ask" and not c.v) else 1
     paste(im, hoot_img(size, pose, blink_at(t + 0.7)), x, y - bob, s)
 
 ANSWER_HINTS = {
@@ -431,7 +432,8 @@ def draw_item(c, idx, t, phase, pt):
         p = pill(f"LEVEL {idx + 1}  ·  {lv}", lcol, 46 if c.v else 40)
     else:
         p = pill(c.spec.get("pill_text") or f"{lab} {idx + 1} / {n_total}", tuple(c.spec.get("style", {}).get("pill", [230, 60, 90])), 46 if c.v else 40)
-    paste(im, p, W / 2, L["head"], eob(t / 0.4) if phase == "ask" else 1)
+    first = c.v and idx == 0 and phase == "ask"   # Shorts: frame 0 is already complete (no fade-in)
+    paste(im, p, W / 2, L["head"], eob(t / 0.4) if (phase == "ask" and not first) else 1)
     if n_total > 1:  # progress dots
         gap = 26 if c.v else 22; r0 = 7 if c.v else 6
         if n_total > 8: gap, r0 = gap * 0.7, r0 * 0.8
@@ -441,7 +443,7 @@ def draw_item(c, idx, t, phase, pt):
             col = c.accent + (255,) if k == idx else ((255, 255, 255, 230) if k < idx else (255, 255, 255, 90))
             d.ellipse((dx0 + k * gap - rr, dy - rr, dx0 + k * gap + rr, dy + rr), fill=col)
     # prompt
-    qa = eo(t / 0.4) if phase == "ask" else 1
+    qa = eo(t / 0.4) if (phase == "ask" and not first) else 1
     size = L["prompt_size"]
     # QUESTION FIRST: show the real question (prompt2 if there is one) from the very first frame, plus how to answer
     ptxt = item["prompt"]; stack = bool(item.get("stack") and item.get("prompt2"))
@@ -471,30 +473,66 @@ def draw_item(c, idx, t, phase, pt):
     if item.get("type") in __import__("eyebrain").DRAW:
         import eyebrain
         lay = Image.new("RGBA", im.size, (0, 0, 0, 0))
-        custom_origin = eyebrain.DRAW[item["type"]](c, lay, item, phase, pt, t)
-        bb = lay.getbbox()
+        if c.v and item.get("autofit", True): bb = True   # Shorts: drawn below with the options on their own layer
+        else:
+            custom_origin = eyebrain.DRAW[item["type"]](c, lay, item, phase, pt, t)
+            bb = lay.getbbox()
         # fill the empty space: scale the whole puzzle up to the free area (same scale every frame of the scene)
-        if bb and item.get("autofit", True):
+        fit = bb and item.get("autofit", True)
+        if fit and c.v:
+            # Shorts (Aman, 18 Nov): the puzzle itself fills ~90% of the width; option boxes go on their own row below it
+            lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); opt = Image.new("RGBA", im.size, (0, 0, 0, 0))
+            # first frame already shows the whole puzzle (entrance animations skipped); puzzles with a timed watch phase
+            # only skip the first 0.5 s so no flash/step is lost
+            t_d = max(t, 0.5 if item["type"] in TIMED else 1.8) if (idx == 0 and phase == "ask") else t
+            eyebrain.OPT = opt
+            try: custom_origin = eyebrain.DRAW[item["type"]](c, lay, item, phase, pt, t_d)
+            finally: eyebrain.OPT = None
+            ref = getattr(c, "_fit", {}).get(idx)
+            if ref is None:
+                lay0 = Image.new("RGBA", im.size, (0, 0, 0, 0)); opt0 = Image.new("RGBA", im.size, (0, 0, 0, 0))
+                tm0 = c.spec.get("timing", {}).get(f"i{idx}", {})
+                eyebrain.OPT = opt0
+                try: eyebrain.DRAW[item["type"]](c, lay0, item, "reveal", 1.5, tm0.get("ask", 6) + c.spec["count_secs"] + 1.5)
+                finally: eyebrain.OPT = None
+                b0 = lay0.getbbox() or lay.getbbox() or (0, 0, W, 10); ob0 = opt0.getbbox()
+                fx0, fx1 = 54, W - 54
+                if ob0:
+                    osc = min((fx1 - fx0) / (ob0[2] - ob0[0]), 180 / (ob0[3] - ob0[1]), 1.6)
+                    oc = (W / 2, L["opt_y"]); fy1 = L["opt_y"] - (ob0[3] - ob0[1]) * osc / 2 - 28
+                else:
+                    osc, oc, fy1 = 1, None, L["bottom"] - 30
+                fy0 = prompt_bottom + 22
+                sc = min((fx1 - fx0) / (b0[2] - b0[0]), (fy1 - fy0) / (b0[3] - b0[1]), 3.0)
+                ref = (b0, sc, (W / 2, (fy0 + fy1) / 2), ob0, osc, oc)
+                if not hasattr(c, "_fit"): c._fit = {}
+                c._fit[idx] = ref
+            b0, sc, (tcx, tcy), ob0, osc, oc = ref
+            crop = lay.crop(b0); crop = crop.resize((max(1, int(crop.width * sc)), max(1, int(crop.height * sc))), Image.LANCZOS)
+            im.paste(crop, (int(tcx - crop.width / 2), int(tcy - crop.height / 2)), crop)
+            if custom_origin:
+                custom_origin = (tcx + (custom_origin[0] - (b0[0] + b0[2]) / 2) * sc, tcy + (custom_origin[1] - (b0[1] + b0[3]) / 2) * sc)
+            if ob0:
+                oc_ = opt.crop(ob0); oc_ = oc_.resize((max(1, int(oc_.width * osc)), max(1, int(oc_.height * osc))), Image.LANCZOS)
+                im.paste(oc_, (int(oc[0] - oc_.width / 2), int(oc[1] - oc_.height / 2)), oc_)
+        elif fit:
             ref = getattr(c, "_fit", {}).get(idx)
             if ref is None:
                 lay0 = Image.new("RGBA", im.size, (0, 0, 0, 0))
                 tm0 = c.spec.get("timing", {}).get(f"i{idx}", {})
                 eyebrain.DRAW[item["type"]](c, lay0, item, "reveal", 1.5, tm0.get("ask", 6) + c.spec["count_secs"] + 1.5)
                 b0 = lay0.getbbox() or bb
-                fx0, fy0, fx1, fy1 = (40, prompt_bottom + 30, W - 40, L["bottom"] - 75) if c.v else (60, prompt_bottom + 20, W - 60, L["bottom"] - 45)
+                fx0, fy0, fx1, fy1 = (60, prompt_bottom + 20, W - 60, L["bottom"] - 45)
                 sc = min((fx1 - fx0) / (b0[2] - b0[0]), (fy1 - fy0) / (b0[3] - b0[1]), 1.45)
                 ref = (b0, max(0.75, sc), ((fx0 + fx1) / 2, (fy0 + fy1) / 2))
                 if not hasattr(c, "_fit"): c._fit = {}
                 c._fit[idx] = ref
             b0, sc, (tcx, tcy) = ref
-            if True:  # always fit & centre in the free area (scale up to fill, down if it would overlap text)
-                crop = lay.crop(b0); crop = crop.resize((int(crop.width * sc), int(crop.height * sc)), Image.LANCZOS)
-                ox_ = int(tcx - crop.width / 2); oy_ = int(tcy - crop.height / 2)
-                im.alpha_composite(crop, (max(0, ox_), max(0, oy_))) if ox_ >= 0 and oy_ >= 0 else im.paste(crop, (ox_, oy_), crop)
-                if custom_origin:
-                    custom_origin = (tcx + (custom_origin[0] - (b0[0] + b0[2]) / 2) * sc, tcy + (custom_origin[1] - (b0[1] + b0[3]) / 2) * sc)
-            else:
-                im.alpha_composite(lay)
+            crop = lay.crop(b0); crop = crop.resize((int(crop.width * sc), int(crop.height * sc)), Image.LANCZOS)
+            ox_ = int(tcx - crop.width / 2); oy_ = int(tcy - crop.height / 2)
+            im.alpha_composite(crop, (max(0, ox_), max(0, oy_))) if ox_ >= 0 and oy_ >= 0 else im.paste(crop, (ox_, oy_), crop)
+            if custom_origin:
+                custom_origin = (tcx + (custom_origin[0] - (b0[0] + b0[2]) / 2) * sc, tcy + (custom_origin[1] - (b0[1] + b0[3]) / 2) * sc)
         else:
             im.alpha_composite(lay)
         d = ImageDraw.Draw(im)
@@ -525,7 +563,7 @@ def draw_item(c, idx, t, phase, pt):
     if phase == "count":
         cs = c.spec["count_secs"]
         nleft = max(1, cs - int(pt)); frac = pt - int(pt)
-        R = 120 if c.v else 80; S = int(R * 2 + 60)
+        R = 100 if c.v else 80; S = int(R * 2 + 60)
         ring = Image.new("RGBA", (S, S), (0, 0, 0, 0)); rd = ImageDraw.Draw(ring)
         rd.ellipse((30, 30, S - 30, S - 30), fill=(255, 255, 255, 235))
         rd.ellipse((14, 14, S - 14, S - 14), outline=(255, 255, 255, 90), width=14)
@@ -574,8 +612,8 @@ def draw_item(c, idx, t, phase, pt):
     mc = c.spec.get("midcta")
     if mc and phase == "reveal" and idx == mc.get("idx"): cta_popup(c, im, pt)
     tm_i = c.spec.get("timing", {}).get(f"i{idx}", {})
-    if idx == 0 and phase == "ask" and tm_i.get("hook") and c.spec.get("hook") and t < tm_i["hook"] + 0.3:
-        hook_banner(c, im, c.spec["hook"], t, tm_i["hook"])
+    if idx == 0 and phase == "ask" and tm_i.get("hook") and c.spec.get("hook") and t < tm_i["hook"] + 0.3 and c.spec.get("hook_banner", False):
+        hook_banner(c, im, c.spec["hook"], t, tm_i["hook"])  # off by default: the hook is voice-over only (Aman, 18 Nov)
     elif idx > 0 and phase == "ask" and c.v and t < 1.9:  # long videos: hooks are SPOKEN (say.items[i].hook), never text banners
         tz = item.get("teaser")
         if any(si.get("hook") for si in c.spec.get("say", {}).get("items", [])): tz = ""  # spoken hooks -> no text cards (Aman, 18 Nov)
@@ -591,6 +629,9 @@ def draw_item(c, idx, t, phase, pt):
     if phase == "ask" and t < 0.55 and not (idx == 0 and tm_i.get("hook")):
         im = transition_in(c, im, t / 0.55, idx)
     return im.convert("RGB")
+
+TIMED = {"memgrid", "missing", "numflash", "cardflip", "diceflash", "shapemiss", "bug", "whereflash", "lightorder", "quickswap",
+         "cups", "changed", "blinks", "moved", "movingcount", "patmem", "order", "split", "zoom", "spinner", "blinkeye", "hidden"}
 
 TEASE_MED = ["Great start! Now it gets tricky!", "Nice! Ready for a twist?", "You're on a roll — keep going!",
              "Level up! You've got this!", "Sharp eyes! Try this one!", "Love it! Next one's sneakier!"]

@@ -71,16 +71,20 @@ DataTransfer + "change" → Save (wait until Save greys out).
 5. Playlist → matching format playlist (Spot the Difference Challenges 🔍 / What Changed? / Odd One Out / Quick Brain Quiz / 20 Eye & Brain Puzzles).
 6. Save (wait until Save greys out), then post + pin "What was your score? 👇" on youtube.com/watch?v=ID.
 ## 9. New-long-video checklist (Aman uploads it himself)
-1. Thumbnail: thumbs/DATE-long.jpg if it exists (else make one with thumb_long.py) → upload on /video/ID/edit.
+1. Thumbnail — **Test & compare (Aman, 18 Nov)**: on /video/ID/edit open the Thumbnail menu → "Test & compare" and upload all three
+   thumbs/DATE-long.jpg, DATE-long-b.jpg, DATE-long-c.jpg (fetch each raw URL by commit SHA → File → DataTransfer into the dialog's
+   input[type=file]) → Done → Save. YouTube runs the test for up to 2 weeks and keeps the thumbnail with the most watch time.
+   If "Test & compare" is not offered (feature not enabled on the channel / not on desktop), upload thumbs/DATE-long.jpg alone and note it in the Log.
+   Missing b/c files → make them with thumb_long4.py / thumb_long2.py (different headline + emoji pair + layout).
 2. Tags (~15, puzzle words), Video language + Title/description language "English", playlist "20 Eye & Brain Puzzles – Full Brain Workouts 🦉", Save.
 3. End screen: End screen → "Import from latest video" (or template "1 video, 1 subscribe": Best for viewer + Subscribe) → Save.
-4. Post + pin "What was your score out of 20? 👇".
+4. Post + pin "What was your score out of 40? 👇" (use the video's puzzle count: 40 from 19 Nov, 20 for older videos).
 5. Re-point that day's live Shorts' related video to this long video.
 
 ## 10. Auto-check (scheduled task "Wit Wonderland – new upload checklist")
 Runs daily at 13:12, 15:12, 17:12, 19:12 and 21:12 IST (12 min after each fixed Shorts slot) on Aman's computer (built-in browser). Each run: list Studio Shorts + Videos published in the last 3 days;
 a video counts as DONE when it has tags (not 0/500), a playlist, language English, a related video (Shorts) / end screen (long), a custom
-thumbnail and a pinned score comment. Do sections 8/9 for anything not done. Never change titles/descriptions, never delete anything.
+thumbnail (long videos from 19 Nov: a running "Test & compare" with 3 thumbnails) and a pinned score comment. Do sections 8/9 for anything not done. Never change titles/descriptions, never delete anything.
 If the browser/computer is unreachable, stop and say so (the next run catches up).
 
 - 2026-11-17: Cz6U2tdEm6A (17 Nov s04) fully done with the checklist above; new playlist "Spot the Difference Challenges 🔍" created.
@@ -102,3 +106,4 @@ If the browser/computer is unreachable, stop and say so (the next run catches up
 - 2026-11-17 23:55 IST: long video Wdc32d-ly2s published (title, description, thumbnail, 15 tags, English, playlist 20 Eye & Brain Puzzles, end screen, pinned score comment); s01-s05 related video re-linked to it.
 - 2026-11-17 23:58 IST: long thumbnail redone with a different LAYOUT (pipeline/thumb_long2.py, odd-one-out grid); recolouring thumb_long.py is not enough. Make each long thumbnail visibly different (layout + headline). When re-uploading, fetch the raw URL by COMMIT SHA (raw.githubusercontent.com/.../<sha>/...) because the main URL is cached; confirm Save is enabled before clicking; the new thumbnail can take up to ~1 minute to show after reload.
 - 2026-11-17 23:58 IST: long thumbnail redone again as high-CTR layout D (pipeline/thumb_long4.py): yellow sunburst, huge black-outlined text ('99% CAN'T FIND IT' + red '1%'), one big 3x3 odd-one-out card, red arrow, big owl. User found earlier designs not clickable — use layout D style by default, vary emojis/headline daily.
+- 2026-11-18: Aman's changes from today: Shorts — puzzle fills ~90% of the width from frame 0, hook is voice-only (no banner); today's 5 Shorts re-rendered with the same voice and replaced on `media` (Buffer posts unchanged, same URLs). Long videos — 40 puzzles (~8.5 min) from the next daily run + "Test & compare" with 3 thumbnails (§9).

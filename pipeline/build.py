@@ -211,7 +211,7 @@ def main():
         # LIKE + SUBSCRIBE badge in the top-left corner, 10 times x 4 s (Aman, 17 Nov)
         raw = out[:-4] + ".nobadge.mp4"; os.replace(out, raw)
         subprocess.run([sys.executable, os.path.join(HERE, "subscribe_overlay.py"), raw, out,
-                        str(spec.get("badge_times", 10)), str(spec.get("badge_secs", 4))], check=True, stdin=subprocess.DEVNULL)
+                        str(spec.get("badge_times", max(10, int(dur(raw) / 50)))), str(spec.get("badge_secs", 4))], check=True, stdin=subprocess.DEVNULL)
         os.remove(raw)
     print(out, round(dur(out), 2), "s", round(os.path.getsize(out) / 1e6, 1), "MB")
 

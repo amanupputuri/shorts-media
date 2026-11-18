@@ -5,9 +5,11 @@ import math
 from PIL import Image, ImageDraw, ImageFilter
 from engine import emoji_img, eob, eo, cl, paste, font, F_BOLD, text_center
 
+OPT = None  # when set (Shorts), option boxes are drawn on this separate layer instead of the puzzle layer
+
 def area(c):
-    # main puzzle box (x0, y0, x1, y1)
-    return (60, 640, c.W - 60, 1460) if c.v else (140, 260, c.W - 140, 900)
+    # main puzzle box (x0, y0, x1, y1); Shorts: wide box so drawers draw near final size (engine fits the puzzle to ~90% width)
+    return (40, 560, c.W - 40, 1500) if c.v else (140, 260, c.W - 140, 900)
 
 def min_ask(item):
     t = item.get("type")
@@ -1335,6 +1337,7 @@ DRAW.update({"blocks": draw_blocks, "dots": draw_dots, "colortrap": draw_colortr
 # ================================================================ CANDIDATES (v3)
 def _opt_row(c, d, item, phase, pt, t, labels, y_v, start=1.4, h_x=None, emojis=None):
     """generic 3-4 option boxes with text labels. returns rects"""
+    if OPT is not None and c.v: d = ImageDraw.Draw(OPT)
     x0, y0, x1, y1 = area(c)
     n = len(labels); rects = []
     for q, o in enumerate(labels):
@@ -1364,7 +1367,8 @@ def draw_spotdiff(c, im, item, phase, pt, t):
     cell = (95 if n == 4 else 120) if c.v else (88 if n == 4 else 110)
     pw = cell * n + 40
     gap = pw + (40 if c.v else 60)
-    panels = [(c.W / 2, y0 + 200), (c.W / 2, y0 + 200 + gap)] if c.v else [(c.W / 2 - gap / 2, (y0 + y1) / 2 + 30), (c.W / 2 + gap / 2, (y0 + y1) / 2 + 30)]
+    if c.v: cell = (c.W - 120) / (2 * n) - 12; pw = cell * n + 24; gap = pw + 24
+    panels = [(c.W / 2 - gap / 2, y0 + 300), (c.W / 2 + gap / 2, y0 + 300)] if c.v else [(c.W / 2 - gap / 2, (y0 + y1) / 2 + 30), (c.W / 2 + gap / 2, (y0 + y1) / 2 + 30)]
     hit = None
     for p, (px, py) in enumerate(panels):
         a = eob((t - 0.2 - 0.3 * p) / 0.4) if phase == "ask" else 1
@@ -1624,6 +1628,7 @@ def _circle_hit(d, cx, cy, rr, pt):
     d.ellipse((cx - rr, cy - rr, cx + rr, cy + rr), outline=(60, 255, 120), width=12)
 
 def _emoji_opts(c, im, d, item, phase, pt, t, start, y_v, x_h=None):
+    if OPT is not None and c.v: im = OPT; d = ImageDraw.Draw(OPT)
     x0, y0, x1, y1 = area(c); opts = item["options"]; n = len(opts)
     for q, o in enumerate(opts):
         ox, oy = (x0 + (x1 - x0) * (q + 0.5) / n, y_v) if c.v else ((x_h or x0 + 1300), y0 + 140 + q * 200)
@@ -2302,8 +2307,8 @@ def draw_shapemiss(c, im, item, phase, pt, t):
 # 59 Spotlight
 def draw_spotlight(c, im, item, phase, pt, t):
     x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
-    S = 520 if c.v else 460
-    cx, cy = (c.W / 2, y0 + 290) if c.v else (x0 + 420, (y0 + y1) / 2 + 30)
+    S = 900 if c.v else 460   # Shorts: drawn big (engine fits it to ~90% width) so the picture stays sharp
+    cx, cy = (c.W / 2, y0 + S / 2) if c.v else (x0 + 420, (y0 + y1) / 2 + 30)
     pic = Image.new("RGBA", (S, S), (250, 245, 230, 255)); e = emoji_img(item["emoji"], int(S * 0.9)); pic.paste(e, (int(S / 2 - e.width / 2), int(S / 2 - e.height / 2)), e)
     dark = Image.new("L", (S, S), 255)
     if phase == "reveal": dark = Image.new("L", (S, S), int(255 * (1 - eo(pt / 0.6))))
@@ -2323,8 +2328,8 @@ def draw_spotlight(c, im, item, phase, pt, t):
 # 60 Pixelated
 def draw_pixel(c, im, item, phase, pt, t):
     x0, y0, x1, y1 = area(c); d = ImageDraw.Draw(im)
-    S = 520 if c.v else 460
-    cx, cy = (c.W / 2, y0 + 290) if c.v else (x0 + 420, (y0 + y1) / 2 + 30)
+    S = 900 if c.v else 460   # Shorts: drawn big (engine fits it to ~90% width) so the picture stays sharp
+    cx, cy = (c.W / 2, y0 + S / 2) if c.v else (x0 + 420, (y0 + y1) / 2 + 30)
     pic = Image.new("RGBA", (S, S), (250, 245, 230, 255)); e = emoji_img(item["emoji"], int(S * 0.9)); pic.paste(e, (int(S / 2 - e.width / 2), int(S / 2 - e.height / 2)), e)
     if phase == "reveal" and pt > 0.3: n = S
     else:

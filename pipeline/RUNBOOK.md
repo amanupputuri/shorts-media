@@ -1,6 +1,6 @@
 # Wit Wonderland — daily puzzle run
 
-Every day this run makes **5 vertical Shorts + 1 horizontal 20-puzzle video** for the YouTube channel
+Every day this run makes **5 vertical Shorts + 1 horizontal 40-puzzle video (~8–10 min)** for the YouTube channel
 Wit Wonderland and schedules them in **Buffer** (through `pipeline/buffer_post.py`; Metricool is no longer used). Work unattended: never stop to ask questions; if a step fails,
 retry once, skip that video, and carry on. Report at the end.
 
@@ -38,7 +38,7 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
   Bad: anything that discourages or mocks ("Most people give up here", "You'll fail this", "Too hard for you"),
   flat labels ("Puzzle 5", "Next one"), or long sentences. Fear-of-failure stats ("99% fail") only when turned
   into a dare the viewer can win ("Only 1% get this — be the 1%!"). Simple words, ages 5–80, ≤ 7 words on screen.
-  · `"hook"` (≤ 7 words) shown over puzzle 1 at second 0 and spoken by Hoot as say.intro. It must promise a payoff at
+  · `"hook"` (≤ 7 words) spoken by Hoot as say.intro while puzzle 1 is already on screen — **voice only, never text over the puzzle (Aman, 18 Nov)**. It must promise a payoff at
     the END and invite them in: "Can you beat all 6? Let's go!", "Stay for puzzle 6 — it's a beauty!",
     "Only sharp eyes get all 6 — you in?", "The last one is my favourite!".
     Read `pipeline/hooks_used.json` (list of {"date","hook","teasers"}). Do NOT reuse a hook from the last 30 days, and
@@ -54,11 +54,11 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
     generate call per Short, voice cPmGMZvsZ24aRiDy6Vc2) and `tools.py fillhooks sNN.json work/TARGET/voice/sNN-hooks.mp3`.
     **MID-VIDEO LIKE ASK (Aman, 18 Nov; every Short and every long video, once):** Hoot asks viewers to like the video so he can
     keep making amazing puzzles. Shorts: `say.items[3].hook` (said after puzzle 3's answer, the middle of the Short).
-    Long video: `say.items[10].hook` (the halfway point; set spec `"midcta": {"idx": 9}` so the LIKE + SUBSCRIBE pop-up shows at
+    Long video: `say.items[20].hook` (the halfway point; set spec `"midcta": {"idx": 19}` so the LIKE + SUBSCRIBE pop-up shows at
     the same moment). ≤ 12 words, warm, reword it every video, e.g. "Enjoying these? Tap like so I can make more puzzles!",
     "If you're having fun, hit like — it helps me make more!", "Smash that like to keep the puzzles coming!".
     Do NOT write `"teaser"` (check fails) — with spoken hooks the old text cliff-hanger cards are switched off.
-    The opening `"hook"` banner at second 0 stays (it is also said as say.intro). Reword hooks every Short, never the same twice in a day.
+    There is no hook banner any more: the opening hook is said as say.intro over the puzzle (engine: `hook_banner` off by default). Reword hooks every Short, never the same twice in a day.
   · **PUZZLE STYLE = the latest long video's style (Aman, 18 Nov):** follow "Question first — FINAL FORMAT" below in every Short
     (prompt = Hoot's q words, `"hint": ""`, two-part questions with `"stack": true`, short answers, find-it reveals with the green ring),
     and for the HARD puzzles use the long video's bigger variants where the format has one (memgrid n 4, missing 9, cardflip 16, numflash 6 digits,
@@ -70,11 +70,12 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
   · Puzzle 6 must be the hardest of the day (genuinely tricky) so the payoff is real and people rewatch.
   RETENTION RULES: no slow start, q lines ≤ 4 words,
   label `"PUZZLE"`. Vary difficulty: easy, medium, tricky.
-- `long.json` — orientation `"h"`, count_secs **4** (Aman, 18 Nov: same 4-second timer as Shorts), label `"PUZZLE"`, **20 puzzles = one each of the 20 formats in step 1's `long_formats` (in that order)**,
-  shuffled order, easy → harder. **Long-video hooks are SPOKEN, never text (Aman, 17 Nov)** — see rule 6 below:
-  `title_card` = {"emoji": "🦉", "line1": "20 PUZZLES", "line2": "", "tag": "Eye & Brain Workout"} (no hook question on the title card),
+- `long.json` — orientation `"h"`, count_secs **4** (Aman, 18 Nov: same 4-second timer as Shorts), label `"PUZZLE"`, **40 puzzles = one each of the 40 entries in step 1's `long_formats` (in that order; all 26 formats once, then 14 of them a second time — make the second one clearly HARDER and different)**.
+  **Aman, 18 Nov: long videos are 8–10 minutes (40 puzzles ≈ 8.5 min) so every view adds about twice the watch time** (monetisation needs 4,000 hours).
+  Easy → harder: puzzles 1–13 easy, 14–27 medium, 28–40 hard. **Long-video hooks are SPOKEN, never text (Aman, 17 Nov)** — see rule 6 below:
+  `title_card` = {"emoji": "🦉", "line1": "40 PUZZLES", "line2": "", "tag": "Eye & Brain Workout"} (no hook question on the title card),
   `say.intro` = a natural, attractive spoken hook (≤ 14 words, HOOK STYLE) that ends with a warm-up line, e.g.
-  "Hoo-hoo! Twenty puzzles, and the best one's at the end. Ready? Let's warm up!" — reword it every day.
+  "Hoo-hoo! Forty puzzles, and the best one's at the end. Ready? Let's warm up!" — reword it every day.
 - Every spec gets: `style` and `music_seed` from step 1 (long video: music_seed + 1), a `title_card`
   {emoji, line1, line2, tag} and `outro` exactly {"line1": "LIKE &", "line2": "SUBSCRIBE!", "line3": "", "cta": "SUBSCRIBE", "cta_sub": "Comment your score below!"},
   and a `say` block: `{"intro": "...", "items": [{"q": "...", "a": "..."}, ...], "outro": "..."}`.
@@ -86,6 +87,11 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
 - After writing each spec run `python3 pipeline/tools.py check FILE`. It prints the **true answer** of every
   puzzle (computed from the drawing data). Make every `a` line and the `fact` lines agree with it. Fix and re-check
   until it prints OK. Never ship a spec whose voice disagrees with `check`.
+
+### Shorts layout (Aman, 18 Nov — engine does this automatically)
+The puzzle fills ~90% of the screen width from the very first frame: compact header (small owl top-left, level pill, one-line question
+if possible), option boxes on their own row under the puzzle, countdown/answer below. No hook text over the puzzle. Keep Short
+prompts short (≤ 24 characters fits on one line and gives the puzzle more room).
 
 ### Question first — FINAL FORMAT (Aman, 17 Nov; applies to every video from now on)
 1. **On screen question = what Hoot says.** `prompt` is exactly Hoot's q line (same words). No "Answer: A, B or C"-style text on screen:
@@ -100,13 +106,13 @@ N = 5 Shorts. Write N+1 spec files in `work/TARGET/`:
 4. **Bug**: `show_arrows: true`; q = "Where does the bug stop? Listen to Hoot! <moves spoken>".
 5. **Fruit Math (long)**: EASY — two fruits only: two equations (A+A=n, A+B=m), ask B+B.
 6. **Long videos — pop-up, spoken hooks, corner badge (Aman, 17 Nov)**:
-   - spec `"midcta": {"idx": 9}` shows a LIKE + SUBSCRIBE pop-up (with bell) over the reveal of puzzle 10, together with the spoken like ask.
+   - spec `"midcta": {"idx": 19}` shows a LIKE + SUBSCRIBE pop-up (with bell) over the reveal of puzzle 20, together with the spoken like ask.
    - **Hooks are voice-over only — NO text banners**: never put `"teaser"` on long-video items (`check` fails; the engine ignores
-     them for long videos). Instead give `say.items[15]` and `say.items[19]` a `"hook"` (say.items[10] is the LIKE ask) (≤ 7 words, attractive + encouraging — see HOOK STYLE — e.g.
+     them for long videos). Instead give `say.items[10]`, `say.items[27]`, `say.items[33]` and `say.items[39]` a `"hook"` (say.items[20] is the LIKE ask) (≤ 7 words, attractive + encouraging — see HOOK STYLE — e.g.
      "Halfway there — you're doing great!", "Tough ones now. You've got this!", "Last one! Finish strong!") — Hoot says it at the end of the previous puzzle's answer screen, which
      is held a little longer for it. The hook before puzzle 1 is the last part of `say.intro` ("…Ready? Let's warm up!").
      Reword the hooks every day; never the same set two days running.
-   - **LIKE + SUBSCRIBE corner badge**: build.py adds it automatically to every long video — top-left, 10 times, 4 s each,
+   - **LIKE + SUBSCRIBE corner badge**: build.py adds it automatically to every long video — top-left, about once every 50 s (≥ 10 times), 4 s each,
      spread from 0:08 to just before the outro (skips the title card and the ending screen). Nothing to write in the spec.
 7. Voice reuse: when only some lines change, regenerate just those lines (generations_count 1, voice cPmGMZvsZ24aRiDy6Vc2) and splice them with
    spec `"voice_override": {"<segment index>": "path.mp3"}` (segment index: intro 0, puzzle i q = 2i-1, a = 2i, 1-based).
@@ -117,7 +123,7 @@ Spot the Difference 4x4, Memory Grid 4x4 ("Watch the flashes"), What's Missing 3
 
 ### Puzzle schemas — the 26 formats (all items also have `prompt` (on-screen question, ≤ 32 characters) and `fact` [line1 ≤ 26 chars, line2 ≤ 34 chars])
 Emoji must be single standard emoji (no flags, no skin tones, no ZWJ sequences). Each Short uses only its own format from `short_formats`;
-the long video uses the 20 formats listed in `long_formats` for the day (one puzzle each); it rotates through all 26.
+the long video uses the 40 entries listed in `long_formats` for the day (one puzzle each; 14 formats appear twice); it rotates through all 26.
 - **odd4** `{"type":"odd4","options":[[label,emoji]x4],"right":i}` — 4 things, one doesn't belong (reason in fact).
 - **twins** `{"type":"twins","seed":n}` any int; answer = check output.
 - **spotdiff** `{"type":"spotdiff","prompt":"Spot the difference!","scene":[9 emoji],"diff":0-8,"alt":e (similar-looking, e.g. 🌼→🌻)}` — **long video: 4x4 = `scene` of 16 different emoji, `diff` 0-15** (Shorts keep 3x3).
@@ -153,16 +159,16 @@ the long video uses the 20 formats listed in `long_formats` for the day (one puz
 - For each Short: `python3 pipeline/tools.py prompt sNN.json` → one `creative_generate_speech` call
   (model `eleven_v4`, voice_id `cPmGMZvsZ24aRiDy6Vc2` (**Professor Hoot**, the channel's owl mascot), generations_count 1, same flow_id).
   Plus one more call per Short for its spoken hooks: `python3 pipeline/tools.py hooks sNN.json` → download to `work/TARGET/voice/sNN-hooks.mp3` → `tools.py fillhooks`.
-- Long video: `python3 pipeline/tools.py prompt long.json 2` → 2 calls (part 1 and part 2), plus
+- Long video: `python3 pipeline/tools.py prompt long.json 4` → 4 calls (parts 1–4; 40 puzzles), plus
   `python3 pipeline/tools.py hooks long.json` → 1 more call for the spoken hooks (download it to `work/TARGET/voice/hooks.mp3`,
   then `python3 pipeline/tools.py fillhooks long.json work/TARGET/voice/hooks.mp3`).
 - Never call generate twice for the same text. Collect generation_ids; read URLs with `creative_get_generations`
   (wait ~20 s first; up to 4 ids per call) and download each with curl to `work/TARGET/voice/`.
-- `python3 pipeline/tools.py fill sNN.json work/TARGET/voice/sNN.mp3` (long: two files in order).
+- `python3 pipeline/tools.py fill sNN.json work/TARGET/voice/sNN.mp3` (long: four files in order).
 
 ## 4. Render
 `python3 pipeline/build.py SPEC work/TARGET/build_NAME out/NAME.mp4` — run at most 2 builds at once.
-Check each output exists, Shorts 55–90 s, long 5–12 min. Grab 3 frames of 2 videos and look at them.
+Check each output exists, Shorts 55–90 s, long 8–11 min. Grab 3 frames of 2 videos and look at them.
 If a split fails ("split failed"), regenerate that one voice once.
 
 ## 5. Host the files
@@ -185,7 +191,11 @@ The long video is for **11:00 IST** (Aman's schedule: day runs 11 AM – 9 PM).
 **Long-video thumbnail (high-CTR style, Aman 17 Nov):** `python3 pipeline/thumb_long4.py thumbs/TARGET-long.jpg "TOP LINE" "BIG" <common emoji> <odd emoji>`
 (e.g. "99% CAN'T FIND IT" "1%" 🐼 🐨; yellow sunburst, huge outlined text, one big odd-one-out card, red arrow, big owl). Change the top line,
 big word and emoji pair EVERY day (look-alike pairs: 🐼/🐨, 🍔/🥪, 🐶/🐺, 🍊/🍑, 🚗/🚕, ⚽/🏀) so no two days look the same; never reuse yesterday's.
-Look at it at phone size (246x138) before using it. Look at it, commit it to **main** under thumbs/, and give Aman its raw URL
+Look at it at phone size (246x138) before using it.
+**Test & compare (Aman, 18 Nov):** make **3 clearly different thumbnails** every day — `thumbs/TARGET-long.jpg` (A), `thumbs/TARGET-long-b.jpg`,
+`thumbs/TARGET-long-c.jpg` — different headline, big word, emoji pair and/or layout (thumb_long4.py for A and B with different text/colours,
+thumb_long2.py or thumb_long3.py for C). Commit all three and give Aman all three raw URLs; the Studio check uploads them with
+"Test & compare" (STUDIO.md §9) so YouTube picks the one with the most watch time. Look at it, commit it to **main** under thumbs/, and give Aman its raw URL
 (https://raw.githubusercontent.com/amanupputuri/shorts-media/main/thumbs/TARGET-long.jpg) with the long video so he sets it as the
 custom thumbnail when uploading.
 **Buffer's YouTube channel only accepts Shorts** (vertical, ≤ 3 min) — do NOT send the long video to Buffer. Put only the
@@ -204,7 +214,7 @@ first comment — the evening Studio task pins the comment and sets the related 
   https://www.youtube.com/channel/UCl870UQHJt9aZCNW-IhK1gA?sub_confirmation=1 ; a "Search: …" line with 10–14 search
   phrases separated by commas (brain teaser, eye test, puzzle game, iq test, can you solve this, wit wonderland, the
   puzzle type names…) in place of tags; then 6–10 hashtags.
-  Long video: list the 20 puzzle types.
+  Long video: list the 40 puzzles, "Comment your score out of 40", title like "40 Eye & Brain Puzzles 🦉 … | Can You Get 40/40?".
 - Save the Buffer post ids + titles + times to `work/TARGET/scheduled.json` and also commit a copy to **main** as
   `pipeline/schedule/TARGET.json` (the evening Studio task reads it).
 

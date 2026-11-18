@@ -28,6 +28,7 @@ NAMES = {"odd4": "Find the Odd One Out", "changed": "What Changed?", "cups": "Fo
          "shapemiss": "Which One Didn't Appear?", "spotlight": "Spotlight", "pixel": "Pixel Guess", "crowd": "Find It in the Crowd",
          "colorcount": "Colour Count", "moved": "What Moved?", "dupnum": "Number Twice"}
 START = datetime.date(2026, 11, 15)
+LONG_N = 40  # puzzles per long video (Aman, 18 Nov: 8-10 minute videos for watch hours)
 THEMES = ["Bath Time", "Breakfast Table", "Christmas", "Winter Snow", "Ocean Life", "Farm Animals", "Jungle Safari",
           "Sweet Treats", "Fruit Market", "Space Adventure", "School Bag", "Birthday Party", "Sports Day", "Toy Box",
           "Bugs & Garden", "Pets at Home"]
@@ -50,7 +51,8 @@ def day_info(date):
             "style": {"palette": [p[0], p[1]], "accent": [255, 210, 60], "pill": p[2], "bg": BGS[n % len(BGS)]},
             "music_seed": n,
             "themes": ([THEMES[(n * 5 + k) % len(THEMES)] for k in range(5)] if fmt in THEMABLE else []),
-            "long_formats": [FORMATS[(n + k) % len(FORMATS)] for k in range(20)],
+            # Aman, 18 Nov: long videos are 40 puzzles (~8-10 min) — all 26 formats once, then 14 of them again (harder)
+            "long_formats": [FORMATS[(n + k) % len(FORMATS)] for k in range(LONG_N)],
             # Aman, 18 Nov: every Short of the day is a DIFFERENT puzzle format (5 per day, rotating, no overlap with yesterday)
             "short_formats": [FORMATS[(n * 5 + k) % len(FORMATS)] for k in range(5)],
             "short_themes": [THEMES[(n * 5 + k) % len(THEMES)] if FORMATS[(n * 5 + k) % len(FORMATS)] in THEMABLE else ""
@@ -198,10 +200,13 @@ if __name__ == "__main__":
         if len(spec.get("say", {}).get("items", [])) != len(spec["items"]): e.append("say.items count != items count")
         if True:  # Aman, 18 Nov: Shorts AND long videos use spoken (voice) hooks, no text teasers
             if spec.get("orientation") == "v" and spec.get("count_secs") != 4: e.append("Shorts use count_secs 4 (Aman, 18 Nov)")
+            if spec.get("orientation") == "h" and len(spec["items"]) != LONG_N: e.append(f"long videos have {LONG_N} puzzles (Aman, 18 Nov: 8-10 min)")
+            if spec.get("orientation") == "h" and (spec.get("midcta") or {}).get("idx") != len(spec["items"]) // 2 - 1:
+                e.append(f"long video: set \"midcta\": {{\"idx\": {len(spec['items']) // 2 - 1}}} (LIKE + SUBSCRIBE pop-up at the halfway point)")
             if spec.get("orientation") == "v" and len([1 for si in spec.get("say", {}).get("items", []) if si.get("hook")]) < 4:
                 e.append("Shorts need 4 spoken hooks: say.items[2], [4], [5] (<= 7 words) + the LIKE ask on say.items[3]")
             # Aman, 18 Nov: once in the middle of EVERY video Hoot asks for a like so he can keep making puzzles
-            mid = 3 if spec.get("orientation") == "v" else 10
+            mid = 3 if spec.get("orientation") == "v" else len(spec["items"]) // 2
             sit = spec.get("say", {}).get("items", [])
             if len(sit) > mid and "like" not in sit[mid].get("hook", "").lower():
                 e.append(f"say.items[{mid}].hook must be the mid-video LIKE ask (<= 12 words), e.g. \"Enjoying this? Tap like so I can make more puzzles!\"")
