@@ -549,7 +549,7 @@ def draw_item(c, idx, t, phase, pt):
         if phase == "reveal":
             st = "right" if k == item["right"] else "wrong"
         delay = (1.0 if item.get("display") else 0.8) + 0.35 * k
-        s = eob((t - delay) / 0.45) if phase == "ask" else 1.0
+        s = eob((t - delay) / 0.45) if (phase == "ask" and not first) else 1.0
         if phase == "reveal" and k == item["right"]:
             s = 1 + 0.07 * math.sin(cl(pt / 0.5) * math.pi)
         if phase == "reveal" and k != item["right"]:
