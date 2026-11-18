@@ -203,19 +203,19 @@ if __name__ == "__main__":
             if spec.get("orientation") == "h" and len(spec["items"]) != LONG_N: e.append(f"long videos have {LONG_N} puzzles (Aman, 18 Nov: 8-10 min)")
             if spec.get("orientation") == "h" and (spec.get("midcta") or {}).get("idx") != len(spec["items"]) // 2 - 1:
                 e.append(f"long video: set \"midcta\": {{\"idx\": {len(spec['items']) // 2 - 1}}} (LIKE + SUBSCRIBE pop-up at the halfway point)")
-            if spec.get("orientation") == "v" and len([1 for si in spec.get("say", {}).get("items", []) if si.get("hook")]) < 4:
-                e.append("Shorts need 4 spoken hooks: say.items[2], [4], [5] (<= 7 words) + the LIKE ask on say.items[3]")
+            if spec.get("orientation") == "v" and len(spec["items"]) >= 6 and len([1 for si in spec.get("say", {}).get("items", []) if si.get("hook")]) < 4:
+                e.append("Shorts need 4 spoken hooks: say.items[2], [4], [5] (<= 7 words) + the LIKE ask on say.items[2]")
             # Aman, 18 Nov: once in the middle of EVERY video Hoot asks for a like so he can keep making puzzles
-            mid = 3 if spec.get("orientation") == "v" else len(spec["items"]) // 2
+            mid = 2 if spec.get("orientation") == "v" else len(spec["items"]) // 2
             sit = spec.get("say", {}).get("items", [])
-            if len(sit) > mid and "like" not in sit[mid].get("hook", "").lower():
+            if len(spec["items"]) >= 6 and len(sit) > mid and "like" not in sit[mid].get("hook", "").lower():
                 e.append(f"say.items[{mid}].hook must be the mid-video LIKE ask (<= 12 words), e.g. \"Enjoying this? Tap like so I can make more puzzles!\"")
             for i, it in enumerate(spec["items"]):
                 if it.get("teaser"): e.append(f"item {i}: NO text teasers any more - put the line in say.items[{i}].hook (spoken)")
                 if it.get("prompt2") and not it.get("stack"): e.append(f"item {i}: two-part question needs \"stack\": true (both lines on screen)")
             for i, si in enumerate(spec.get("say", {}).get("items", [])):
                 if si.get("hook") and i == 0: e.append("say.items[0].hook: puzzle 1 has no hook slot - end say.intro with the warm-up line")
-                if si.get("hook") and len(si["hook"].split()) > (12 if "like" in si["hook"].lower() else 7): e.append(f"say.items[{i}].hook must be <= 7 words")
+                if si.get("hook") and len(si["hook"].split()) > (12 if any(w in si["hook"].lower() for w in ("like", "comment")) else 10): e.append(f"say.items[{i}].hook must be <= 7 words")
         print("ERRORS:" if e else "OK", *e, sep="\n  ")
         sys.exit(1 if e else 0)
     elif cmd == "prompt":

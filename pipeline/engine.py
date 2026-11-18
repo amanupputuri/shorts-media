@@ -291,6 +291,67 @@ def layout(c, item):
         center_stack(c, item, L)
     return L
 
+def anim_sink(c, im, L, item, pt):
+    """Reveal graphic (Aman, 18 Nov): all options drop into a water tank, only the right one sinks."""
+    W = c.W; x0, x1 = W * 0.12, W * 0.88; top = L["pill_y"] - 14; h = 300; bot = top + h; surf = top + 70
+    a0 = eo(pt / 0.35)
+    if a0 <= 0: return
+    lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    d.rounded_rectangle((x0, top, x1, bot), 34, fill=(255, 255, 255, 40), outline=(255, 255, 255, 230), width=8)
+    n = len(item["options"]); cw = (x1 - x0) / n
+    for k, op in enumerate(item["options"]):
+        emo = op[1] if len(op) > 1 else None
+        if not emo: continue
+        e = emoji_img(emo, 120)
+        cx = x0 + cw * (k + 0.5)
+        drop = eo((pt - 0.3 - k * 0.12) / 0.45)
+        y = (top - 160) + (surf - 55 - (top - 160)) * drop
+        if k == item["right"] and pt > 1.0:
+            y = surf - 55 + (bot - 140 - (surf - 55)) * eo((pt - 1.0) / 1.6)
+        elif drop >= 1:
+            y += math.sin(pt * 4 + k) * 6
+        if drop > 0: lay.alpha_composite(e, (int(cx - e.width / 2), int(y)))
+    wl = Image.new("RGBA", im.size, (0, 0, 0, 0)); wd = ImageDraw.Draw(wl)
+    pts = [(x0 + 8, bot - 8)] + [(x0 + 8 + i * (x1 - x0 - 16) / 40, surf + math.sin(pt * 3 + i * 0.6) * 5) for i in range(41)] + [(x1 - 8, bot - 8)]
+    wd.polygon(pts, fill=(70, 170, 255, 120))
+    lay.alpha_composite(wl)
+    if a0 < 1: lay.putalpha(lay.split()[-1].point(lambda v: int(v * a0)))
+    im.alpha_composite(lay)
+
+def anim_spider(c, im, L, item, pt):
+    """Reveal graphic (Aman, 18 Nov): a spider whose 8 legs light up and get counted 1..8."""
+    W = c.W; top = L["pill_y"] - 14; cx, cy = W / 2, top + 150
+    a0 = eo(pt / 0.35)
+    if a0 <= 0: return
+    lay = Image.new("RGBA", im.size, (0, 0, 0, 0)); d = ImageDraw.Draw(lay)
+    order = []
+    for side in (-1, 1):
+        for j in range(4):
+            ang = math.radians([-50, -18, 18, 50][j]); order.append((side, j, ang))
+    order = [o for o in order if o[0] == -1] + [o for o in order if o[0] == 1]
+    f = font(F_BOLD, 40)
+    for n_, (side, j, ang) in enumerate(order):
+        lit = pt > 0.6 + n_ * 0.25
+        col = c.accent if lit else (70, 60, 90)
+        hx, hy = cx + side * 40, cy + (j - 1.5) * 16
+        kx, ky = cx + side * (40 + 110 * math.cos(ang)), cy - 70 + 110 * math.sin(ang) + j * 6
+        fx, fy = cx + side * (40 + 230 * math.cos(ang * 0.6)), cy + 20 + 120 * math.sin(ang) + j * 20
+        d.line([(hx, hy), (kx, ky), (fx, fy)], fill=(20, 15, 40), width=24, joint="curve")
+        d.line([(hx, hy), (kx, ky), (fx, fy)], fill=col, width=14, joint="curve")
+        if lit:
+            t_ = str(n_ + 1); tw = d.textlength(t_, font=f)
+            d.ellipse((fx - 30, fy - 30, fx + 30, fy + 30), fill=(255, 255, 255), outline=(20, 15, 40), width=4)
+            d.text((fx - tw / 2, fy - 26), t_, font=f, fill=(40, 30, 90))
+    d.ellipse((cx - 75, cy - 55, cx + 75, cy + 70), fill=(50, 40, 70), outline=(20, 15, 40), width=6)
+    d.ellipse((cx - 45, cy - 105, cx + 45, cy - 30), fill=(60, 50, 85), outline=(20, 15, 40), width=6)
+    for ex in (-18, 18):
+        d.ellipse((cx + ex - 13, cy - 85, cx + ex + 13, cy - 59), fill=(255, 255, 255))
+        d.ellipse((cx + ex - 6, cy - 78, cx + ex + 6, cy - 66), fill=(20, 15, 40))
+    if a0 < 1: lay.putalpha(lay.split()[-1].point(lambda v: int(v * a0)))
+    im.alpha_composite(lay)
+
+ANIMS = {"sink": anim_sink, "spider": anim_spider}
+
 def center_stack(c, item, L):
     """MASTER STYLE for Shorts quiz/option questions (Aman, 18 Nov): question text, icon, option boxes and the
     timer/answer area are one block, centred horizontally and vertically, with the SAME gap between every part."""
@@ -333,7 +394,7 @@ def center_stack(c, item, L):
     L["rects"] = rects
     L["opt_box"] = (W / 2 - bw / 2, rects[0][1] - oh / 2, W / 2 + bw / 2, rects[-1][1] + oh / 2)
     L["count"] = (W / 2, y + 120); L["bar"] = (160, y + 262, W - 160, y + 288)
-    L["bottom"] = y + 45
+    L["bottom"] = int(y + 45)
     L["pill_y"] = y + 24                     # ANSWER pill (≈48 px tall) sits one gap below the options
     L["fact_top"] = y + 48 + G * 0.5         # fact lines start a half-gap below the pill (tight pair)
     # progress dots: centred between the level pill (head) and the question text
@@ -637,7 +698,9 @@ def draw_item(c, idx, t, phase, pt):
             im.alpha_composite(lay, (0, L["bottom"]))
     elif phase == "reveal":
         fact_y = L["bottom"] + 10 if item.get("fact") else None
-        if c.v and L.get("fact_top") is not None and item.get("fact"):
+        if c.v and L.get("fact_top") is not None and item.get("anim") in ANIMS:
+            ANIMS[item["anim"]](c, im, L, item, pt)
+        elif c.v and L.get("fact_top") is not None and item.get("fact"):
             fl = []
             for k_, ln in enumerate(item["fact"]): fl += [(k_, x_) for x_ in wrap(ln, 66 if k_ == 0 else 54, W - 140)]
             yy = L["fact_top"]
@@ -669,7 +732,7 @@ def draw_item(c, idx, t, phase, pt):
                 ang = i * 2.399; sp = 500 + (i * 53) % 400
                 x = ox + math.cos(ang) * sp * pt; y = oy + math.sin(ang) * sp * pt + 600 * pt * pt
                 d.rectangle((x - 12, y - 6, x + 12, y + 6), fill=cols[i % 4])
-    if phase == "reveal" and fact_y is not None and pt > 0.35:
+    if phase == "reveal" and fact_y is not None and pt > 0.35 and item.get("anim") not in ANIMS:
         a_ = eob((pt - 0.35) / 0.35)
         chip = pill("ANSWER", (40, 190, 90), 38 if c.v else 32)
         paste(im, chip, W / 2, L.get("pill_y", fact_y - (36 if c.v else 30)), a_)

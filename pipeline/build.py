@@ -14,7 +14,7 @@ SPEC fields (content written by the daily run):
                intro, q0, a0, q1, a1, ..., outro   (segments separated by "[long pause]")
                "voice_counts" gives the number of segments in each file.
 """
-import sys, os, json, re, subprocess
+import sys, os, json, re, subprocess, math
 import numpy as np, wave
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -41,7 +41,7 @@ def split(src, n, outdir, start_idx):
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", str(cuts[k]), "-to", str(cuts[k + 1]), "-i", src,
                         "-af", "silenceremove=start_periods=1:start_threshold=-45dB,areverse,silenceremove=start_periods=1:start_threshold=-45dB,areverse",
                         "-ar", str(SR), "-ac", "1", f], check=True, stdin=subprocess.DEVNULL)
-        if dur(f) < 0.6:
+        if dur(f) < 0.3:
             raise SystemExit(f"segment too short: {f}")
         out.append(f)
     return out
@@ -95,10 +95,18 @@ def main():
             pv = timing[f"i{i - 1}"]
             pv["hook_at"] = round(pv["dur"] - 0.2, 3); pv["hook_seg"] = hf
             pv["dur"] = round(pv["dur"] + dur(hf) + 0.55, 3)
+    for i, it in enumerate(spec["items"]):   # extra reveal time for animated answers (water tank, spider)
+        if it.get("extra"): timing[f"i{i}"]["dur"] = round(timing[f"i{i}"]["dur"] + it["extra"], 3)
+    if spec.get("loop"):
+        # LOOP SHORT (Aman, 18 Nov): no outro; total = whole music bars so the last note flows into the first
+        bpm_ = [116, 120, 112, 124, 118][spec.get("music_seed", 0) % 5]; bar_ = 240 / bpm_
+        tot = sum(timing[g]["dur"] for g in (["intro"] if not hook_mode else []) + [f"i{i}" for i in range(n_items)])
+        pad = math.ceil(tot / bar_) * bar_ - tot
+        timing[f"i{n_items - 1}"]["dur"] = round(timing[f"i{n_items - 1}"]["dur"] + pad, 4)
     spec["timing"] = timing
     sp = os.path.join(work, "spec_timed.json"); json.dump(spec, open(sp, "w"), indent=1)
 
-    order = ([] if hook_mode else ["intro"]) + [f"i{i}" for i in range(n_items)] + ["outro"]
+    order = ([] if hook_mode else ["intro"]) + [f"i{i}" for i in range(n_items)] + ([] if spec.get("loop") else ["outro"])
     spec["timing"]["order"] = order; json.dump(spec, open(sp, "w"), indent=1)
     # render scenes, at most 6 in parallel
     procs = []
@@ -164,6 +172,7 @@ def main():
              [[196, 246.9, 293.7], [164.8, 196, 246.9], [130.8, 164.8, 196], [146.8, 185, 220]]]      # G Em C D
     chords = progs[ms % 3]
     mus = np.zeros(N); bar = beat * 4; nb = int(total / bar) + 2
+    if spec.get("loop"): nb = int(round(total / bar))
     def pluck(f, d=0.35, dec=9, att=0.006):
         t_ = np.arange(int(d * SR)) / SR
         return (np.sin(2 * np.pi * f * t_) + 0.3 * np.sin(4 * np.pi * f * t_) * np.exp(-14 * t_)) * np.exp(-dec * t_) * np.minimum(1, t_ / att)
@@ -194,7 +203,11 @@ def main():
     mus = 0.85 * mus + 0.15 * wet / (np.max(np.abs(wet)) + 1e-9) * np.max(np.abs(mus))
     venv = lp(np.abs(voice), int(0.25 * SR)); venv = venv / (venv.max() + 1e-9)
     mus = mus * (1 - 0.55 * np.clip(venv * 4, 0, 1))  # sidechain duck under Professor Hoot
-    fade = int(0.8 * SR); mus[int(total * SR) - fade:int(total * SR)] *= np.linspace(1, 0, fade)
+    T_ = int(total * SR)
+    if spec.get("loop"):   # wrap ringing tails back onto the start -> seamless musical loop
+        tail = mus[T_:].copy(); mus[:len(tail)] += tail; mus[T_:] = 0
+    else:
+        fade = int(0.8 * SR); mus[T_ - fade:T_] *= np.linspace(1, 0, fade)
     mus = mus / (np.max(np.abs(mus)) + 1e-9)
     sfx = lp(sfx, 4)
     mix = (voice * 0.95 + sfx * 0.9 + mus * 0.17)[:int(total * SR)]

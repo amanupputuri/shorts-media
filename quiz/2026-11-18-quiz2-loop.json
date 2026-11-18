@@ -1,0 +1,232 @@
+{
+ "orientation": "v",
+ "count_secs": 4,
+ "label": "QUESTION",
+ "music_seed": 7,
+ "style": {
+  "palette": [
+   [
+    40,
+    70,
+    200
+   ],
+   [
+    110,
+    40,
+    170
+   ]
+  ],
+  "accent": [
+   255,
+   210,
+   60
+  ],
+  "pill": [
+   255,
+   90,
+   140
+  ],
+  "bg": "dots"
+ },
+ "hook": "Only 1 in 100 get 6/6!",
+ "title_card": {
+  "emoji": "🦉",
+  "line1": "6 QUIZ",
+  "line2": "QUESTIONS",
+  "tag": "Brain Quiz"
+ },
+ "outro": {
+  "line1": "LIKE &",
+  "line2": "SUBSCRIBE!",
+  "line3": "",
+  "cta": "SUBSCRIBE",
+  "cta_sub": "Comment your score below!"
+ },
+ "items": [
+  {
+   "type": "quiz",
+   "level": "EASY",
+   "prompt": "Which spelling is right?",
+   "hint": "",
+   "options": [
+    [
+     "Recieve"
+    ],
+    [
+     "Receive"
+    ],
+    [
+     "Receeve"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "I before E, except after C!"
+   ]
+  },
+  {
+   "type": "quiz",
+   "level": "EASY",
+   "prompt": "Opposite of BRAVE?",
+   "hint": "",
+   "options": [
+    [
+     "Strong",
+     "💪"
+    ],
+    [
+     "Scared",
+     "😱"
+    ],
+    [
+     "Calm",
+     "😌"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "Brave ↔ Scared"
+   ]
+  },
+  {
+   "type": "quiz",
+   "level": "MEDIUM",
+   "prompt": "Which one sinks in water?",
+   "hint": "",
+   "options": [
+    [
+     "Apple",
+     "🍎"
+    ],
+    [
+     "Grape",
+     "🍇"
+    ],
+    [
+     "Orange",
+     "🍊"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "Apples and oranges are full of air!"
+   ],
+   "anim": "sink",
+   "extra": 1.6
+  },
+  {
+   "type": "quiz",
+   "level": "MEDIUM",
+   "prompt": "How many legs does a spider have?",
+   "hint": "",
+   "options": [
+    [
+     "6"
+    ],
+    [
+     "8"
+    ],
+    [
+     "10"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "Insects have 6 — spiders have 8!"
+   ],
+   "anim": "spider",
+   "extra": 1.8
+  },
+  {
+   "type": "quiz",
+   "level": "HARD",
+   "prompt": "Capital of Canada?",
+   "hint": "",
+   "options": [
+    [
+     "Toronto",
+     "🏙️"
+    ],
+    [
+     "Ottawa",
+     "🏛️"
+    ],
+    [
+     "Vancouver",
+     "🌲"
+    ]
+   ],
+   "right": 1,
+   "fact": [
+    "Not Toronto — it fools almost everyone!"
+   ]
+  },
+  {
+   "type": "quiz",
+   "level": "HARD",
+   "prompt": "Which animal has blue blood?",
+   "hint": "",
+   "options": [
+    [
+     "Octopus",
+     "🐙"
+    ],
+    [
+     "Shark",
+     "🦈"
+    ],
+    [
+     "Frog",
+     "🐸"
+    ]
+   ],
+   "right": 0,
+   "fact": [
+    "Copper in its blood makes it blue!"
+   ]
+  }
+ ],
+ "say": {
+  "intro": "Only one in a hundred get all six! Let's see if you're the one.",
+  "items": [
+   {
+    "q": "Which spelling is right?",
+    "a": "B, receive! I before E, except after C."
+   },
+   {
+    "q": "What's the opposite of brave?",
+    "a": "Scared! Brave and scared are opposites.",
+    "hook": "Too easy? Wait for number three!"
+   },
+   {
+    "q": "Which one sinks in water?",
+    "a": "The grape! The apple and orange are full of air, so they float.",
+    "hook": "Two down! Like and subscribe so you never miss a quiz!"
+   },
+   {
+    "q": "How many legs does a spider have?",
+    "a": "Eight! Insects have six, spiders have eight.",
+    "hook": "Didn't see that coming? Next one's a classic trap!"
+   },
+   {
+    "q": "What's the capital of Canada?",
+    "a": "Ottawa! Not Toronto, it fools almost everyone.",
+    "hook": "Halfway! Now it gets really hard."
+   },
+   {
+    "q": "Which animal has blue blood?",
+    "a": "The octopus! Copper makes its blood blue.",
+    "hook": "Comment your score below!"
+   }
+  ],
+  "outro": "Ready?"
+ },
+ "loop": true,
+ "voice": [
+  "/home/claude/q7/v.mp3"
+ ],
+ "voice_counts": [
+  14
+ ],
+ "hook_voice": "/home/claude/q7/h.mp3"
+}
