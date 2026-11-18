@@ -242,3 +242,8 @@ first comment — the evening Studio task pins the comment and sets the related 
   push (use `git -c push.negotiate=true push`).
 - Send a short report (SendUserMessage + PushNotification if available): date, the 5 Short formats, how many
   posts scheduled, any failures.
+
+## Mascot (from 18 Nov 2026)
+Professor Hoot is now the brown cartoon owl from assets/hoot2/reference.jpg (graduation cap, round gold glasses,
+patterned scarf). Engine loads sprites from assets/hoot2/<pose>.png (idle, think, point, cheer, wow), falling back to wow.png.
+Use this same owl in thumbnails. New poses: generate in Gemini with the reference image ("same exact character"), cut out with rembg (isnet-anime).

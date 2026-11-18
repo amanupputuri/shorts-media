@@ -949,8 +949,21 @@ def hoot_img(size, pose, blink):
     b = round(blink * 4) / 4
     k = (int(size), pose, b)
     if k not in _hc:
-        import mascot
-        _hc[k] = mascot.hoot(int(size), pose, blink=b)
+        # New mascot (brown owl, grad cap, gold glasses, scarf): PNG sprites in assets/hoot2/<pose>.png,
+        # falling back to wow.png; old code-drawn purple owl only if no sprites exist.
+        import os
+        d = os.path.join(os.path.dirname(__file__), "..", "assets", "hoot2")
+        f = os.path.join(d, f"{pose}.png")
+        if not os.path.exists(f): f = os.path.join(d, "wow.png")
+        if os.path.exists(f):
+            sp = Image.open(f).convert("RGBA"); r = int(size) / max(sp.size)
+            sp = sp.resize((max(1, int(sp.width * r)), max(1, int(sp.height * r))), Image.LANCZOS)
+            box = Image.new("RGBA", (int(size), int(size)), (0, 0, 0, 0))
+            box.alpha_composite(sp, ((int(size) - sp.width) // 2, int(size) - sp.height))
+            _hc[k] = box
+        else:
+            import mascot
+            _hc[k] = mascot.hoot(int(size), pose, blink=b)
     return _hc[k]
 
 def blink_at(t, period=3.3):
