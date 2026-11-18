@@ -334,6 +334,10 @@ def center_stack(c, item, L):
     L["opt_box"] = (W / 2 - bw / 2, rects[0][1] - oh / 2, W / 2 + bw / 2, rects[-1][1] + oh / 2)
     L["count"] = (W / 2, y + 120); L["bar"] = (160, y + 262, W - 160, y + 288)
     L["bottom"] = y + 45
+    L["pill_y"] = y + 24                     # ANSWER pill (≈48 px tall) sits one gap below the options
+    L["fact_top"] = y + 48 + G * 0.5         # fact lines start a half-gap below the pill (tight pair)
+    # progress dots: centred between the level pill (head) and the question text
+    L["dots_y"] = (L["head"] + 28 + L["prompt"] + 10 + size * 0.22) / 2
     L["prompt_size_fixed"] = size
 
 def option_rects(c, L, n):
@@ -485,7 +489,7 @@ def draw_item(c, idx, t, phase, pt):
     if n_total > 1:  # progress dots
         gap = 26 if c.v else 22; r0 = 7 if c.v else 6
         if n_total > 8: gap, r0 = gap * 0.7, r0 * 0.8
-        dx0 = W / 2 - (n_total - 1) * gap / 2; dy = L["head"] + (66 if c.v else 56)
+        dx0 = W / 2 - (n_total - 1) * gap / 2; dy = L.get("dots_y", L["head"] + (66 if c.v else 56))
         for k in range(n_total):
             rr = r0 * (1.5 if k == idx else 1)
             col = c.accent + (255,) if k == idx else ((255, 255, 255, 230) if k < idx else (255, 255, 255, 90))
@@ -633,7 +637,20 @@ def draw_item(c, idx, t, phase, pt):
             im.alpha_composite(lay, (0, L["bottom"]))
     elif phase == "reveal":
         fact_y = L["bottom"] + 10 if item.get("fact") else None
-        for i, ln in enumerate(item.get("fact", [])):
+        if c.v and L.get("fact_top") is not None and item.get("fact"):
+            fl = []
+            for k_, ln in enumerate(item["fact"]): fl += [(k_, x_) for x_ in wrap(ln, 66 if k_ == 0 else 54, W - 140)]
+            yy = L["fact_top"]
+            for j, (k_, ln) in enumerate(fl):
+                a_ = eo((pt - 0.6 - k_ * 0.9) / 0.4)
+                sz = 66 if k_ == 0 else 54
+                if a_ > 0:
+                    lay = Image.new("RGBA", (W, int(sz * 1.6)), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
+                    text_center(ld, ln, W / 2, 6, sz, fill=c.accent if k_ == 0 else (255, 255, 255), stroke=5, maxw=W - 120)
+                    lay.putalpha(lay.split()[-1].point(lambda v: int(v * a_)))
+                    im.alpha_composite(lay, (0, int(yy + (1 - a_) * 20)))
+                yy += sz * 1.25
+        for i, ln in enumerate([] if (c.v and L.get("fact_top") is not None) else item.get("fact", [])):
             a_ = eo((pt - 0.6 - i * 0.9) / 0.4)
             if a_ <= 0: continue
             sz = (84 if i == 0 else 62) if c.v else (60 if i == 0 else 48)
@@ -655,7 +672,7 @@ def draw_item(c, idx, t, phase, pt):
     if phase == "reveal" and fact_y is not None and pt > 0.35:
         a_ = eob((pt - 0.35) / 0.35)
         chip = pill("ANSWER", (40, 190, 90), 38 if c.v else 32)
-        paste(im, chip, W / 2, fact_y - (36 if c.v else 30), a_)
+        paste(im, chip, W / 2, L.get("pill_y", fact_y - (36 if c.v else 30)), a_)
     draw_hoot_corner(c, im, phase, t, pt)
     mc = c.spec.get("midcta")
     if mc and phase == "reveal" and idx == mc.get("idx"): cta_popup(c, im, pt)
