@@ -771,15 +771,15 @@ def panel_photospot(c, im, box, item, phase, t):
     ph = img.crop((int(cx - cw / 2), int(cy - ch / 2), int(cx + cw / 2), int(cy + ch / 2))).resize((bw, bh), Image.BILINEAR)
     R = A + cs
     if t < R:
-        r = bw * item.get("beam", 0.24)
+        r = bw * item.get("beam", 0.13)
         bx = bw * (0.5 + 0.36 * math.sin(t * 0.95 + 0.4)); by = bh * (0.5 + 0.33 * math.sin(t * 1.37 + 1.2))
-        dark = Image.new("L", (bw, bh), 242)
+        dark = Image.new("L", (bw, bh), 255)   # pitch black outside the torch beam (Aman, 18 Nov)
         m = Image.new("L", (bw, bh), 0); m.paste(_beam(r), (int(bx - r), int(by - r)))   # light amount
         dark = ImageChops.subtract(dark, m)
-        blackL = Image.new("RGB", (bw, bh), (6, 6, 14))
+        blackL = Image.new("RGB", (bw, bh), (0, 0, 0))
         lit = ph.point(lambda v: min(255, int(v * 1.12)))
         ph = Image.composite(blackL, lit, dark)
-        gd = ImageDraw.Draw(ph, "RGBA"); gd.ellipse((bx - r * 0.82, by - r * 0.82, bx + r * 0.82, by + r * 0.82), outline=(255, 240, 180, 70), width=6)
+        gd = ImageDraw.Draw(ph, "RGBA"); gd.ellipse((bx - r * 0.82, by - r * 0.82, bx + r * 0.82, by + r * 0.82), outline=(255, 240, 180, 40), width=4)
         for k in range(14):
             a_ = k * 2.4 + t * 0.6; rr = r * (0.2 + 0.6 * ((k * 37) % 100) / 100)
             px, py = bx + math.cos(a_) * rr, by + math.sin(a_ * 1.3) * rr * 0.8
