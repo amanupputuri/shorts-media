@@ -66,9 +66,9 @@
    "photo": "/home/claude/ph/fox.jpg",
    "focus": [
     0.52,
-    0.6
+    0.58
    ],
-   "crop": 2.2,
+   "crop": 2.8,
    "beam": 0.12
   },
   {
@@ -93,8 +93,15 @@
    "panel": "photozoom",
    "photo": "/home/claude/ph/orange.jpg",
    "focus": [
-    0.47,
+    0.5,
     0.55
+   ],
+   "zooms": [
+    12.0,
+    8.0,
+    5.5,
+    3.6,
+    1.0
    ]
   },
   {
@@ -145,8 +152,15 @@
    "panel": "photozoom",
    "photo": "/home/claude/ph/tennis.jpg",
    "focus": [
-    0.42,
-    0.62
+    0.5,
+    0.5
+   ],
+   "zooms": [
+    8.0,
+    5.5,
+    3.8,
+    2.6,
+    0.8
    ]
   },
   {

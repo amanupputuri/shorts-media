@@ -742,10 +742,16 @@ def panel_photozoom(c, im, box, item, phase, t):
             z = math.exp(math.log(Z[k_]) + (math.log(Z[k_ + 1]) - math.log(Z[k_])) * e); blur = math.sin(math.pi * p) * 7
     z *= 1 + 0.015 * math.sin(t * 0.8)                       # tiny breathing drift = "camera" feel
     fx, fy = item.get("focus", [0.5, 0.5]); iw, ih = img.size
-    cw = iw / z; ch = cw * bh / bw
+    zz = max(1.0, z)
+    cw = iw / zz; ch = cw * bh / bw
     if ch > ih: ch = ih; cw = ch * bw / bh
     cx = min(max(fx * iw, cw / 2), iw - cw / 2); cy = min(max(fy * ih, ch / 2), ih - ch / 2)
     ph = img.crop((int(cx - cw / 2), int(cy - ch / 2), int(cx + cw / 2), int(cy + ch / 2))).resize((bw, bh), Image.BILINEAR)
+    if z < 1.0:   # zoom out past the photo edge: whole photo shrinks onto a blurred backdrop of itself
+        full = img.resize((int(bw * z), int(bw * z * ih / iw)), Image.BILINEAR) if iw / ih >= bw / bh else img.resize((int(bh * z * iw / ih), int(bh * z)), Image.BILINEAR)
+        bg = ph.filter(ImageFilter.GaussianBlur(22)).point(lambda v: int(v * 0.55))
+        mk = Image.new("L", full.size, 0); ImageDraw.Draw(mk).rounded_rectangle((0, 0, full.width - 1, full.height - 1), 28, fill=255)
+        bg.paste(full, ((bw - full.width) // 2, (bh - full.height) // 2), mk); ph = bg
     def extra(im_, X, Y, w_, h_):
         if phase == "reveal": return
         d = ImageDraw.Draw(im_); f = font(F_BOLD, 44); t_ = f"ZOOM  {max(1.0, z):.0f}×"
