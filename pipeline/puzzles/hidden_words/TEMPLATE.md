@@ -1,7 +1,7 @@
-# PUZZLE template: "Find All 10 Hidden ___" (Wit Wonderland word-search Short)
+# "PUZZLES CROSS WORD" template: "Find All 10 Hidden ___" (Wit Wonderland word-search Short)
 
 The final, approved style (first published as https://youtube.com/shorts/DpuDss7tRHk).
-When Aman says **"puzzle"**, make a new video in exactly this style with a new theme.
+When Aman says **"puzzles cross word"**, make a new video in exactly this style with a new theme.
 
 ## Format
 - Vertical 1080x1920, 30 fps, about 1:40 (99.7 s), padded to the music bars so it loops.
